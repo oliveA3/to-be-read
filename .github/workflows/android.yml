@@ -41,6 +41,9 @@ jobs:
       - name: Icono y pantalla de inicio
         run: npx capacitor-assets generate --android
 
+      - name: Ver iconos generados
+        run: find android/app/src/main/res -name "ic_launcher*" | sort
+
       - name: Versión y firma
         run: node scripts/configure-android.js
 
