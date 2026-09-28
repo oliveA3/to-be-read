@@ -70,7 +70,7 @@ fs.writeFileSync(gradlePath, g);
 // (p. ej. el fondo), usamos un color sólido para que la compilación no falle.
 (function fixIcons() {
   const res = path.join(root, 'android/app/src/main/res');
-     if (!fs.existsSync(res)) return;
+  if (!fs.existsSync(res)) return;
   const dirs = fs.readdirSync(res).filter(d => d.startsWith('mipmap-'));
   const exists = name => dirs.some(d => fs.readdirSync(path.join(res, d)).some(f => f.replace(/\.[^.]+$/, '') === name));
   let usedColor = false;
