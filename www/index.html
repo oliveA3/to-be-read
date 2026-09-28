@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>To be read</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cpath%20d%3D%22M49%2025c-2-3%202-5%200-8M54%2026c-2-3%202-5%200-8%22%20fill%3D%22none%22%20stroke%3D%22%23b894d0%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Crect%20x%3D%226%22%20y%3D%2247%22%20width%3D%2240%22%20height%3D%229%22%20rx%3D%222%22%20fill%3D%22%235b2a7a%22/%3E%3Cpath%20d%3D%22M9%2051.5h32%22%20stroke%3D%22%23efe4f6%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%3Crect%20x%3D%229%22%20y%3D%2239%22%20width%3D%2235%22%20height%3D%228.5%22%20rx%3D%222%22%20fill%3D%22%23b58bd3%22/%3E%3Cpath%20d%3D%22M12%2043.3h28%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M40%2037c6%200%206%207%200%207%22%20fill%3D%22none%22%20stroke%3D%22%231f1826%22%20stroke-width%3D%223.2%22%20stroke-linecap%3D%22round%22/%3E%3Cellipse%20cx%3D%2229%22%20cy%3D%2233%22%20rx%3D%2213%22%20ry%3D%227%22%20fill%3D%22%231f1826%22/%3E%3Cpath%20d%3D%22M12.5%2025l1-7%205%204.2zM22.5%2022.2l5-3.7.2%207z%22%20fill%3D%22%231f1826%22/%3E%3Ccircle%20cx%3D%2219%22%20cy%3D%2229%22%20r%3D%227.4%22%20fill%3D%22%231f1826%22/%3E%3Cpath%20d%3D%22M14.3%2018.9l.5%203.3%202.2-1.7zM26.6%2020.7l-2.4%201.8%202.6%201.3z%22%20fill%3D%22%23c9a7de%22/%3E%3Cpath%20d%3D%22M14.6%2028.6q1.6%201.4%203.2%200M20.4%2028.6q1.6%201.4%203.2%200%22%20fill%3D%22none%22%20stroke%3D%22%23e9dcf3%22%20stroke-width%3D%221.3%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M18.2%2031.2h1.6l-.8%201z%22%20fill%3D%22%23f2a7c3%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2231%22%20width%3D%2213%22%20height%3D%2217%22%20rx%3D%223.5%22%20fill%3D%22%237f47a3%22/%3E%3Cpath%20d%3D%22M59%2035.5c4%200%204%207.5%200%207.5%22%20fill%3D%22none%22%20stroke%3D%22%237f47a3%22%20stroke-width%3D%222.6%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2231%22%20width%3D%2213%22%20height%3D%223.4%22%20rx%3D%221.7%22%20fill%3D%22%235b2a7a%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --parch:#ece3ef; --parch2:#f8f3f8; --parch3:#e3d6e9;
+  --ink:#2a1d33; --ink2:#6b587a; --line:#cbb8d5;
+  --lilac:#9a73b8; --plum:#5b2a7a; --plum2:#7f47a3; --star:#8b58b3; --star0:#dccde4;
+  --font-title:'Fraunces',Georgia,serif;
+  --font-body:'DM Sans',system-ui,-apple-system,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%}
+button,label,[role=button]{touch-action:manipulation;user-select:none;-webkit-user-select:none}
+body{
+  margin:0;background-color:var(--parch);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.35;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,rgba(255,250,255,.75),transparent 55%),
+    radial-gradient(ellipse at 100% 100%,rgba(120,70,160,.2),transparent 55%);
+  min-height:100vh;
+}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+.app{max-width:520px;margin:0 auto;padding:18px 16px 110px}
+
+/* Cabecera */
+.head .top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:6px}
+.head h1{font-family:var(--font-title);font-weight:600;font-size:36px;margin:0;letter-spacing:-.5px;line-height:1.05;color:var(--plum)}
+.head .top{justify-content:space-between;align-items:center;gap:12px}
+.head h1{white-space:nowrap;font-size:clamp(24px,7.4vw,34px)}
+.brand{display:flex;align-items:center;gap:6px;min-width:0;flex:1 1 auto}
+.logo{width:50px;height:50px;flex:none;margin-left:-6px}
+.brand h1{min-width:0}
+.tr{display:flex;align-items:center;gap:4px;flex:none}
+.tr .count{font-size:13.5px;display:flex;flex-direction:column;align-items:flex-end;line-height:1.25}
+.gear{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--ink2);flex:none}
+.gear:active{background:var(--parch3)}
+.sharetxt{width:100%;height:46vh;min-height:220px;resize:none;border:1.5px solid var(--line);border-radius:12px;padding:12px;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#fff;color:var(--ink);white-space:pre-wrap;overflow:auto;outline:0}
+.chk{display:flex;gap:8px;flex-wrap:wrap}
+.chk .chip[aria-pressed="true"]{background:var(--plum);border-color:var(--plum);color:#f8f0fb}
+.count{font-size:15px;color:var(--ink2);white-space:nowrap}
+.count{text-align:right}
+.count i{font-style:normal;margin:0 6px;color:var(--line)}
+.rule{height:1px;margin:12px 0 14px;background:linear-gradient(90deg,transparent,var(--lilac),transparent);opacity:.7}
+
+.search{display:flex;align-items:center;gap:8px;background:var(--parch2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;box-shadow:inset 0 1px 3px rgba(70,30,100,.12)}
+.search input{flex:1;border:0;background:transparent;outline:0;font-size:16px;min-width:0}
+.search input::placeholder{color:#9b89a8;font-style:italic}
+.search svg{flex:none;color:var(--ink2)}
+.chips{display:flex;gap:8px;margin:12px 0 4px;align-items:center;flex-wrap:wrap}
+.chip{padding:5px 14px;border:1px solid var(--line);border-radius:999px;background:transparent;font-size:15px;color:var(--ink2)}
+.chip[aria-pressed="true"]{background:var(--plum);border-color:var(--plum);color:#f8f0fb}
+.chip.filt{margin-left:auto;display:flex;align-items:center;gap:6px}
+.chip.filt.on{border-color:var(--plum2);color:var(--plum2)}
+
+/* Lista */
+.list{margin-top:8px}
+.card{background:var(--parch2);border:1px solid var(--line);border-radius:8px;margin:0 0 12px;
+  box-shadow:0 1px 4px rgba(60,25,85,.12);overflow:hidden;content-visibility:auto;contain-intrinsic-size:auto 76px}
+.card.uni{background:var(--parch3);border-color:#b99bcb;box-shadow:0 2px 6px rgba(60,25,85,.16)}
+.card.uni .card{margin:0 8px 10px}
+.card.done{opacity:.72}
+.ghead{display:flex;align-items:center;gap:10px;padding:13px 10px 13px 14px;width:100%;text-align:left;cursor:pointer}
+.ghead .ttl{flex:1;min-width:0}
+.gname{font-family:var(--font-title);font-weight:600;font-size:18px;line-height:1.2}
+.gmeta{color:var(--ink2);font-size:14px}
+.gside{display:flex;flex-direction:column;align-items:flex-end;gap:1px;font-size:13px;color:var(--ink2)}
+.chev{transition:transform .2s;color:var(--lilac);flex:none}
+.open>.ghead .chev{transform:rotate(90deg)}
+.pen{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--plum2);border:1px solid var(--line);background:rgba(255,255,255,.5)}
+.pen:active{background:var(--parch3)}
+.gbody{display:none;border-top:1px dashed var(--line);padding:2px 0 6px}
+.open>.gbody{display:block}
+.card.uni>.gbody{padding-top:10px}
+
+.row{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 14px;position:relative}
+.row+.row{border-top:1px dotted var(--line)}
+.list>.row{background:var(--parch2);border:1px solid var(--line);border-radius:8px;margin:0 0 12px;
+  box-shadow:0 1px 4px rgba(60,25,85,.12);content-visibility:auto;contain-intrinsic-size:auto 74px}
+.list>.row+.row{border-top:1px solid var(--line)}
+.seal{flex:none;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--lilac);display:grid;place-items:center;color:transparent;background:radial-gradient(circle at 35% 30%,#fff,#eadff0)}
+.seal svg{width:16px;height:16px}
+.read .seal{background:radial-gradient(circle at 35% 30%,var(--plum2),var(--plum));border-color:#3f1a57;color:#f5e9fb}
+.cov{flex:none;width:36px;height:52px;border-radius:4px;border:1px solid var(--line);background:linear-gradient(145deg,#b894d0,#6d3c90);display:grid;place-items:center;color:#f6ecfb;font-family:var(--font-title);font-weight:600;font-size:19px;overflow:hidden;box-shadow:1px 2px 4px rgba(60,25,85,.3)}
+.cov img{width:100%;height:100%;object-fit:cover;display:block}
+.bt{flex:1;min-width:0}
+.btitle{font-family:var(--font-title);font-weight:600;font-size:16px;line-height:1.2}
+.bauth{color:var(--ink2);font-size:14px}
+.read .btitle,.read .bauth{text-decoration:line-through;text-decoration-color:var(--plum2);text-decoration-thickness:1.5px;color:#8c7b98}
+.ord{font-family:var(--font-title);font-weight:600;color:var(--lilac);width:20px;text-align:center;flex:none;font-size:16px}
+.br{flex:none;text-align:right;font-size:14px;color:var(--ink2);padding:6px 0 6px 6px;margin:-6px 0}
+.br .add{color:var(--lilac);font-size:14px;border:1px dashed var(--line);border-radius:999px;padding:2px 8px}
+
+.st{position:relative;display:inline-block;color:var(--star0);font-family:Arial,sans-serif;line-height:1}
+.st b{position:absolute;left:0;top:0;overflow:hidden;color:var(--star);font-weight:400;white-space:nowrap}
+.stars{display:inline-flex;font-size:14px;letter-spacing:1px}
+.empty{text-align:center;color:var(--ink2);padding:40px 20px}
+
+/* FAB + menú */
+.fab{position:fixed;right:18px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,var(--plum2),var(--plum));color:#f8eefc;display:grid;place-items:center;
+  border:2px solid #3f1a57;box-shadow:0 4px 12px rgba(50,15,75,.4),inset 0 0 0 3px rgba(248,238,252,.22);z-index:20}
+.fab svg{transition:transform .2s}
+.fab.on svg{transform:rotate(45deg)}
+.menu{position:fixed;right:18px;bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--parch2);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 8px 20px rgba(50,15,75,.28);z-index:20;display:none;min-width:230px;padding:6px}
+.menu.on{display:block;animation:pop .18s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.menu button{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 10px;font-size:16px;border-radius:8px}
+.menu button:active{background:var(--parch3)}
+.menu .ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;flex:none}
+
+/* Hoja inferior */
+.back{position:fixed;inset:0;background:rgba(35,15,50,.5);z-index:30;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility 0s .22s}
+.back.on{opacity:1;visibility:visible;transition:opacity .22s ease}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:92%;overflow:auto;z-index:31;
+  background:var(--parch2);border-radius:18px 18px 0 0;padding:0 18px calc(22px + env(safe-area-inset-bottom,0px));
+  transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.3,1);box-shadow:0 -8px 24px rgba(35,15,50,.35)}
+.sheet{contain:layout paint;overscroll-behavior:contain;will-change:transform;backface-visibility:hidden}
+.sheet.on{transform:translate3d(0,0,0)}
+.menu,.fab,.toast{will-change:transform,opacity}
+.hero{margin:0 -18px 6px;padding:10px 18px 18px;color:#fbf4fe;position:relative;overflow:hidden;
+  background:radial-gradient(circle at 85% -20%,rgba(255,255,255,.28),transparent 45%),linear-gradient(135deg,var(--plum2),var(--plum) 70%,#43195d)}
+.hero::after{content:"";position:absolute;right:-30px;bottom:-40px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(255,255,255,.15);box-shadow:0 0 0 18px rgba(255,255,255,.05)}
+.grip{width:44px;height:5px;border-radius:5px;background:rgba(255,255,255,.55);margin:0 auto 12px}
+.hero{touch-action:none;cursor:grab}
+.sheet.drag{transition:none}
+.back.drag{transition:none}
+.hrow{display:flex;gap:14px;align-items:center;position:relative;z-index:1}
+.medal{flex:none;width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);display:grid;place-items:center}
+.hero .cov{width:62px;height:90px;font-size:32px;border-color:rgba(255,255,255,.4);background:linear-gradient(145deg,#caa9e0,#8a55ad);box-shadow:3px 5px 12px rgba(20,5,30,.4)}
+.hero h2{font-family:var(--font-title);font-weight:600;font-size:24px;margin:0;line-height:1.1}
+.hero .hs{opacity:.85;font-size:15px;margin-top:2px;overflow-wrap:anywhere}
+.covbtn{margin-top:8px;display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff}
+.lead{color:var(--ink2);margin:10px 0 0}
+.f{margin:14px 0}
+.f label,.lbl{display:block;font-size:12px;color:var(--ink2);margin-bottom:5px;letter-spacing:.6px;text-transform:uppercase;font-weight:600}
+.f input[type=text],.f input[type=number],.f select{width:100%;padding:10px 12px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:16px;outline:0;transition:border-color .15s,box-shadow .15s}
+.f input:focus,.f select:focus{border-color:var(--plum2);box-shadow:0 0 0 3px rgba(127,71,163,.18)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two.pair{grid-template-columns:minmax(0,1fr) 104px}
+.two.pair.solo{grid-template-columns:minmax(0,1fr)}
+.fromfile{display:flex;align-items:center;gap:12px;margin:14px 0 4px;padding:12px 14px;border:1.5px dashed var(--lilac);border-radius:12px;background:#fff;cursor:pointer}
+.fromfile:active{background:var(--parch3)}
+.fromfile.done{border-style:solid;border-color:var(--plum2);background:#f6effa}
+.filled{animation:fill 1.2s ease}
+@keyframes fill{0%{background:#eadcf5;border-color:var(--plum2)}100%{background:#fff}}
+.fromfile .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--parch3);color:var(--plum2);flex:none}
+.fromfile b{font-weight:600;display:block}.fromfile small{color:var(--ink2);font-size:13px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--parch3);border-radius:12px;padding:4px;gap:4px}
+.seg button{padding:9px;border-radius:9px;font-size:15px;color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s,color .15s}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--plum);box-shadow:0 1px 4px rgba(60,25,85,.2);font-weight:600}
+.box{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px}
+.rate{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rs{position:relative;display:inline-block;font-family:Arial,sans-serif;line-height:1;color:var(--star0);font-size:36px;margin-right:2px}
+.rs b{position:absolute;left:0;top:0;overflow:hidden;color:var(--star);font-weight:400;white-space:nowrap;pointer-events:none}
+.rs .h{position:absolute;top:-6px;bottom:-6px;width:50%}
+.rs .h.l{left:0}.rs .h.r{right:0}
+.rate .val{font-family:var(--font-title);font-weight:600;font-size:20px;min-width:34px;color:var(--plum)}
+.mini{font-size:14px;color:var(--plum2);text-decoration:underline;text-underline-offset:3px}
+.btns{display:flex;gap:10px;margin-top:20px}
+.btn{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--line);font-size:16px;font-weight:500;text-align:center;background:#fff}
+.btn.main{background:linear-gradient(135deg,var(--plum2),var(--plum));border-color:var(--plum);color:#fff;box-shadow:0 3px 10px rgba(91,42,122,.35)}
+.btn.del{flex:none;border-color:#b4577a;color:#9c2f58;padding:12px 14px;transition:all .15s}
+.btn.del.arm{background:#9c2f58;color:#fff;border-color:#9c2f58}
+.hint{font-size:13px;color:var(--ink2);margin-top:5px}
+.toast{font-size:15px;position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#fbf4fe;padding:9px 16px;border-radius:10px;z-index:40;opacity:0;pointer-events:none;transition:opacity .25s;max-width:88%;text-align:center}
+.toast.on{opacity:1}
+.gbody .row.urow{background:var(--parch2);border:1px solid var(--line);border-radius:8px;margin:0 6px 8px}
+.gbody .row.urow+.row,.gbody .card+.row.urow{border-top:1px solid var(--line)}
+.vh{position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0}
+.menu label{display:flex;gap:12px;align-items:center;width:100%;padding:10px;font-size:16px;border-radius:8px;cursor:pointer}
+.menu label:active{background:var(--parch3)}
+.gbody .row{gap:8px;padding:8px 8px 8px 10px}
+.gbody .cov{width:30px;height:44px;font-size:16px}
+.gbody .seal{width:26px;height:26px}
+.gbody .pen,.card .card .ghead .pen{width:30px;height:30px}
+.gbody .ord{width:14px}
+.card.uni .card{margin:0 6px 8px}
+.card .card .ghead{padding-left:10px;gap:8px}
+.sec{font-size:12px;letter-spacing:.6px;text-transform:uppercase;font-weight:600;color:var(--ink2);margin:18px 2px 6px}
+.group{background:#fff;border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
+.srow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;cursor:pointer;font-size:16px}
+.srow+.srow{border-top:1px solid var(--parch3)}
+.stx{flex:1;min-width:0}.stx small{display:block;color:var(--ink2);font-size:13px;margin-top:1px}
+.sic{color:var(--plum2);font-size:18px;flex:none}
+.srow.danger .wl{color:#9c2f58}
+.srow.danger.arm{background:#9c2f58;color:#fff;justify-content:center;font-weight:600}
+.ssel{flex:none;max-width:52%;padding:7px 10px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:15px;outline:0}
+.switch{flex:none;width:46px;height:28px;border-radius:999px;background:var(--star0);position:relative;transition:background .2s}
+.switch span{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch[aria-checked="true"]{background:var(--plum2)}
+.switch[aria-checked="true"] span{transform:translateX(18px)}
+:focus-visible{outline:2px solid var(--plum2);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <div class="top"><div class="brand"><svg class="logo" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M49 25c-2-3 2-5 0-8M54 26c-2-3 2-5 0-8" fill="none" stroke="#b894d0" stroke-width="2" stroke-linecap="round"/><rect x="6" y="47" width="40" height="9" rx="2" fill="#5b2a7a"/><path d="M9 51.5h32" stroke="#efe4f6" stroke-width="1.6" stroke-linecap="round"/><rect x="9" y="39" width="35" height="8.5" rx="2" fill="#b58bd3"/><path d="M12 43.3h28" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M40 37c6 0 6 7 0 7" fill="none" stroke="#1f1826" stroke-width="3.2" stroke-linecap="round"/><ellipse cx="29" cy="33" rx="13" ry="7" fill="#1f1826"/><path d="M12.5 25l1-7 5 4.2zM22.5 22.2l5-3.7.2 7z" fill="#1f1826"/><circle cx="19" cy="29" r="7.4" fill="#1f1826"/><path d="M14.3 18.9l.5 3.3 2.2-1.7zM26.6 20.7l-2.4 1.8 2.6 1.3z" fill="#c9a7de"/><path d="M14.6 28.6q1.6 1.4 3.2 0M20.4 28.6q1.6 1.4 3.2 0" fill="none" stroke="#e9dcf3" stroke-width="1.3" stroke-linecap="round"/><path d="M18.2 31.2h1.6l-.8 1z" fill="#f2a7c3"/><rect x="46" y="31" width="13" height="17" rx="3.5" fill="#7f47a3"/><path d="M59 35.5c4 0 4 7.5 0 7.5" fill="none" stroke="#7f47a3" stroke-width="2.6"/><rect x="46" y="31" width="13" height="3.4" rx="1.7" fill="#5b2a7a"/></svg><h1 data-t="app">To be read</h1></div><div class="tr"><div class="count" id="count"></div><button class="gear" id="sharebtn" aria-label="Compartir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></button><button class="gear" id="gear" aria-label="Ajustes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div></div>
+    <div class="rule"></div>
+    <label class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
+      <input id="q" type="search" placeholder="Buscar título, autor, saga…" autocomplete="off">
+    </label>
+    <div class="chips" id="chips"></div>
+  </header>
+  <main class="list" id="list"></main>
+</div>
+
+<div class="menu" id="menu">
+  <button data-a="new-book"><span class="ic" style="background:#7f47a3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg></span><span data-t="book">Libro</span></button>
+  <button data-a="new-saga"><span class="ic" style="background:#9a5fb8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="M15.5 5.5l3.8-1 3 15.4-3.8 1z"/></svg></span><span data-t="saga">Saga</span></button>
+  <button data-a="new-uni"><span class="ic" style="background:#5b2a7a"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/></svg></span><span data-t="universe">Universo</span></button>
+</div>
+<button class="fab" id="fab" aria-label="Añadir"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+<input type="file" id="file" class="vh">
+<input type="file" id="covfile" accept="image/*" class="vh">
+<input type="file" id="jsonfile" accept=".json,application/json" class="vh">
+<div class="back" id="back"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const KEY='por-leer-v2',SKEY='por-leer-ajustes';
+/* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
+const VERSION='0.1.1',BUILD=3;
+/* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
+const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
+async function nativeShareFile(name,text){
+  await CAP.Filesystem.writeFile({path:name,data:text,directory:'CACHE',encoding:'utf8'});
+  const {uri}=await CAP.Filesystem.getUri({path:name,directory:'CACHE'});
+  try{await CAP.Share.share({title:name,files:[uri]})}catch(e){if(/cancel/i.test(String(e&&e.message)))return;await CAP.Share.share({title:name,url:uri})}
+}
+const initial=t=>esc((String(t||'').trim()[0]||'·').toUpperCase());
+
+/* ---------- ajustes ---------- */
+const DEF={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en',sort:'alpha',readLast:true,half:true,autoOpen:false};
+let CFG=(()=>{try{return Object.assign({},DEF,JSON.parse(localStorage.getItem(SKEY)||'{}'))}catch(e){return {...DEF}}})();
+function saveCfg(){try{localStorage.setItem(SKEY,JSON.stringify(CFG))}catch(e){}}
+let coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});
+
+/* ---------- textos ---------- */
+const pl=(n,a,b)=>`${n} ${n===1?a:b}`;
+const I18N={
+ es:{
+  app:'To be read',search:'Buscar título, autor, saga…',all:'Todos',unread:'Sin leer',read:'Leídos',filters:'Filtros',
+  pending:'pendientes',readN:'leídos',
+  book:'Libro',saga:'Saga',universe:'Universo',fromFile:'Rellenar desde un archivo',fromFileD:'.epub o .pdf: título, autor, saga y portada',fileRead:'Datos leídos ✓ Revisa y edita lo que quieras',fileChange:'toca para usar otro archivo',add:'Añadir',settings:'Ajustes',
+  rate:'☆ valorar',markRead:'Marcar como leído',markUnread:'Marcar como no leído',editBook:'Editar libro',editSaga:'Editar saga',editUni:'Editar universo',
+  avg:'media',readOf:(a,b)=>`${a}/${b} leídos`,sagas:n=>pl(n,'saga','sagas'),books:n=>pl(n,'libro','libros'),looseBooks:n=>pl(n,'libro suelto','libros sueltos'),
+  empty:'vacío',emptyBody:'Aún vacío',noBooks:'Sin libros todavía',
+  noMatch:'Ningún libro coincide con estos filtros.',emptyList:'Tu lista está vacía. Pulsa + para añadir tu primer libro.',
+  newBook:'Nuevo libro',addCover:'Añadir portada',removeCover:'Quitar portada',detected:'Datos detectados en el archivo. Revísalos antes de guardar.',
+  title:'Título',author:'Autor',status:'Estado',toRead:'Por leer',isRead:'Leído',rating:'Valoración',halfHint:'Toca la mitad izquierda de una estrella para media.',
+  noSaga:'Sin saga',newSagaOpt:'Nueva saga…',sagaNo:'Número',none:'Ninguno',uniOrder:'Orden',newSagaName:'Nombre de la nueva saga',
+  del:'Eliminar',sure:'¿Seguro?',cancel:'Cancelar',save:'Guardar',create:'Crear',
+  bookDeleted:'Libro eliminado',missTitle:'Falta el título',missName:'Falta el nombre',unknown:'Autor desconocido',saved:'Cambios guardados',bookAdded:'Libro añadido',
+  yourRating:'Tu valoración',ratingSaved:'Valoración guardada',
+  newSaga:'Nueva saga',inSaga:n=>`${pl(n,'libro','libros')} en esta saga`,sagaSub:'Agrupa libros en orden de lectura',name:'Nombre',order:'Orden',sagaRating:'Valoración de la saga',
+  autoHint:'Automática: media de los libros valorados. Toca las estrellas para fijarla a mano.',manual:'Fijada a mano.',backAvg:'Volver a la media',
+  sagaDeleted:'Saga eliminada; sus libros quedan sueltos',sagaUpd:'Saga actualizada',sagaNew:'Saga creada',
+  newUni:'Nuevo universo',uniSub:'Un mundo con sagas y libros sueltos',uniDeleted:'Universo eliminado; su contenido queda suelto',uniUpd:'Universo actualizado',uniNew:'Universo creado',
+  filtSub:'Afina lo que ves en la lista',minRating:'Valoración mínima',clear:'Limpiar',apply:'Aplicar',
+  pickFile:'Elige un archivo .epub o .pdf',reading:'Leyendo el archivo…',detectedT:'Datos detectados',noMeta:'No pude leer los metadatos; rellénalos a mano',noImg:'No pude leer la imagen',
+  stars:n=>`${n} estrellas`,remove:'Quitar',
+  setSub:'Personaliza tu biblioteca',done:'Listo',language:'Idioma',list:'Lista',sortBy:'Ordenar por',sAlpha:'Nombre (A–Z)',sRecent:'Añadidos recientemente',sRating:'Mejor valorados',
+  readLast:'Leídos al final',readLastD:'Lo ya terminado baja al fondo de la lista',half:'Medias estrellas',halfD:'Permite valorar con 3,5, 4,5…',
+  autoOpen:'Abrir sagas y universos',autoOpenD:'Mostrarlos desplegados al abrir la app',
+  data:'Tus datos',export:'Exportar copia de seguridad',exportD:'Descarga un archivo .json con toda tu lista',importB:'Importar copia de seguridad',importD:'Reemplaza la lista actual por la del archivo',
+  wipe:'Borrar todos los datos',wipeD:'Deja la lista vacía. No se puede deshacer',wipeSure:'Toca otra vez para borrar',wiped:'Lista borrada',
+  exported:'Copia descargada',noExport:'No se pudo descargar la copia aquí',imported:'Copia importada',badBackup:'Ese archivo no es una copia válida',
+  about:'Acerca de',version:'Versión',stats:(b,s,u)=>`${pl(b,'libro','libros')} · ${pl(s,'saga','sagas')} · ${pl(u,'universo','universos')}`,
+  storage:'Los datos se guardan solo en este dispositivo.',
+  share:'Compartir lista',shareSub:'Tu lista en texto, lista para enviar',shareNow:'Compartir',copy:'Copiar',saveTxt:'Guardar .txt',copied:'Lista copiada',noCopy:'No se pudo copiar; mantén pulsado el texto para copiarlo',shareTitle:'To be read',incl:'Incluir',incUnread:'Sin leer',incRead:'Leídos',shareD:'Envía tu lista en texto por WhatsApp u otra app'
+ },
+ en:{
+  app:'To be read',search:'Search title, author, series…',all:'All',unread:'Unread',read:'Read',filters:'Filters',
+  pending:'to read',readN:'read',
+  book:'Book',saga:'Series',universe:'Universe',fromFile:'Fill in from a file',fromFileD:'.epub or .pdf: title, author, series and cover',fileRead:'Details read ✓ Check and edit anything',fileChange:'tap to use another file',add:'Add',settings:'Settings',
+  rate:'☆ rate',markRead:'Mark as read',markUnread:'Mark as unread',editBook:'Edit book',editSaga:'Edit series',editUni:'Edit universe',
+  avg:'avg',readOf:(a,b)=>`${a}/${b} read`,sagas:n=>pl(n,'series','series'),books:n=>pl(n,'book','books'),looseBooks:n=>pl(n,'standalone book','standalone books'),
+  empty:'empty',emptyBody:'Nothing here yet',noBooks:'No books yet',
+  noMatch:'No books match these filters.',emptyList:'Your list is empty. Tap + to add your first book.',
+  newBook:'New book',addCover:'Add cover',removeCover:'Remove cover',detected:'Details found in the file. Check them before saving.',
+  title:'Title',author:'Author',status:'Status',toRead:'To read',isRead:'Read',rating:'Rating',halfHint:'Tap the left half of a star for a half.',
+  noSaga:'No series',newSagaOpt:'New series…',sagaNo:'Number',none:'None',uniOrder:'Order',newSagaName:'New series name',
+  del:'Delete',sure:'Sure?',cancel:'Cancel',save:'Save',create:'Create',
+  bookDeleted:'Book deleted',missTitle:'Title is missing',missName:'Name is missing',unknown:'Unknown author',saved:'Changes saved',bookAdded:'Book added',
+  yourRating:'Your rating',ratingSaved:'Rating saved',
+  newSaga:'New series',inSaga:n=>`${pl(n,'book','books')} in this series`,sagaSub:'Group books in reading order',name:'Name',order:'Order',sagaRating:'Series rating',
+  autoHint:'Automatic: average of rated books. Tap the stars to set it yourself.',manual:'Set manually.',backAvg:'Back to average',
+  sagaDeleted:'Series deleted; its books are now standalone',sagaUpd:'Series updated',sagaNew:'Series created',
+  newUni:'New universe',uniSub:'A world with series and standalone books',uniDeleted:'Universe deleted; its contents are now standalone',uniUpd:'Universe updated',uniNew:'Universe created',
+  filtSub:'Narrow down what you see',minRating:'Minimum rating',clear:'Clear',apply:'Apply',
+  pickFile:'Choose an .epub or .pdf file',reading:'Reading file…',detectedT:'Details found',noMeta:'Couldn’t read the details; fill them in by hand',noImg:'Couldn’t read the image',
+  stars:n=>`${n} stars`,remove:'Remove',
+  setSub:'Make the library yours',done:'Done',language:'Language',list:'List',sortBy:'Sort by',sAlpha:'Name (A–Z)',sRecent:'Recently added',sRating:'Top rated',
+  readLast:'Read books last',readLastD:'Finished books move to the bottom',half:'Half stars',halfD:'Allow ratings like 3.5, 4.5…',
+  autoOpen:'Expand series and universes',autoOpenD:'Show them open when the app starts',
+  data:'Your data',export:'Export backup',exportD:'Download a .json file with your whole list',importB:'Import backup',importD:'Replaces the current list with the file’s',
+  wipe:'Delete all data',wipeD:'Leaves the list empty. Can’t be undone',wipeSure:'Tap again to delete',wiped:'List deleted',
+  exported:'Backup downloaded',noExport:'Couldn’t download the backup here',imported:'Backup imported',badBackup:'That file isn’t a valid backup',
+  about:'About',version:'Version',stats:(b,s,u)=>`${pl(b,'book','books')} · ${pl(s,'series','series')} · ${pl(u,'universe','universes')}`,
+  storage:'Your data is stored only on this device.',
+  share:'Share list',shareSub:'Your list as text, ready to send',shareNow:'Share',copy:'Copy',saveTxt:'Save .txt',copied:'List copied',noCopy:'Couldn’t copy; long-press the text to copy it',shareTitle:'To be read',incl:'Include',incUnread:'Unread',incRead:'Read',shareD:'Send your list as text via WhatsApp or another app'
+ }
+};
+function t(k,...a){const v=(I18N[CFG.lang]||I18N.es)[k];return typeof v==='function'?v(...a):(v==null?k:v)}
+function applyStatic(){
+  document.documentElement.lang=CFG.lang;document.title=t('app');
+  document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
+  $('#q').placeholder=t('search');$('#fab').setAttribute('aria-label',t('add'));$('#gear').setAttribute('aria-label',t('settings'));$('#sharebtn').setAttribute('aria-label',t('share'));
+}
+
+function seed(){
+  /* U: universos · G: sagas [nombre, autor, leída, nota, libros, universo, orden] · B: libros sueltos [título, autor, leído, nota, universo, orden] */
+  const U=[['cosmere','Cosmere','Brandon Sanderson'],['me','Middle-earth','J. R. R. Tolkien'],['avatar','Avatar: The Last Airbender','F. C. Yee & Randy Ribay'],
+    ['wow','Warcraft','Blizzard Entertainment'],['christie','Agatha Christie','Agatha Christie'],['maas','Maasverse','Sarah J. Maas']];
+  const BS='Brandon Sanderson',AC='Agatha Christie',SJM='Sarah J. Maas';
+  const G=[
+    ['A Song of Ice and Fire','George R. R. Martin',0,0,['A Game of Thrones','A Clash of Kings','A Storm of Swords','A Feast for Crows','A Dance with Dragons']],
+    ['The First Law','Joe Abercrombie',1,5,['The Blade Itself','Before They Are Hanged','Last Argument of Kings']],
+    ['The Stormlight Archive',BS,1,5,['The Way of Kings','Words of Radiance','Oathbringer','Rhythm of War','Wind and Truth'],'cosmere',4],
+    ['The Kingkiller Chronicle','Patrick Rothfuss',1,5,['The Name of the Wind','The Wise Man’s Fear']],
+    ['Jade City','Fonda Lee',0,0,['Jade City','Jade War','Jade Legacy']],
+    ['Mistborn: Era II',BS,0,0,['The Alloy of Law','Shadows of Self','The Bands of Mourning','The Lost Metal'],'cosmere',5],
+    ['Red Rising','Pierce Brown',0,0,['Red Rising','Golden Son','Morning Star','Iron Gold','Dark Age','Light Bringer']],
+    ['Promise of Blood','Brian McClellan',0,0,['Promise of Blood','The Crimson Campaign','The Autumn Republic']],
+    ['The Raven Scholar','Antonia Hodgson',0,0,['The Raven Scholar','The Fox in Winter']],
+    ['A Court of Thorns and Roses',SJM,1,3.5,['A Court of Thorns and Roses','A Court of Mist and Fury','A Court of Wings and Ruin','A Court of Frost and Starlight','A Court of Silver Flames'],'maas',2],
+    ['A Series of Unfortunate Events','Lemony Snicket',0,0,['The Bad Beginning','The Reptile Room','The Wide Window','The Miserable Mill','The Austere Academy','The Ersatz Elevator','The Vile Village','The Hostile Hospital','The Carnivorous Carnival','The Slippery Slope','The Grim Grotto','The Penultimate Peril','The End']],
+    ['Mistborn: Era I',BS,1,5,['The Final Empire','The Well of Ascension','The Hero of Ages'],'cosmere',2],
+    ['Percy Jackson and the Olympians','Rick Riordan',1,4,['The Lightning Thief','The Sea of Monsters','The Titan’s Curse','The Battle of the Labyrinth','The Last Olympian']],
+    ['The Witcher','Andrzej Sapkowski',1,5,['The Last Wish','Sword of Destiny','Blood of Elves','Time of Contempt','Baptism of Fire','The Tower of the Swallow','The Lady of the Lake']],
+    ['The Selection','Kiera Cass',1,3,['The Selection','The Elite','The One']],
+    ['Crescent City',SJM,1,3.5,['House of Earth and Blood','House of Sky and Breath','House of Flame and Shadow'],'maas',3],
+    ['Watersong','Amanda Hocking',1,4,['Wake','Lullaby','Tidal','Elegy']],
+    ['The Lord of the Rings','J. R. R. Tolkien',0,0,['The Fellowship of the Ring','The Two Towers','The Return of the King'],'me',2],
+    ['The Hunger Games','Suzanne Collins',0,0,['The Hunger Games','Catching Fire','Mockingjay','The Ballad of Songbirds and Snakes','Sunrise on the Reaping']],
+    ['Dune','Frank Herbert',0,0,['Dune','Dune Messiah','Children of Dune','God Emperor of Dune','Heretics of Dune','Chapterhouse: Dune']],
+    ['The Vampire Chronicles','Anne Rice',0,0,['Interview with the Vampire','The Vampire Lestat','The Queen of the Damned','The Tale of the Body Thief','Memnoch the Devil','The Vampire Armand','Merrick','Blood and Gold','Blackwood Farm','Blood Canticle','Prince Lestat','Prince Lestat and the Realms of Atlantis','Blood Communion']],
+    ['The Wheel of Time','Robert Jordan',0,0,[[0,'New Spring'],'The Eye of the World','The Great Hunt','The Dragon Reborn','The Shadow Rising','The Fires of Heaven','Lord of Chaos','A Crown of Swords','The Path of Daggers','Winter’s Heart','Crossroads of Twilight','Knife of Dreams','The Gathering Storm','Towers of Midnight','A Memory of Light']],
+    ['The Rise and Shadow of Kyoshi','F. C. Yee',1,5,['The Rise of Kyoshi','The Shadow of Kyoshi'],'avatar',1],
+    ['The Dawn and Legacy of Yangchen','F. C. Yee',0,0,['The Dawn of Yangchen','The Legacy of Yangchen'],'avatar',2],
+    ['The Reckoning and Awakening of Roku','Randy Ribay',0,0,['The Reckoning of Roku','The Awakening of Roku'],'avatar',3],
+    ['World of Warcraft: Chronicle','Chris Metzen, Matt Burns & Robert Brooks',0,0,['Chronicle: Volume I','Chronicle: Volume II','Chronicle: Volume III'],'wow',3],
+    ['War of the Ancients','Richard A. Knaak',0,0,['The Well of Eternity','The Demon Soul','The Sundering'],'wow',1],
+    ['Metro','Dmitry Glukhovsky',0,0,['Metro 2033','Metro 2034','Metro 2035']],
+    ['Throne of Glass',SJM,0,0,['Throne of Glass','Crown of Midnight',[0.5,'The Assassin’s Blade'],'Heir of Fire','Queen of Shadows','Empire of Storms','Tower of Dawn','Kingdom of Ash'],'maas',1],
+    ['Harry Potter','J. K. Rowling',1,4,['Harry Potter and the Philosopher’s Stone','Harry Potter and the Chamber of Secrets','Harry Potter and the Prisoner of Azkaban','Harry Potter and the Goblet of Fire','Harry Potter and the Order of the Phoenix','Harry Potter and the Half-Blood Prince','Harry Potter and the Deathly Hallows']],
+    ['Hercule Poirot',AC,0,0,null,'christie',1],
+    ['Miss Marple',AC,0,0,null,'christie',2]
+  ];
+  const B=[
+    ['Warbreaker',BS,1,4,'cosmere',3],['Elantris',BS,1,5,'cosmere',1],['Tress of the Emerald Sea',BS,0,0,'cosmere',6],['Yumi and the Nightmare Painter',BS,0,0,'cosmere',7],
+    ['The Hobbit','J. R. R. Tolkien',1,5,'me',1],['Rise of the Horde','Christie Golden',0,0,'wow',2],
+    ['And Then There Were None',AC,1,5,'christie',3],['Crooked House',AC,0,0,'christie',4],
+    ['Wicked: The Life and Times of the Wicked Witch of the West','Gregory Maguire',1,4.5],['Legends & Lattes','Travis Baldree',0,0],['The Shadow of the Gods','John Gwynne',0,0],
+    ['Alchemised','SenLinYu',0,0],['Strange Pictures','Uketsu',1,4.5],['Strange Houses','Uketsu',1,4],['Annihilation','Jeff VanderMeer',1,4],['The Sword of Kaigen','M. L. Wang',0,0],
+    ['Un cuento perfecto','Elísabet Benavent',0,0],['Hunting Adeline','H. D. Carlton',0,0],['Origin','Dan Brown',0,0],['Wings of Starlight','Allison Saft',1,5],
+    ['The Priory of the Orange Tree','Samantha Shannon',1,4],['The Girl Who Fell Beneath the Sea','Axie Oh',1,4],['Frankenstein','Mary Shelley',0,0],['1984','George Orwell',0,0],
+    ['Fourth Wing','Rebecca Yarros',0,0],['The Frugal Wizard’s Handbook for Surviving Medieval England',BS,1,4],['The Seven Husbands of Evelyn Hugo','Taylor Jenkins Reid',1,5],['Anxious People','Fredrik Backman',1,4.5]
+  ];
+  const POIROT=[[1,'The Mysterious Affair at Styles',1,4.5],[4,'The Murder of Roger Ackroyd',1,5],[5,'The Big Four',0,0],[19,'Appointment with Death',1,4],[21,'Sad Cypress',1,4],[24,'Five Little Pigs',1,4.5]];
+  const MARPLE=[[2,'The Tuesday Night Club',1,4],[7,'They Do It with Mirrors',0,0],[8,'A Pocket Full of Rye',1,4],[9,'4:50 from Paddington',1,4]];
+  const out={universes:U.map(([id,name,author])=>({id,name,author})),sagas:[],books:[]};
+  const bk=(title,author,read,rating,x)=>out.books.push(Object.assign({id:uid(),title,author,read:!!read,rating:read?(rating||0):0,sagaId:'',sagaOrder:null,universeId:'',universeOrder:null,cover:null},x||{}));
+  G.forEach(([name,author,read,rating,list,u,uo])=>{
+    const id=uid();out.sagas.push({id,name,author,universeId:u||'',universeOrder:u?uo:null,ratingOverride:read&&rating?rating:null});
+    let n=0;
+    if(list)list.forEach(x=>{let o,ti;if(Array.isArray(x)){[o,ti]=x}else{o=++n;ti=x}bk(ti,author,read,0,{sagaId:id,sagaOrder:o})});
+    if(name==='Hercule Poirot')POIROT.forEach(([o,ti,r,v])=>bk(ti,author,r,v,{sagaId:id,sagaOrder:o}));
+    if(name==='Miss Marple')MARPLE.forEach(([o,ti,r,v])=>bk(ti,author,r,v,{sagaId:id,sagaOrder:o}));
+  });
+  B.forEach(([ti,a,r,v,u,uo])=>bk(ti,a,r,v,u?{universeId:u,universeOrder:uo}:null));
+  return out;
+}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return seed()}
+const idle=window.requestIdleCallback||(f=>setTimeout(f,1));
+let svT;function save(){clearTimeout(svT);svT=setTimeout(()=>idle(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},{timeout:1500}),400)}
+const libs={};function lib(src){return libs[src]||(libs[src]=new Promise((ok,ko)=>{const x=document.createElement('script');x.src=src;x.onload=ok;x.onerror=()=>{delete libs[src];ko()};document.head.appendChild(x)}))}
+let S=load();
+const ui={q:'',status:'all',min:0,author:'',open:{}};
+
+/* ---------- datos ---------- */
+const IX={};function ix(k){const a=S[k],c=IX[k];if(c&&c.ref===a&&c.n===a.length)return c.m;const m=new Map(a.map(x=>[x.id,x]));IX[k]={ref:a,n:a.length,m};return m}
+const saga=id=>id?ix('sagas').get(id):undefined;
+const uni=id=>id?ix('universes').get(id):undefined;
+const book=id=>ix('books').get(id);
+let GB=null;function groups(){if(GB&&GB.ref===S.books&&GB.n===S.books.length&&GB.v===ver)return GB;const bs=new Map(),lo=new Map(),ix2=new Map();S.books.forEach((b,i)=>{ix2.set(b,i);if(saga(b.sagaId)){(bs.get(b.sagaId)||bs.set(b.sagaId,[]).get(b.sagaId)).push(b)}else if(b.universeId){(lo.get(b.universeId)||lo.set(b.universeId,[]).get(b.universeId)).push(b)}});return GB={ref:S.books,n:S.books.length,v:ver,bs,lo,ix2}}
+let ver=0;
+const booksOf=id=>groups().bs.get(id)||[];
+const looseOf=id=>groups().lo.get(id)||[];
+const uniOfBook=b=>{const s=saga(b.sagaId);return uni(s?s.universeId:b.universeId)};
+const uniBooks=id=>S.sagas.filter(s=>s.universeId===id).flatMap(s=>booksOf(s.id)).concat(looseOf(id));
+function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
+function sagaAuto(s){return avg(booksOf(s.id).map(b=>b.rating||0).filter(r=>r>0))}
+function sagaRating(s){return s.ratingOverride!=null?s.ratingOverride:sagaAuto(s)}
+function uniRating(u){return avg(S.sagas.filter(s=>s.universeId===u.id).map(sagaRating).concat(looseOf(u.id).map(b=>b.rating)).filter(r=>r!=null&&r>0))}
+const fmt=v=>{const r=(Math.round(v*10)/10).toString();return CFG.lang==='es'?r.replace('.',','):r};
+function byOrder(oKey,nKey){return (a,b)=>{
+  const ao=a[oKey],bo=b[oKey],ha=ao!=null&&ao!=='',hb=bo!=null&&bo!=='';
+  if(ha&&hb&&ao!==bo)return ao-bo; if(ha!==hb)return ha?-1:1; return coll.compare(a[nKey],b[nKey]);};}
+const idx=b=>{const v=groups().ix2.get(b);return v==null?-1:v};
+
+/* ---------- iconos ---------- */
+function stars(v,size){
+  let h='';for(let i=0;i<5;i++){const f=Math.max(0,Math.min(1,v-i));h+=`<i class="st">★<b style="width:${f*100}%">★</b></i>`}
+  return `<span class="stars"${size?` style="font-size:${size}px"`:''}>${h}</span>`;
+}
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const PEN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+const CHEV='<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>';
+const I_SAGA='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="M15.5 5.5l3.8-1 3 15.4-3.8 1z"/></svg>';
+const I_UNI='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/><circle cx="19.5" cy="6" r="1" fill="currentColor"/></svg>';
+const I_FILT='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
+const I_GEAR='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+
+/* ---------- filtros ---------- */
+function passes(b){
+  if(ui.status==='unread'&&b.read)return false;
+  if(ui.status==='read'&&!b.read)return false;
+  if(ui.min&&(b.rating||0)<ui.min)return false;
+  if(ui.author&&b.author!==ui.author)return false;
+  if(ui.q){
+    const s=saga(b.sagaId),u=uniOfBook(b);
+    const hay=norm([b.title,b.author,s&&s.name,s&&s.author,u&&u.name,u&&u.author].join(' '));
+    if(!ui.q.split(/\s+/).every(q=>hay.includes(norm(q))))return false;
+  }
+  return true;
+}
+const filtering=()=>!!(ui.q||ui.status!=='all'||ui.min||ui.author);
+const isOpen=id=>ui.q?true:(ui.open[id]!=null?ui.open[id]:CFG.autoOpen);
+
+/* ---------- render ---------- */
+function bookRow(b,inSaga,parentAuthor,inUni){
+  const cov=b.cover?`<img src="${b.cover}" alt="" decoding="async" loading="lazy">`:initial(b.title);
+  const rt=b.rating>0?stars(b.rating)+`<div>${fmt(b.rating)}</div>`:(b.read?`<span class="add">${t('rate')}</span>`:'');
+  return `<div class="row ${b.read?'read':''} ${inUni?'urow':''}">
+    ${inSaga?`<span class="ord">${b.sagaOrder!=null&&b.sagaOrder!==''?b.sagaOrder:'·'}</span>`:''}
+    <button class="seal" data-a="toggle-read" data-id="${b.id}" aria-label="${b.read?t('markUnread'):t('markRead')}">${CHECK}</button>
+    <span class="cov">${cov}</span>
+    <span class="bt"><div class="btitle">${esc(b.title)}</div>${parentAuthor&&norm(parentAuthor)===norm(b.author)?'':`<div class="bauth">${esc(b.author)}</div>`}</span>
+    <span class="br" ${rt?`data-a="rate-book" data-id="${b.id}"`:''}>${rt}</span>
+    <button class="pen" data-a="edit-book" data-id="${b.id}" aria-label="${t('editBook')}">${PEN}</button>
+  </div>`;
+}
+function sagaCard(s,vis,uniAuthor){
+  const all=booksOf(s.id),done=all.length>0&&all.every(b=>b.read);
+  const r=sagaRating(s),readN=all.filter(b=>b.read).length;
+  const list=vis.slice().sort(byOrder('sagaOrder','title'));
+  return `<section class="card ${done?'done':''} ${isOpen(s.id)?'open':''}">
+    <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${s.id}">
+      ${CHEV}
+      <span class="ttl"><div class="gname">${esc(s.name)}</div><div class="gmeta">${t('saga')}${uniAuthor&&norm(uniAuthor)===norm(s.author)?'':' · '+esc(s.author)}</div></span>
+      <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}${s.ratingOverride==null?` (${t('avg')})`:''}</span>`:''}<span>${t('readOf',readN,all.length)}</span></span>
+      <button class="pen" data-a="edit-saga" data-id="${s.id}" aria-label="${t('editSaga')}">${PEN}</button>
+    </div>
+    <div class="gbody">${list.map(b=>bookRow(b,true,s.author)).join('')||`<div class="empty" style="padding:14px">${t('noBooks')}</div>`}</div>
+  </section>`;
+}
+function sortItems(items){
+  const key={alpha:(a,b)=>coll.compare(a.name,b.name),recent:(a,b)=>(b.recent-a.recent)||coll.compare(a.name,b.name),rating:(a,b)=>((b.rating||0)-(a.rating||0))||coll.compare(a.name,b.name)}[CFG.sort]||((a,b)=>coll.compare(a.name,b.name));
+  items.sort((a,b)=>(CFG.readLast?(a.done-b.done):0)||key(a,b));
+}
+function render(){
+  ver++;
+  const vis=S.books.filter(passes),f=filtering();
+  const items=[];
+  const recentOf=list=>list.length?Math.max(...list.map(idx)):-1;
+  S.universes.forEach(u=>{
+    const ss=S.sagas.filter(s=>s.universeId===u.id).map(s=>({s,v:vis.filter(b=>b.sagaId===s.id)}))
+      .filter(x=>x.v.length||!f);
+    const lb=vis.filter(b=>!saga(b.sagaId)&&b.universeId===u.id);
+    if(!ss.length&&!lb.length&&f)return;
+    const all=uniBooks(u.id),nl=looseOf(u.id).length;
+    const mix=ss.map(x=>({o:x.s.universeOrder,n:x.s.name,h:()=>sagaCard(x.s,x.v,u.author)}))
+      .concat(lb.map(b=>({o:b.universeOrder,n:b.title,h:()=>bookRow(b,false,u.author,true)})));
+    const done=all.length>0&&all.every(b=>b.read);
+    const r=uniRating(u);
+    mix.sort(byOrder('o','n'));
+    const nsg=S.sagas.filter(s=>s.universeId===u.id).length;
+    const cnt=[nsg?t('sagas',nsg):'',nl?t('books',nl):''].filter(Boolean).join(' · ')||t('empty');
+    items.push({name:u.name,done,rating:r,recent:recentOf(all),html:`<section class="card uni ${isOpen(u.id)?'open':''} ${done?'done':''}">
+      <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${u.id}">
+        ${CHEV}
+        <span class="ttl"><div class="gname">${esc(u.name)}</div><div class="gmeta">${t('universe')} · ${esc(u.author)}</div></span>
+        <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}</span>`:''}<span>${cnt}</span></span>
+        <button class="pen" data-a="edit-uni" data-id="${u.id}" aria-label="${t('editUni')}">${PEN}</button>
+      </div>
+      <div class="gbody">${mix.map(x=>x.h()).join('')||`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`}</div></section>`});
+  });
+  S.sagas.filter(s=>!uni(s.universeId)).forEach(s=>{
+    const v=vis.filter(b=>b.sagaId===s.id);
+    if(!v.length&&f)return;
+    const all=booksOf(s.id);
+    items.push({name:s.name,done:all.length>0&&all.every(b=>b.read),rating:sagaRating(s),recent:recentOf(all),html:sagaCard(s,v)});
+  });
+  vis.filter(b=>!saga(b.sagaId)&&!uni(b.universeId)).forEach(b=>items.push({name:b.title,done:b.read,rating:b.rating,recent:idx(b),html:bookRow(b,false)}));
+  sortItems(items);
+  $('#list').innerHTML=items.length?items.map(i=>i.html).join(''):
+    `<div class="empty">${f?t('noMatch'):t('emptyList')}</div>`;
+  const unread=S.books.filter(b=>!b.read).length;
+  $('#count').innerHTML=`<span>${unread} ${t('pending')}</span><span>${S.books.length-unread} ${t('readN')}</span>`;
+  $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['read',t('read')]].map(([k,x])=>
+    `<button class="chip" data-a="status" data-k="${k}" aria-pressed="${ui.status===k}">${x}</button>`).join('')+
+    `<button class="chip filt ${ui.min||ui.author?'on':''}" data-a="filters"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${t('filters')}</button>`;
+  save();
+}
+
+/* ---------- hoja inferior ---------- */
+function openSheet(html){ onDismiss=null; const sh=$('#sheet'); sh.innerHTML=html; sh.scrollTop=0; $('#back').classList.add('on'); requestAnimationFrame(()=>requestAnimationFrame(()=>sh.classList.add('on'))); }
+let onDismiss=null;
+function closeSheet(){ const sh=$('#sheet'),bk=$('#back'); sh.classList.remove('on','drag'); sh.style.transform=''; bk.classList.remove('on','drag'); bk.style.opacity=''; onDismiss=null; cfgSnap=null; }
+/* cerrar sin guardar (deslizar, tocar fuera, Escape) */
+function dismissSheet(){ const f=onDismiss; onDismiss=null; if(f)f(); closeSheet(); }
+$('#back').onclick=dismissSheet;
+/* deslizar hacia abajo desde la cabecera para cerrar */
+(()=>{
+  const sh=$('#sheet'),bk=$('#back');let y0=null,t0=0,dy=0,id=null;
+  sh.addEventListener('pointerdown',e=>{if(!e.target.closest('.hero')||e.target.closest('button,input,select,label'))return;
+    y0=e.clientY;t0=performance.now();dy=0;id=e.pointerId;try{sh.setPointerCapture(id)}catch(_){}sh.classList.add('drag');bk.classList.add('drag')});
+  sh.addEventListener('pointermove',e=>{if(y0==null||e.pointerId!==id)return;dy=Math.max(0,e.clientY-y0);
+    sh.style.transform=`translate3d(0,${dy}px,0)`;bk.style.opacity=String(Math.max(0,1-dy/(sh.offsetHeight||600)))});
+  const end=e=>{if(y0==null||e.pointerId!==id)return;const v=dy/Math.max(1,performance.now()-t0);y0=null;
+    sh.classList.remove('drag');bk.classList.remove('drag');
+    if(dy>110||(dy>30&&v>.6)){dismissSheet()}else{sh.style.transform='';bk.style.opacity=''}};
+  sh.addEventListener('pointerup',end);sh.addEventListener('pointercancel',end);
+})();
+let tt;function toast(m){const x=$('#toast');x.textContent=m;x.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>x.classList.remove('on'),2600)}
+function hero(icon,title,sub){return `<div class="hero"><div class="grip"></div><div class="hrow">${icon}<div style="min-width:0"><h2>${title}</h2><div class="hs" id="hsub">${sub||''}</div></div></div></div>`}
+const medal=svg=>`<span class="medal">${svg}</span>`;
+
+/* estrellas editables: cada estrella tiene dos zonas táctiles (media y entera) */
+function rateWidget(id,val,onChange){
+  const box=$('#'+id);
+  const paint=()=>{
+    let h='';for(let i=0;i<5;i++){const f=Math.max(0,Math.min(1,val-i));
+      h+=`<span class="rs">★<b style="width:${f*100}%">★</b>${CFG.half?`<button type="button" class="h l" data-v="${i+.5}" aria-label="${t('stars',i+.5)}"></button><button type="button" class="h r" data-v="${i+1}" aria-label="${t('stars',i+1)}"></button>`:`<button type="button" class="h" style="left:0;width:100%" data-v="${i+1}" aria-label="${t('stars',i+1)}"></button>`}</span>`}
+    box.innerHTML=`<span style="display:inline-flex">${h}</span><span class="val">${val>0?fmt(val):'—'}</span>${val>0?`<button type="button" class="mini" data-clear>${t('remove')}</button>`:''}`;
+  };
+  box.onclick=e=>{
+    if(e.target.closest('[data-clear]')){val=0;onChange(0);paint();return}
+    const x=e.target.closest('[data-v]');if(!x)return;
+    const n=parseFloat(x.dataset.v);val=(val===n)?0:n;onChange(val);paint();
+  };
+  paint();return {set(v){val=v;paint()}};
+}
+/* borrar con doble toque (sin confirm(), que el visor bloquea) */
+function armDelete(btn,fn,label,armedLabel){
+  let armed=false,tm;const orig=btn.innerHTML;
+  btn.onclick=()=>{
+    if(armed){clearTimeout(tm);fn();return}
+    armed=true;btn.classList.add('arm');btn.textContent=armedLabel||t('sure');
+    tm=setTimeout(()=>{armed=false;btn.classList.remove('arm');btn.innerHTML=orig},3000);
+  };
+}
+
+/* ---- Libro ---- */
+let curNew=null,curFill=null;
+function bookForm(b,pre){
+  const d=b?{...b}:Object.assign({id:null,title:'',author:'',read:false,rating:0,sagaId:'',sagaOrder:null,cover:null},pre||{});
+  let newSaga=(pre&&pre.sagaName)||'';
+  if(newSaga){const ex=S.sagas.find(s=>norm(s.name)===norm(newSaga));if(ex){d.sagaId=ex.id;newSaga=''}else d.sagaId='__new'}
+  const opts=S.sagas.slice().sort((a,b)=>coll.compare(a.name,b.name)).map(s=>`<option value="${s.id}" ${d.sagaId===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
+  curNew=b?null:d;curFill=null;
+  openSheet(`<div class="hero"><div class="grip"></div><div class="hrow">
+      <span class="cov" id="hcov"></span>
+      <div style="min-width:0;flex:1"><h2 id="htt"></h2><div class="hs" id="hau"></div>
+        <button type="button" class="covbtn" id="covb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg><span id="covt"></span></button>
+      </div></div></div>
+    ${b?'':`<label class="fromfile" for="file"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 17v-6M9 14l3-3 3 3"/></svg></span><span><b>${t('fromFile')}</b><small>${t('fromFileD')}</small></span></label>`}
+    ${pre&&pre.fromFile?`<p class="lead">${t('detected')}</p>`:''}
+    <div class="f"><label for="bt">${t('title')}</label><input id="bt" type="text" value="${esc(d.title)}"></div>
+    <div class="f"><label for="ba">${t('author')}</label><input id="ba" type="text" value="${esc(d.author)}"></div>
+    <div class="f"><span class="lbl">${t('status')}</span><div class="seg" id="bseg">
+      <button type="button" data-r="0">${t('toRead')}</button><button type="button" data-r="1">${CHECK.replace('<svg','<svg width="16" height="16"')}${t('isRead')}</button></div></div>
+    <div class="f"><span class="lbl">${t('rating')}</span><div class="box"><div class="rate" id="brate"></div>${CFG.half?`<div class="hint">${t('halfHint')}</div>`:''}</div></div>
+    <div class="two pair" id="bsw">
+      <div class="f"><label for="bs">${t('saga')}</label><select id="bs"><option value="">${t('noSaga')}</option>${opts}<option value="__new" ${d.sagaId==='__new'?'selected':''}>${t('newSagaOpt')}</option></select></div>
+      <div class="f" id="bordw"><label for="bo">${t('sagaNo')}</label><input id="bo" type="number" step="any" inputmode="decimal" value="${d.sagaOrder!=null?d.sagaOrder:''}"></div>
+    </div>
+    <div class="two pair" id="buw">
+      <div class="f"><label for="bu">${t('universe')}</label><select id="bu"><option value="">${t('none')}</option>${S.universes.slice().sort((a,b)=>coll.compare(a.name,b.name)).map(u=>`<option value="${u.id}" ${d.universeId===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
+      <div class="f" id="buow"><label for="buo">${t('uniOrder')}</label><input id="buo" type="number" step="any" inputmode="decimal" value="${d.universeOrder!=null?d.universeOrder:''}"></div>
+    </div>
+    <div class="f" id="bnew" style="display:none"><label for="bn">${t('newSagaName')}</label><input id="bn" type="text" value="${esc(newSaga)}"></div>
+    <div class="btns">${b?`<button type="button" class="btn del" id="bdel">${t('del')}</button>`:''}<button type="button" class="btn" id="bcan">${t('cancel')}</button><button type="button" class="btn main" id="bok">${b?t('save'):t('add')}</button></div>`);
+  const paintHero=()=>{
+    const ti=$('#bt').value.trim(),a=$('#ba').value.trim();
+    $('#htt').textContent=ti||(b?t('editBook'):t('newBook'));
+    $('#hau').textContent=a;
+    $('#hcov').innerHTML=d.cover?`<img src="${d.cover}" alt="">`:initial(ti||'✦');
+    $('#covt').textContent=d.cover?t('removeCover'):t('addCover');
+  };
+  $('#bt').oninput=paintHero;$('#ba').oninput=paintHero;paintHero();
+  $('#covb').onclick=()=>{if(d.cover){d.cover=null;paintHero()}else{
+    const fi=$('#covfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+      try{d.cover=await shrink(URL.createObjectURL(f));paintHero()}catch(err){toast(t('noImg'))}};fi.click()}};
+  const segPaint=()=>$('#bseg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String((x.dataset.r==='1')===d.read)));
+  $('#bseg').onclick=e=>{const x=e.target.closest('[data-r]');if(!x)return;d.read=x.dataset.r==='1';segPaint()};segPaint();
+  rateWidget('brate',d.rating||0,v=>d.rating=v);
+  const sync=()=>{const v=$('#bs').value,u=$('#bu').value;$('#bordw').style.display=v?'':'none';$('#bsw').classList.toggle('solo',!v);$('#bnew').style.display=v==='__new'?'':'none';
+    $('#buw').style.display=v?'none':'';$('#buow').style.display=u?'':'none';$('#buw').classList.toggle('solo',!u)};
+  $('#bs').onchange=sync;$('#bu').onchange=sync;sync();
+  if(!b)curFill=(m,fname)=>{
+    const put=(id,v)=>{if(v==null||v==='')return;const el=$(id);el.value=v;el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled')};
+    put('#bt',m.title);put('#ba',m.author);
+    if(m.cover)d.cover=m.cover;
+    if(m.sagaName){const ex=S.sagas.find(x=>norm(x.name)===norm(m.sagaName));
+      if(ex){$('#bs').value=ex.id}else{$('#bs').value='__new';put('#bn',m.sagaName)}
+      $('#bs').classList.add('filled');if(m.sagaOrder!=null)put('#bo',m.sagaOrder)}
+    sync();paintHero();
+    const ff=$('.fromfile');if(ff){ff.classList.add('done');ff.querySelector('b').textContent=t('fileRead');ff.querySelector('small').textContent=fname+' · '+t('fileChange')}
+  };
+  $('#bcan').onclick=closeSheet;
+  if(b)armDelete($('#bdel'),()=>{S.books=S.books.filter(x=>x.id!==b.id);closeSheet();render();toast(t('bookDeleted'))});
+  $('#bok').onclick=()=>{
+    const title=$('#bt').value.trim();if(!title){toast(t('missTitle'));$('#bt').focus();return}
+    d.title=title;d.author=$('#ba').value.trim()||t('unknown');
+    let sid=$('#bs').value;
+    if(sid==='__new'){const n=$('#bn').value.trim();
+      if(n){const ns={id:uid(),name:n,author:d.author,universeId:'',universeOrder:null,ratingOverride:null};S.sagas.push(ns);sid=ns.id}else sid=''}
+    d.sagaId=sid;const o=$('#bo').value;d.sagaOrder=(sid&&o!=='')?parseFloat(o):null;
+    d.universeId=sid?'':$('#bu').value;const uo=$('#buo').value;d.universeOrder=(d.universeId&&uo!=='')?parseFloat(uo):null;
+    if(!$('#ba').value.trim()){const par=saga(sid)||uni(d.universeId);if(par&&par.author)d.author=par.author}
+    delete d.sagaName;delete d.fromFile;
+    if(b)Object.assign(book(b.id),d);else{d.id=uid();S.books.push(d)}
+    closeSheet();render();toast(b?t('saved'):t('bookAdded'));
+  };
+}
+/* ---- Valorar rápido ---- */
+function rateForm(b){
+  let v=b.rating||0;
+  openSheet(`${hero(`<span class="cov">${b.cover?`<img src="${b.cover}" alt="">`:initial(b.title)}</span>`,esc(b.title),esc(b.author))}
+    <div class="f"><span class="lbl">${t('yourRating')}</span><div class="box"><div class="rate" id="qrate"></div></div></div>
+    <div class="btns"><button type="button" class="btn" id="qcan">${t('cancel')}</button><button type="button" class="btn main" id="qok">${t('save')}</button></div>`);
+  rateWidget('qrate',v,x=>v=x);
+  $('#qcan').onclick=closeSheet;
+  $('#qok').onclick=()=>{book(b.id).rating=v;closeSheet();render();toast(t('ratingSaved'))};
+}
+/* ---- Saga ---- */
+function sagaForm(s){
+  const d=s?{...s}:{id:null,name:'',author:'',universeId:'',universeOrder:null,ratingOverride:null};
+  const uopts=S.universes.slice().sort((a,b)=>coll.compare(a.name,b.name)).map(u=>`<option value="${u.id}" ${d.universeId===u.id?'selected':''}>${esc(u.name)}</option>`).join('');
+  const auto=s?sagaAuto(s):null,n=s?booksOf(s.id).length:0;
+  openSheet(`${hero(medal(I_SAGA),s?t('editSaga'):t('newSaga'),s?t('inSaga',n):t('sagaSub'))}
+    <div class="f"><label for="sn">${t('name')}</label><input id="sn" type="text" value="${esc(d.name)}"></div>
+    <div class="f"><label for="sa">${t('author')}</label><input id="sa" type="text" value="${esc(d.author)}"></div>
+    <div class="two pair" id="suw">
+      <div class="f"><label for="su">${t('universe')}</label><select id="su"><option value="">${t('none')}</option>${uopts}</select></div>
+      <div class="f" id="suow"><label for="suo">${t('order')}</label><input id="suo" type="number" step="any" inputmode="decimal" value="${d.universeOrder!=null?d.universeOrder:''}"></div>
+    </div>
+    <div class="f"><span class="lbl">${t('sagaRating')}</span><div class="box"><div class="rate" id="srate"></div>
+      <div class="hint" id="shint"></div></div></div>
+    <div class="btns">${s?`<button type="button" class="btn del" id="sdel">${t('del')}</button>`:''}<button type="button" class="btn" id="scan">${t('cancel')}</button><button type="button" class="btn main" id="sok">${s?t('save'):t('create')}</button></div>`);
+  const shown=()=>d.ratingOverride!=null?d.ratingOverride:(auto||0);
+  const hint=()=>{$('#shint').innerHTML=d.ratingOverride==null?t('autoHint'):`${t('manual')} <button type="button" class="mini" id="sauto">${t('backAvg')}${auto?' ('+fmt(auto)+')':''}</button>`;
+    if($('#sauto'))$('#sauto').onclick=()=>{d.ratingOverride=null;w.set(auto||0);hint()}};
+  const w=rateWidget('srate',shown(),v=>{d.ratingOverride=v>0?v:null;if(!(v>0))w&&w.set(auto||0);hint()});hint();
+  const sync=()=>{const v=$('#su').value;$('#suow').style.display=v?'':'none';$('#suw').classList.toggle('solo',!v)};$('#su').onchange=sync;sync();
+  $('#scan').onclick=closeSheet;
+  if(s)armDelete($('#sdel'),()=>{S.books.forEach(b=>{if(b.sagaId===s.id){b.sagaId='';b.sagaOrder=null}});S.sagas=S.sagas.filter(x=>x.id!==s.id);closeSheet();render();toast(t('sagaDeleted'))});
+  $('#sok').onclick=()=>{
+    const nm=$('#sn').value.trim();if(!nm){toast(t('missName'));$('#sn').focus();return}
+    d.name=nm;d.author=$('#sa').value.trim()||t('unknown');d.universeId=$('#su').value;
+    const o=$('#suo').value;d.universeOrder=(d.universeId&&o!=='')?parseFloat(o):null;
+    if(s)Object.assign(saga(s.id),d);else{d.id=uid();S.sagas.push(d)}
+    closeSheet();render();toast(s?t('sagaUpd'):t('sagaNew'));
+  };
+}
+/* ---- Universo ---- */
+function uniForm(u){
+  const d=u?{...u}:{id:null,name:'',author:''};
+  const n=u?S.sagas.filter(s=>s.universeId===u.id).length:0,nl=u?looseOf(u.id).length:0;
+  openSheet(`${hero(medal(I_UNI),u?t('editUni'):t('newUni'),u?[t('sagas',n),t('looseBooks',nl)].join(' · '):t('uniSub'))}
+    <div class="f"><label for="un">${t('name')}</label><input id="un" type="text" value="${esc(d.name)}"></div>
+    <div class="f"><label for="ua">${t('author')}</label><input id="ua" type="text" value="${esc(d.author)}"></div>
+    <div class="btns">${u?`<button type="button" class="btn del" id="udel">${t('del')}</button>`:''}<button type="button" class="btn" id="ucan">${t('cancel')}</button><button type="button" class="btn main" id="uok">${u?t('save'):t('create')}</button></div>`);
+  $('#ucan').onclick=closeSheet;
+  if(u)armDelete($('#udel'),()=>{S.sagas.forEach(s=>{if(s.universeId===u.id){s.universeId='';s.universeOrder=null}});S.books.forEach(b=>{if(b.universeId===u.id){b.universeId='';b.universeOrder=null}});S.universes=S.universes.filter(x=>x.id!==u.id);closeSheet();render();toast(t('uniDeleted'))});
+  $('#uok').onclick=()=>{const nm=$('#un').value.trim();if(!nm){toast(t('missName'));$('#un').focus();return}
+    d.name=nm;d.author=$('#ua').value.trim()||t('unknown');
+    if(u)Object.assign(uni(u.id),d);else{d.id=uid();S.universes.push(d)}closeSheet();render();toast(u?t('uniUpd'):t('uniNew'))};
+}
+/* ---- Filtros ---- */
+function filterForm(){
+  const authors=[...new Set(S.books.map(b=>b.author))].sort(coll.compare);
+  openSheet(`${hero(medal(I_FILT),t('filters'),t('filtSub'))}
+    <div class="f"><span class="lbl">${t('minRating')}</span><div class="box"><div class="rate" id="frate"></div></div></div>
+    <div class="f"><label for="fa">${t('author')}</label><select id="fa"><option value="">${t('all')}</option>${authors.map(a=>`<option ${ui.author===a?'selected':''} value="${esc(a)}">${esc(a)}</option>`).join('')}</select></div>
+    <div class="btns"><button type="button" class="btn" id="fclr">${t('clear')}</button><button type="button" class="btn main" id="fok">${t('apply')}</button></div>`);
+  let m=ui.min;rateWidget('frate',m,v=>m=v);
+  $('#fclr').onclick=()=>{ui.min=0;ui.author='';closeSheet();render()};
+  $('#fok').onclick=()=>{ui.min=m;ui.author=$('#fa').value;closeSheet();render()};
+}
+/* ---- Ajustes ---- */
+function sw(id,on){return `<button type="button" class="switch" role="switch" id="${id}" aria-checked="${on}"><span></span></button>`}
+let cfgSnap=null;
+function applyCfg(){saveCfg();coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});applyStatic();render()}
+function settingsForm(){
+  if(!cfgSnap)cfgSnap={...CFG};
+  openSheet(`${hero(medal(I_GEAR),t('settings'),t('setSub'))}
+    <div class="sec">${t('language')}</div>
+    <div class="seg" id="slang"><button type="button" data-l="es" aria-pressed="${CFG.lang==='es'}">Español</button><button type="button" data-l="en" aria-pressed="${CFG.lang==='en'}">English</button></div>
+    <div class="sec">${t('list')}</div>
+    <div class="group">
+      <div class="srow"><div class="stx"><div>${t('sortBy')}</div></div>
+        <select id="ssort" class="ssel"><option value="alpha">${t('sAlpha')}</option><option value="recent">${t('sRecent')}</option><option value="rating">${t('sRating')}</option></select></div>
+      <label class="srow" for="sread"><div class="stx"><div>${t('readLast')}</div><small>${t('readLastD')}</small></div>${sw('sread',CFG.readLast)}</label>
+      <label class="srow" for="shalf"><div class="stx"><div>${t('half')}</div><small>${t('halfD')}</small></div>${sw('shalf',CFG.half)}</label>
+      <label class="srow" for="sopen"><div class="stx"><div>${t('autoOpen')}</div><small>${t('autoOpenD')}</small></div>${sw('sopen',CFG.autoOpen)}</label>
+    </div>
+    <div class="sec">${t('data')}</div>
+    <div class="group">
+      <button type="button" class="srow" id="sshare"><div class="stx"><div>${t('share')}</div><small>${t('shareD')}</small></div><span class="sic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></span></button>
+      <button type="button" class="srow" id="sexp"><div class="stx"><div>${t('export')}</div><small>${t('exportD')}</small></div><span class="sic">↑</span></button>
+      <button type="button" class="srow" id="simp"><div class="stx"><div>${t('importB')}</div><small>${t('importD')}</small></div><span class="sic">↓</span></button>
+      <button type="button" class="srow danger" id="swipe"><div class="stx"><div class="wl">${t('wipe')}</div><small>${t('wipeD')}</small></div></button>
+    </div>
+    <div class="sec">${t('about')}</div>
+    <div class="group"><div class="srow"><div class="stx"><div>${t('app')} · ${t('version')} ${VERSION} <span style="color:var(--ink2)">(build ${BUILD})</span></div><small>${t('stats',S.books.length,S.sagas.length,S.universes.length)}<br>${t('storage')}</small></div></div></div>
+    <div class="btns"><button type="button" class="btn main" id="sok">${t('done')}</button></div>`);
+  $('#ssort').value=CFG.sort;
+  const set=(k,v)=>{CFG[k]=v;saveCfg();render()};
+  $('#slang').onclick=e=>{const x=e.target.closest('[data-l]');if(!x||x.dataset.l===CFG.lang)return;
+    CFG.lang=x.dataset.l;applyCfg();const st=$('#sheet').scrollTop;settingsForm();$('#sheet').scrollTop=st};
+  $('#ssort').onchange=e=>set('sort',e.target.value);
+  [['sread','readLast'],['shalf','half'],['sopen','autoOpen']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen')ui.open={};set(k,v)}});
+  $('#sexp').onclick=async()=>{
+    if(CAP){try{await nativeShareFile(`to-be-read-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({app:'por-leer',version:VERSION,build:BUILD,date:new Date().toISOString(),data:S},null,1))}catch(e){toast(t('noExport'))}return}
+    const json=JSON.stringify({app:'por-leer',version:VERSION,build:BUILD,date:new Date().toISOString(),data:S},null,1);
+    const name=`to-be-read-${new Date().toISOString().slice(0,10)}.json`;
+    let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+    if(dl){try{await dl.save({filename:name,data:json});toast(t('exported'))}catch(e){if(e&&e.code!=='declined')toast(t('noExport'))}return}
+    try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));a.download=name;
+      document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast(t('exported'))}catch(e){toast(t('noExport'))}};
+  $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+    try{const j=JSON.parse(await f.text()),d=j.data||j;if(!Array.isArray(d.books)||!Array.isArray(d.sagas))throw 0;
+      S={books:d.books,sagas:d.sagas,universes:Array.isArray(d.universes)?d.universes:[]};ui.open={};render();closeSheet();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
+  armDelete($('#swipe'),()=>{S={books:[],sagas:[],universes:[]};ui.open={};render();closeSheet();toast(t('wiped'))},null,t('wipeSure'));
+  $('#sshare').onclick=()=>{cfgSnap=null;shareForm()};
+  $('#sok').onclick=()=>{cfgSnap=null;closeSheet()};
+  onDismiss=()=>{const snap=cfgSnap;cfgSnap=null;if(snap&&JSON.stringify(snap)!==JSON.stringify(CFG)){if(snap.autoOpen!==CFG.autoOpen)ui.open={};CFG=snap;applyCfg()}};
+}
+
+/* ---- Compartir lista (formato "[X] Título (n) - Autor [5.0]") ---- */
+function shareText(opt){
+  const rows=[];const r1=v=>v>0?` [${(Math.round(v*2)/2).toFixed(1)}]`:'';
+  const bookLine=b=>({done:b.read,name:b.title,rating:b.rating||0,recent:idx(b),line:`[${b.read?'X':' '}] ${b.title} - ${b.author}${b.read?r1(b.rating):''}`});
+  S.sagas.forEach(s=>{const all=booksOf(s.id);const done=all.length>0&&all.every(b=>b.read);
+    /* saga a medio leer: cada libro en su línea */
+    if(all.some(b=>b.read)&&!done){all.forEach(b=>rows.push(bookLine(b)));return}
+    rows.push({done,name:s.name,rating:sagaRating(s)||0,recent:all.length?Math.max(...all.map(idx)):-1,line:`[${done?'X':' '}] ${s.name}${all.length>1?` (${all.length})`:''} - ${s.author}${done?r1(sagaRating(s)):''}`})});
+  S.books.filter(b=>!saga(b.sagaId)).forEach(b=>rows.push(bookLine(b)));
+  const f=rows.filter(x=>x.done?opt.read:opt.unread);sortItems(f);
+  return f.map(x=>x.line).join('\n');
+}
+function shareForm(){
+  const opt={unread:true,read:true};
+  openSheet(`${hero(medal('<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>'),t('share'),t('shareSub'))}
+    <div class="f"><span class="lbl">${t('incl')}</span><div class="chk" id="shinc"><button type="button" class="chip" data-k="unread" aria-pressed="true">${t('incUnread')}</button><button type="button" class="chip" data-k="read" aria-pressed="true">${t('incRead')}</button></div></div>
+    <textarea class="sharetxt" id="shtxt" readonly spellcheck="false"></textarea>
+    <div class="btns" id="shbtns">${(CAP||navigator.share)?`<button type="button" class="btn main" id="shgo">${t('shareNow')}</button>`:''}<button type="button" class="btn ${(CAP||navigator.share)?'':'main'}" id="shcopy">${t('copy')}</button><button type="button" class="btn" id="shsave">${t('saveTxt')}</button></div>`);
+  const upd=()=>{$('#shtxt').value=shareText(opt)};upd();
+  $('#shinc').onclick=e=>{const x=e.target.closest('[data-k]');if(!x)return;const k=x.dataset.k,o=k==='read'?'unread':'read';if(opt[k]&&!opt[o])return;opt[k]=!opt[k];x.setAttribute('aria-pressed',opt[k]);upd()};
+  const txt=()=>$('#shtxt').value;
+  if($('#shgo'))$('#shgo').onclick=async()=>{if(CAP){try{await CAP.Share.share({title:t('shareTitle'),text:txt(),dialogTitle:t('share')})}catch(e){}return}try{await navigator.share({title:t('shareTitle'),text:txt()})}catch(e){if(e&&e.name!=='AbortError')$('#shcopy').click()}};
+  $('#shcopy').onclick=async()=>{
+    try{await navigator.clipboard.writeText(txt());toast(t('copied'));return}catch(e){}
+    const ta=$('#shtxt');ta.removeAttribute('readonly');ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
+    let ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.setAttribute('readonly','');toast(ok?t('copied'):t('noCopy'));
+  };
+  $('#shsave').onclick=async()=>{const name='to-be-read.txt';
+    if(CAP){try{await nativeShareFile(name,txt())}catch(e){toast(t('noExport'))}return}
+    let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+    if(dl){try{await dl.save({filename:name,data:txt()});toast(t('exported'))}catch(e){if(e&&e.code!=='declined')toast(t('noExport'))}return}
+    try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt()],{type:'text/plain'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}catch(e){toast(t('noExport'))}};
+}
+
+/* ---------- importar .epub / .pdf ---------- */
+function shrink(url,w=240){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{
+  const c=document.createElement('canvas');c.width=w;c.height=Math.round(im.naturalHeight/im.naturalWidth*w);
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.72))};im.onerror=rej;im.src=url})}
+async function readEpub(file){
+  await lib('lib/jszip.min.js');
+  const zip=await JSZip.loadAsync(file);
+  const P=new DOMParser();
+  const cx=P.parseFromString(await zip.file('META-INF/container.xml').async('string'),'application/xml');
+  const opfPath=cx.querySelector('rootfile').getAttribute('full-path');
+  const opf=P.parseFromString(await zip.file(opfPath).async('string'),'application/xml');
+  const g=n=>{const e=opf.getElementsByTagNameNS('*',n)[0];return e?e.textContent.trim():''};
+  const out={fromFile:true,title:g('title'),author:g('creator')};
+  let series='',ix='';
+  opf.querySelectorAll('meta').forEach(m=>{
+    const n=m.getAttribute('name'),p=m.getAttribute('property');
+    if(n==='calibre:series')series=m.getAttribute('content');
+    if(n==='calibre:series_index')ix=m.getAttribute('content');
+    if(p==='belongs-to-collection'&&!series)series=m.textContent.trim();
+    if(p==='group-position'&&!ix)ix=m.textContent.trim();
+  });
+  if(series){out.sagaName=series;if(ix&&!isNaN(parseFloat(ix)))out.sagaOrder=parseFloat(ix)}
+  try{
+    const items=[...opf.getElementsByTagName('item')];
+    let it=items.find(i=>(i.getAttribute('properties')||'').includes('cover-image'));
+    if(!it){const cm=[...opf.querySelectorAll('meta')].find(m=>m.getAttribute('name')==='cover');
+      if(cm)it=items.find(i=>i.getAttribute('id')===cm.getAttribute('content'))}
+    if(!it)it=items.find(i=>/cover/i.test(i.getAttribute('id')||'')&&/image/.test(i.getAttribute('media-type')||''));
+    if(it){
+      const dir=opfPath.includes('/')?opfPath.slice(0,opfPath.lastIndexOf('/')+1):'';
+      const parts=[];(dir+decodeURIComponent(it.getAttribute('href'))).split('/').forEach(p=>{if(p==='..')parts.pop();else if(p&&p!=='.')parts.push(p)});
+      const f=zip.file(parts.join('/'));
+      if(f){const blob=new Blob([await f.async('uint8array')],{type:it.getAttribute('media-type')||'image/jpeg'});
+        out.cover=await shrink(URL.createObjectURL(blob))}
+    }
+  }catch(e){}
+  return out;
+}
+async function readPdf(file){
+  const pdfjsLib=await import(new URL('lib/pdf.min.js',document.baseURI).href);
+  if(!globalThis.pdfjsWorker)globalThis.pdfjsWorker=await import(new URL('lib/pdf.worker.min.js',document.baseURI).href);
+  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
+  const info=((await pdf.getMetadata()).info)||{};
+  const out={fromFile:true,title:(info.Title||'').trim(),author:(info.Author||'').trim()};
+  try{
+    const page=await pdf.getPage(1),v0=page.getViewport({scale:1}),v=page.getViewport({scale:300/v0.width});
+    const c=document.createElement('canvas');c.width=v.width;c.height=v.height;
+    await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise;
+    out.cover=await shrink(c.toDataURL('image/jpeg',.8));
+  }catch(e){}
+  return out;
+}
+$('#file').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  const ext=f.name.split('.').pop().toLowerCase();
+  if(ext!=='epub'&&ext!=='pdf'){toast(t('pickFile'));return}
+  toast(t('reading'));
+  const base=f.name.replace(/\.\w+$/,'').replace(/[_]+/g,' ');
+  let meta;
+  try{
+    meta=ext==='epub'?await readEpub(f):await readPdf(f);
+    if(!meta.title)meta.title=base;
+    toast(t('detectedT'));
+  }catch(err){meta={fromFile:true,title:base};toast(t('noMeta'))}
+  if(curFill&&$('#sheet').classList.contains('on')&&$('.fromfile')){if($('#bt').value.trim()&&meta.title===base)delete meta.title;curFill(meta,f.name)}
+  else bookForm(null,meta);
+};
+
+/* ---------- eventos ---------- */
+function closeMenu(){$('#menu').classList.remove('on');$('#fab').classList.remove('on')}
+$('#fab').onclick=()=>{$('#menu').classList.toggle('on');$('#fab').classList.toggle('on')};
+$('#gear').onclick=()=>{closeMenu();settingsForm()};
+$('#sharebtn').onclick=()=>{closeMenu();shareForm()};
+let qT;$('#q').addEventListener('input',e=>{clearTimeout(qT);qT=setTimeout(()=>{ui.q=e.target.value.trim();render()},160)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.ghead'))e.target.click();if(e.key==='Escape')dismissSheet()});
+document.addEventListener('click',e=>{
+  if(e.target.closest('#sheet'))return;
+  const x=e.target.closest('[data-a]');
+  if(!e.target.closest('#menu,#fab'))closeMenu();
+  if(!x)return;
+  const a=x.dataset.a,id=x.dataset.id;
+  if(a==='toggle-read'){const b=book(id);b.read=!b.read;const r=x.closest('.row');if(r)r.classList.toggle('read',b.read);requestAnimationFrame(()=>setTimeout(render,0));return}
+  if(a==='rate-book')return rateForm(book(id));
+  if(a==='edit-book')return bookForm(book(id));
+  if(a==='edit-saga')return sagaForm(saga(id));
+  if(a==='edit-uni')return uniForm(uni(id));
+  if(a==='toggle-open'){ui.open[id]=!isOpen(id);x.parentElement.classList.toggle('open',ui.open[id]);return}
+  if(a==='status'){ui.status=x.dataset.k;render();return}
+  if(a==='filters')return filterForm();
+  if(a==='new-book'){closeMenu();return bookForm(null)}
+  if(a==='new-saga'){closeMenu();return sagaForm(null)}
+  if(a==='new-uni'){closeMenu();return uniForm(null)}
+  if(a==='import'){setTimeout(closeMenu,50)}
+});
+if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if($('#sheet').classList.contains('on'))dismissSheet();else if($('#menu').classList.contains('on'))closeMenu();else CAP.App.exitApp()});
+applyStatic();
+render();
+</script>
+</body>
+</html>
