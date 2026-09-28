@@ -26,12 +26,8 @@ jobs:
       - name: Aceptar licencias del SDK de Android (ya viene instalado en el runner)
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
-      - name: Comprobar clave de firma
-        run: |
-          test -f keystore/por-leer.jks || { echo "::error::Falta keystore/por-leer.jks (sube la carpeta keystore)"; exit 1; }
-          test -f keystore/keystore.properties || { echo "::error::Falta keystore/keystore.properties"; exit 1; }
-          PW=$(grep '^storePassword=' keystore/keystore.properties | cut -d= -f2-)
-          keytool -list -keystore keystore/por-leer.jks -storepass "$PW" -alias porleer
+      - name: Preparar y comprobar clave de firma
+        run: node scripts/configure-android.js keystore
 
       - name: Leer versión de www/index.html
         id: ver
