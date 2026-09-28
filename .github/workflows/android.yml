@@ -26,6 +26,13 @@ jobs:
       - name: Aceptar licencias del SDK de Android (ya viene instalado en el runner)
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
+      - name: Comprobar clave de firma
+        run: |
+          test -f keystore/por-leer.jks || { echo "::error::Falta keystore/por-leer.jks (sube la carpeta keystore)"; exit 1; }
+          test -f keystore/keystore.properties || { echo "::error::Falta keystore/keystore.properties"; exit 1; }
+          PW=$(grep '^storePassword=' keystore/keystore.properties | cut -d= -f2-)
+          keytool -list -keystore keystore/por-leer.jks -storepass "$PW" -alias porleer
+
       - name: Leer versión de www/index.html
         id: ver
         run: |
@@ -44,7 +51,7 @@ jobs:
       - name: Ver iconos generados
         run: find android/app/src/main/res -name "ic_launcher*" | sort
 
-      - name: Versión y firma
+      - name: Versión, firma e icono
         run: node scripts/configure-android.js
 
       - name: Copiar la web a Android
@@ -54,8 +61,18 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
-          cp app/build/outputs/apk/release/app-release.apk "../to-be-read-${{ steps.ver.outputs.version }}.apk"
+          ./gradlew assembleRelease --no-daemon --stacktrace
+          ls -la app/build/outputs/apk/release/
+
+      - name: Preparar y verificar el APK
+        run: |
+          APK=$(find android/app/build/outputs/apk/release -name "*.apk" | head -1)
+          test -n "$APK" || { echo "::error::No se generó ningún APK"; exit 1; }
+          case "$APK" in *unsigned*) echo "::error::El APK salió sin firmar"; exit 1;; esac
+          cp "$APK" "to-be-read-${{ steps.ver.outputs.version }}.apk"
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -1)
+          if [ -n "$APKSIGNER" ]; then "$APKSIGNER" verify --print-certs "to-be-read-${{ steps.ver.outputs.version }}.apk"; fi
+          ls -la to-be-read-*.apk
 
       - name: Guardar APK (Actions)
         uses: actions/upload-artifact@v4
