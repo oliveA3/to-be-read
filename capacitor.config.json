@@ -1,0 +1,8 @@
+{
+  "appId": "com.luisarf04.porleer",
+  "appName": "To be read",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#ece3ef"
+  }
+}
