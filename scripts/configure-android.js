@@ -31,6 +31,38 @@ if (!g.includes('signingConfigs {')) {
     buildTypes {`);
   g = g.replace(/release\s*\{\s*\n(\s*)minifyEnabled/, (all, sp) => `release {\n${sp}signingConfig signingConfigs.release\n${sp}minifyEnabled`);
 }
+
+// Icono: si el generador dejó sin crear algún recurso @mipmap/... del icono adaptable
+// (p. ej. el fondo), usamos un color sólido para que la compilación no falle.
+(function fixIcons() {
+  const res = path.join(root, 'android/app/src/main/res');
+  if (!fs.existsSync(res)) return;
+  const dirs = fs.readdirSync(res).filter(d => d.startsWith('mipmap-'));
+  const exists = name => dirs.some(d => fs.readdirSync(path.join(res, d)).some(f => f.replace(/\.[^.]+$/, '') === name));
+  let usedColor = false;
+  for (const d of dirs.filter(d => d.startsWith('mipmap-anydpi'))) {
+    for (const f of fs.readdirSync(path.join(res, d)).filter(f => f.endsWith('.xml'))) {
+      const fp = path.join(res, d, f);
+      let x = fs.readFileSync(fp, 'utf8');
+      const x2 = x.replace(/@mipmap\/([A-Za-z0-9_]+)/g, (all, name) => {
+        if (exists(name)) return all;
+        if (name === 'ic_launcher_background') { usedColor = true; return '@color/ic_launcher_background'; }
+        console.warn(`Aviso: falta el recurso @mipmap/${name}`);
+        return all;
+      });
+      if (x2 !== x) fs.writeFileSync(fp, x2);
+    }
+  }
+  if (usedColor) {
+    const vdir = path.join(res, 'values');
+    fs.mkdirSync(vdir, { recursive: true });
+    const vf = path.join(vdir, 'ic_launcher_background.xml');
+    const has = fs.existsSync(vf) && /name="ic_launcher_background"/.test(fs.readFileSync(vf, 'utf8'));
+    if (!has) fs.writeFileSync(vf, '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#ECE3EF</color>\n</resources>\n');
+    console.log('Icono: fondo de color sólido (no se generó ic_launcher_background)');
+  }
+})();
+
 fs.writeFileSync(gradlePath, g);
 if (!/signingConfig signingConfigs\.release/.test(g)) { console.error('No pude añadir la firma a build.gradle'); process.exit(1); }
 console.log(`Android listo: versión ${versionName} (build ${versionCode}), firmado con keystore/por-leer.jks`);
