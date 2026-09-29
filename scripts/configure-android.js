@@ -117,6 +117,171 @@ if (!/signingConfig\s+signingConfigs\.release/.test(g)) fail('No pude activar la
 if (!/checkReleaseBuilds/.test(g)) g = g.replace(/^android\s*\{/m, 'android {\n    lint {\n        checkReleaseBuilds false\n        abortOnError false\n    }\n');
 fs.writeFileSync(gradlePath, g);
 
+/* ---------- 2b. Endurecer el manifiesto (sin tráfico http sin cifrar) ---------- */
+(function hardenManifest() {
+  const mp = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  if (!fs.existsSync(mp)) return;
+  let m = fs.readFileSync(mp, 'utf8');
+  if (!/usesCleartextTraffic/.test(m)) {
+    m = m.replace(/<application\b/, '<application android:usesCleartextTraffic="false"');
+    fs.writeFileSync(mp, m);
+    console.log('Manifiesto: tráfico sin cifrar desactivado');
+  }
+})();
+
+/* ---------- 2c. Enlaces a archivos de libros (plugin propio, sin copiar el archivo) ---------- */
+(function nativeFiles() {
+  const cfg = JSON.parse(fs.readFileSync(path.join(root, 'capacitor.config.json'), 'utf8'));
+  const appId = cfg.appId;
+  const javaDir = path.join(root, 'android/app/src/main/java', appId.split('.').join('/'));
+  if (!fs.existsSync(path.join(root, 'android/app/src/main'))) return;
+  fs.mkdirSync(javaDir, { recursive: true });
+
+  fs.writeFileSync(path.join(javaDir, 'FileOpenerPlugin.java'), [
+    'package ' + appId + ';',
+    '',
+    'import android.app.Activity;',
+    'import android.content.ActivityNotFoundException;',
+    'import android.content.Intent;',
+    'import android.database.Cursor;',
+    'import android.net.Uri;',
+    'import android.provider.OpenableColumns;',
+    'import android.util.Base64;',
+    'import androidx.activity.result.ActivityResult;',
+    'import com.getcapacitor.JSObject;',
+    'import com.getcapacitor.Plugin;',
+    'import com.getcapacitor.PluginCall;',
+    'import com.getcapacitor.PluginMethod;',
+    'import com.getcapacitor.annotation.ActivityCallback;',
+    'import com.getcapacitor.annotation.CapacitorPlugin;',
+    'import java.io.ByteArrayOutputStream;',
+    'import java.io.InputStream;',
+    '',
+    '@CapacitorPlugin(name = "FileOpener")',
+    'public class FileOpenerPlugin extends Plugin {',
+    '',
+    '    /** Abre el selector de archivos del sistema y guarda el permiso de lectura de forma permanente. */',
+    '    @PluginMethod',
+    '    public void pick(PluginCall call) {',
+    '        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);',
+    '        intent.addCategory(Intent.CATEGORY_OPENABLE);',
+    '        intent.setType("*/*");',
+    '        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/pdf", "application/epub+zip"});',
+    '        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);',
+    '        startActivityForResult(call, intent, "pickResult");',
+    '    }',
+    '',
+    '    @ActivityCallback',
+    '    private void pickResult(PluginCall call, ActivityResult result) {',
+    '        if (call == null) return;',
+    '        if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null || result.getData().getData() == null) {',
+    '            call.reject("cancelled");',
+    '            return;',
+    '        }',
+    '        Uri uri = result.getData().getData();',
+    '        try {',
+    '            getContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);',
+    '        } catch (Exception e) {',
+    '            // algunos proveedores no permiten permiso permanente; se sigue igual',
+    '        }',
+    '        String name = "libro";',
+    '        Cursor cursor = null;',
+    '        try {',
+    '            cursor = getContext().getContentResolver().query(uri, null, null, null, null);',
+    '            if (cursor != null && cursor.moveToFirst()) {',
+    '                int i = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);',
+    '                if (i >= 0) name = cursor.getString(i);',
+    '            }',
+    '        } catch (Exception e) {',
+    '            // se queda el nombre por defecto',
+    '        } finally {',
+    '            if (cursor != null) cursor.close();',
+    '        }',
+    '        String type = getContext().getContentResolver().getType(uri);',
+    '        JSObject ret = new JSObject();',
+    '        ret.put("uri", uri.toString());',
+    '        ret.put("name", name);',
+    '        ret.put("type", type == null ? "" : type);',
+    '        call.resolve(ret);',
+    '    }',
+    '',
+    '    /** Abre el archivo con la app que el usuario tenga por defecto para ese tipo. */',
+    '    @PluginMethod',
+    '    public void open(PluginCall call) {',
+    '        String u = call.getString("uri");',
+    '        String type = call.getString("type", "*/*");',
+    '        if (u == null || u.isEmpty()) { call.reject("missing_uri"); return; }',
+    '        try {',
+    '            Intent intent = new Intent(Intent.ACTION_VIEW);',
+    '            intent.setDataAndType(Uri.parse(u), type);',
+    '            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);',
+    '            getContext().startActivity(intent);',
+    '            call.resolve();',
+    '        } catch (ActivityNotFoundException e) {',
+    '            call.reject("no_app");',
+    '        } catch (SecurityException e) {',
+    '            call.reject("not_found");',
+    '        } catch (Exception e) {',
+    '            call.reject(String.valueOf(e.getMessage()));',
+    '        }',
+    '    }',
+    '',
+    '    /** Lee el archivo (para sacar portada y datos). Devuelve base64. */',
+    '    @PluginMethod',
+    '    public void read(PluginCall call) {',
+    '        String u = call.getString("uri");',
+    '        if (u == null || u.isEmpty()) { call.reject("missing_uri"); return; }',
+    '        try (InputStream in = getContext().getContentResolver().openInputStream(Uri.parse(u))) {',
+    '            if (in == null) { call.reject("not_found"); return; }',
+    '            ByteArrayOutputStream out = new ByteArrayOutputStream();',
+    '            byte[] buf = new byte[65536];',
+    '            int n;',
+    '            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);',
+    '            JSObject ret = new JSObject();',
+    '            ret.put("data", Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP));',
+    '            call.resolve(ret);',
+    '        } catch (SecurityException e) {',
+    '            call.reject("permission");',
+    '        } catch (java.io.FileNotFoundException e) {',
+    '            call.reject("not_found");',
+    '        } catch (Exception e) {',
+    '            call.reject(String.valueOf(e.getMessage()));',
+    '        }',
+    '    }',
+    '',
+    '    /** Suelta el permiso permanente cuando se quita el enlace. */',
+    '    @PluginMethod',
+    '    public void release(PluginCall call) {',
+    '        String u = call.getString("uri");',
+    '        try {',
+    '            if (u != null) getContext().getContentResolver().releasePersistableUriPermission(Uri.parse(u), Intent.FLAG_GRANT_READ_URI_PERMISSION);',
+    '        } catch (Exception e) {',
+    '            // nada que soltar',
+    '        }',
+    '        call.resolve();',
+    '    }',
+    '}',
+    ''
+  ].join('\n'));
+
+  fs.writeFileSync(path.join(javaDir, 'MainActivity.java'), [
+    'package ' + appId + ';',
+    '',
+    'import android.os.Bundle;',
+    'import com.getcapacitor.BridgeActivity;',
+    '',
+    'public class MainActivity extends BridgeActivity {',
+    '    @Override',
+    '    public void onCreate(Bundle savedInstanceState) {',
+    '        registerPlugin(FileOpenerPlugin.class);',
+    '        super.onCreate(savedInstanceState);',
+    '    }',
+    '}',
+    ''
+  ].join('\n'));
+  console.log('Android: enlaces a archivos de libros listos');
+})();
+
 /* ---------- 3. Icono ---------- */
 // Si el generador dejó sin crear algún recurso @mipmap/... del icono adaptable
 // (p. ej. el fondo), usamos un color sólido para que la compilación no falle.

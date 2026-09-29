@@ -7,7 +7,7 @@
 <title>To be read</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cpath%20d%3D%22M49%2025c-2-3%202-5%200-8M54%2026c-2-3%202-5%200-8%22%20fill%3D%22none%22%20stroke%3D%22%23b894d0%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Crect%20x%3D%226%22%20y%3D%2247%22%20width%3D%2240%22%20height%3D%229%22%20rx%3D%222%22%20fill%3D%22%235b2a7a%22/%3E%3Cpath%20d%3D%22M9%2051.5h32%22%20stroke%3D%22%23efe4f6%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%3Crect%20x%3D%229%22%20y%3D%2239%22%20width%3D%2235%22%20height%3D%228.5%22%20rx%3D%222%22%20fill%3D%22%23b58bd3%22/%3E%3Cpath%20d%3D%22M12%2043.3h28%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M40%2037c6%200%206%207%200%207%22%20fill%3D%22none%22%20stroke%3D%22%231f1826%22%20stroke-width%3D%223.2%22%20stroke-linecap%3D%22round%22/%3E%3Cellipse%20cx%3D%2229%22%20cy%3D%2233%22%20rx%3D%2213%22%20ry%3D%227%22%20fill%3D%22%231f1826%22/%3E%3Cpath%20d%3D%22M12.5%2025l1-7%205%204.2zM22.5%2022.2l5-3.7.2%207z%22%20fill%3D%22%231f1826%22/%3E%3Ccircle%20cx%3D%2219%22%20cy%3D%2229%22%20r%3D%227.4%22%20fill%3D%22%231f1826%22/%3E%3Cpath%20d%3D%22M14.3%2018.9l.5%203.3%202.2-1.7zM26.6%2020.7l-2.4%201.8%202.6%201.3z%22%20fill%3D%22%23c9a7de%22/%3E%3Cpath%20d%3D%22M14.6%2028.6q1.6%201.4%203.2%200M20.4%2028.6q1.6%201.4%203.2%200%22%20fill%3D%22none%22%20stroke%3D%22%23e9dcf3%22%20stroke-width%3D%221.3%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M18.2%2031.2h1.6l-.8%201z%22%20fill%3D%22%23f2a7c3%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2231%22%20width%3D%2213%22%20height%3D%2217%22%20rx%3D%223.5%22%20fill%3D%22%237f47a3%22/%3E%3Cpath%20d%3D%22M59%2035.5c4%200%204%207.5%200%207.5%22%20fill%3D%22none%22%20stroke%3D%22%237f47a3%22%20stroke-width%3D%222.6%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2231%22%20width%3D%2213%22%20height%3D%223.4%22%20rx%3D%221.7%22%20fill%3D%22%235b2a7a%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 :root{
   --parch:#ece3ef; --parch2:#f8f3f8; --parch3:#e3d6e9;
@@ -31,7 +31,7 @@ body{
 }
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0;padding:0}
-.app{max-width:520px;margin:0 auto;padding:18px 16px 110px}
+.app{max-width:520px;margin:0 auto;padding:18px 16px calc(132px + env(safe-area-inset-bottom,0px))}
 
 /* Cabecera */
 .head .top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:6px}
@@ -57,10 +57,10 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .search input{flex:1;border:0;background:transparent;outline:0;font-size:16px;min-width:0}
 .search input::placeholder{color:#9b89a8;font-style:italic}
 .search svg{flex:none;color:var(--ink2)}
-.chips{display:flex;gap:8px;margin:12px 0 4px;align-items:center;flex-wrap:wrap}
-.chip{padding:5px 14px;border:1px solid var(--line);border-radius:999px;background:transparent;font-size:15px;color:var(--ink2)}
+.chips{display:flex;gap:5px;margin:9px 0 2px;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:transparent;font-size:14px;color:var(--ink2);flex:none;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--plum);border-color:var(--plum);color:#f8f0fb}
-.chip.filt{margin-left:auto;display:flex;align-items:center;gap:6px}
+.chip.filt{margin-left:auto;display:flex;align-items:center;gap:4px;padding:4px 9px}.chip.filt b{font-weight:600}
 .chip.filt.on{border-color:var(--plum2);color:var(--plum2)}
 
 /* Lista */
@@ -109,11 +109,11 @@ button{cursor:pointer;background:none;border:0;padding:0}
 /* FAB + menú */
 .fab{position:fixed;right:18px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%,var(--plum2),var(--plum));color:#f8eefc;display:grid;place-items:center;
-  border:2px solid #3f1a57;box-shadow:0 4px 12px rgba(50,15,75,.4),inset 0 0 0 3px rgba(248,238,252,.22);z-index:20}
+  border:0;box-shadow:0 4px 12px rgba(50,15,75,.4);z-index:20}
 .fab svg{transition:transform .2s}
 .fab.on svg{transform:rotate(45deg)}
-.menu{position:fixed;right:18px;bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--parch2);border:1px solid var(--line);border-radius:12px;
-  box-shadow:0 8px 20px rgba(50,15,75,.28);z-index:20;display:none;min-width:230px;padding:6px}
+.menu{position:fixed;left:0;right:0;margin:0 auto;width:236px;bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--parch2);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 8px 20px rgba(50,15,75,.28);z-index:21;display:none;padding:6px}
 .menu.on{display:block;animation:pop .18s ease}
 @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
 .menu button{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 10px;font-size:16px;border-radius:8px}
@@ -174,7 +174,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .btn.del{flex:none;border-color:#b4577a;color:#9c2f58;padding:12px 14px;transition:all .15s}
 .btn.del.arm{background:#9c2f58;color:#fff;border-color:#9c2f58}
 .hint{font-size:13px;color:var(--ink2);margin-top:5px}
-.toast{font-size:15px;position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#fbf4fe;padding:9px 16px;border-radius:10px;z-index:40;opacity:0;pointer-events:none;transition:opacity .25s;max-width:88%;text-align:center}
+.toast{font-size:15px;position:fixed;left:50%;bottom:calc(112px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#fbf4fe;padding:9px 16px;border-radius:10px;z-index:40;opacity:0;pointer-events:none;transition:opacity .25s;max-width:88%;text-align:center}
 .toast.on{opacity:1}
 .gbody .row.urow{background:var(--parch2);border:1px solid var(--line);border-radius:8px;margin:0 6px 8px}
 .gbody .row.urow+.row,.gbody .card+.row.urow{border-top:1px solid var(--line)}
@@ -203,19 +203,118 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .switch[aria-checked="true"] span{transform:translateX(18px)}
 :focus-visible{outline:2px solid var(--plum2);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.tag{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.5;white-space:nowrap;
+  background:hsl(var(--gh) 72% 92%);color:hsl(var(--gh) 58% 28%);border:1px solid hsl(var(--gh) 50% 80%)}
+.bgen{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.read .bgen{opacity:.65}
+.bgen .tag{cursor:pointer}
+.gscroll{margin:6px 0 2px}.gscroll:empty{display:none}
+.gtog{display:flex;align-items:center;gap:8px;width:100%;padding:7px 12px;border:1px solid var(--line);border-radius:10px;background:var(--parch2);font-size:15px;color:var(--ink2);text-align:left}
+.gtog .cur{margin-left:auto;display:flex;align-items:center}
+.gtog .chev{transition:transform .2s;flex:none;color:var(--lilac)}.gtog[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.gpanel{display:none;flex-wrap:wrap;gap:6px;padding:10px 2px 4px}.gpanel.on{display:flex}
+.gscroll .tag{font-size:13px;padding:3px 11px;cursor:pointer;font-family:inherit}
+.gside2{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.gscroll .tag[aria-pressed="true"]{background:hsl(var(--gh) 55% 40%);border-color:hsl(var(--gh) 55% 32%);color:#fff}
+.gchips .chip{background:hsl(var(--gh) 72% 94%);border-color:hsl(var(--gh) 50% 80%);color:hsl(var(--gh) 58% 28%)}
+.gchips .chip[aria-pressed="true"]{background:hsl(var(--gh) 55% 40%);border-color:hsl(var(--gh) 55% 32%);color:#fff}
+.sugg{display:none;margin-top:8px;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink2)}.sugg.on{display:flex}
+.sugg button{padding:4px 12px;border:1px dashed var(--plum2);border-radius:999px;background:#f6effa;color:var(--plum);font-size:14px}.sugg button:active{background:var(--parch3)}
+.gchips{display:flex;gap:7px;flex-wrap:wrap}.gchips .chip{font-size:14px;padding:4px 12px}
+.gadd{display:flex;gap:8px;margin-top:10px}.gadd input{flex:1;min-width:0;padding:8px 12px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:15px;outline:0}
+.gadd input:focus{border-color:var(--plum2)}.gadd button{padding:0 14px;border-radius:10px;border:1.5px solid var(--plum2);color:var(--plum2);background:transparent;font-size:15px}
+.tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0 4px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.tile b{display:block;font-family:var(--font-title);font-size:26px;line-height:1.1;color:var(--plum);font-weight:600}
+.tile span{font-size:11px;color:var(--ink2);letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.bar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
+.bar .bn{flex:none;width:112px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .bt2{flex:1;height:10px;border-radius:6px;background:var(--parch3);overflow:hidden}
+.bar .bt2 i{display:block;height:100%;border-radius:6px;background:hsl(var(--gh,272) 55% 82%);overflow:hidden}
+.bar .bt2 i b{display:block;height:100%;background:hsl(var(--gh,272) 55% 40%)}
+.bar .bv{flex:none;width:44px;text-align:right;color:var(--ink2);font-size:13px}
+.note{color:var(--ink2);font-size:13.5px;margin:6px 0}
+.months{display:flex;align-items:flex-end;gap:5px;height:84px;margin-top:8px}
+.months div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--ink2);gap:3px}
+.months i{display:block;width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--plum2),var(--plum));min-height:2px}
+.months div.z i{background:var(--parch3)}
+.stick{position:sticky;top:0;z-index:15;margin:0 -16px;padding:8px 16px 8px;background:var(--parch);border-bottom:1px solid transparent}
+.stick.on{border-bottom-color:var(--line);box-shadow:0 5px 10px -6px rgba(60,25,85,.28)}
+.head .rule{margin:10px 0 4px}
+.sep{display:flex;align-items:center;gap:10px;margin:14px 2px 8px;font-size:12px;letter-spacing:.7px;text-transform:uppercase;font-weight:700;color:var(--plum2)}
+.sep::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.sep span{font-weight:600;color:var(--ink2);letter-spacing:0}
+.sep.s2{color:var(--ink2);margin-top:22px;padding-top:14px;border-top:2px dashed var(--line)}
+.sep.s0{color:var(--plum)}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.6px;line-height:1.4}
+.pill.reading{background:var(--plum);color:#fff}
+.pill.dropped{background:transparent;color:#6b587a;border:1.5px dashed #a08fae;padding:1px 6px}
+[hidden]{display:none!important}
+.reading .seal{border-color:var(--plum2);background:linear-gradient(90deg,var(--plum2) 50%,#fff 50%)}
+.dropped .seal{border-color:#a08fae;background:#efe8f3;color:#7c6a8a}
+.dropped .btitle{color:#8c7b98}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;margin:8px 0;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+.opt:active{background:var(--parch3)}
+.opt[aria-pressed="true"]{border-color:var(--plum2);background:#f6effa;box-shadow:0 0 0 3px rgba(127,71,163,.15)}
+.opt .oi{flex:none;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--lilac);display:grid;place-items:center;color:var(--plum2)}
+.opt b{display:block;font-weight:600}.opt small{color:var(--ink2);font-size:13px}
+.seg.four{grid-template-columns:1fr 1fr}
+.box.lock .rate,.box.lock #bhalf{opacity:.35;pointer-events:none}
+.lockmsg{display:none;font-size:13.5px;color:var(--plum);margin-top:6px}.box.lock .lockmsg{display:block}
+.warn{background:#fbecf1;border:1px solid #e7b8c9;color:#8a2a4d;border-radius:10px;padding:10px 12px;font-size:14px;margin:14px 0 0}
+.droptgt{outline:3px solid var(--plum2)!important;outline-offset:-3px;background:#efe3f7!important}
+.row[data-dk],.card[data-dk] .ghead{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.dsib{transition:transform .16s ease}
+.lift{position:relative;z-index:6;box-shadow:0 12px 28px rgba(50,15,75,.4)!important;background:var(--parch2);transition:none!important;opacity:.98}
+.lift.out{outline:2px dashed #b4577a;outline-offset:-2px}
+body.dragging{cursor:grabbing}
+.dragbar{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--plum);color:#fbf4fe;padding:10px 18px;border-radius:12px;z-index:45;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;max-width:90%;text-align:center;font-size:15px;box-shadow:0 6px 18px rgba(40,10,60,.4)}
+.dragbar.on{opacity:1;transform:translateX(-50%)}.dragbar.out{background:#9c2f58}
+.fic{width:13px;height:13px;vertical-align:-1px;margin-left:5px;color:var(--lilac)}
+.fromfile{width:100%;text-align:left;font:inherit;color:inherit}
+.fline{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px}
+.fline svg{flex:none;color:var(--plum2)}.fline .fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.fbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.fbtns button{padding:6px 13px;border-radius:999px;border:1.5px solid var(--plum2);color:var(--plum2);font-size:14px;background:transparent}
+.fbtns button.pri{background:var(--plum2);color:#fff}.fbtns button.rm{border-color:#b4577a;color:#9c2f58}
+.openb{color:var(--plum);border-color:var(--lilac);background:#f3e9fa}
+.gchips .chip.more{border-style:dashed;color:var(--ink2);background:transparent;border-color:var(--line)}
+.gchips{gap:6px}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 84px 1fr;align-items:end;
+  padding:6px 12px calc(8px + env(safe-area-inset-bottom,0px));background:var(--parch2);border-top:1px solid var(--line);
+  box-shadow:0 -6px 16px -6px rgba(60,25,85,.22);border-radius:18px 18px 0 0}
+.nb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 4px;font-size:11.5px;font-weight:600;color:var(--ink2);border-radius:12px;letter-spacing:.2px}
+.nb:active{background:var(--parch3);color:var(--plum)}
+.nb svg{display:block}
+.nav .fab{position:relative;right:auto;bottom:auto;justify-self:center;margin-top:-30px;width:60px;height:60px;
+  box-shadow:0 6px 14px rgba(50,15,75,.35),0 0 0 5px var(--parch2)}
+.ico{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}.ico.ck{stroke-width:3}
+.seal .ico{width:16px;height:16px}.pen .ico{width:16px;height:16px}
+.stars2{position:relative;display:inline-block;font-size:14px;letter-spacing:1px;line-height:1;font-family:Arial,sans-serif;color:var(--star0)}
+.stars2::before{content:"★★★★★"}
+.stars2::after{content:"★★★★★";position:absolute;left:0;top:0;color:var(--star);overflow:hidden;white-space:nowrap;width:calc(var(--v)*20%)}
+.dg-anc{overflow:visible!important;content-visibility:visible!important;contain:none!important}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></symbol>
+<symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></symbol>
+</defs></svg>
 <div class="app">
   <header class="head">
-    <div class="top"><div class="brand"><svg class="logo" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M49 25c-2-3 2-5 0-8M54 26c-2-3 2-5 0-8" fill="none" stroke="#b894d0" stroke-width="2" stroke-linecap="round"/><rect x="6" y="47" width="40" height="9" rx="2" fill="#5b2a7a"/><path d="M9 51.5h32" stroke="#efe4f6" stroke-width="1.6" stroke-linecap="round"/><rect x="9" y="39" width="35" height="8.5" rx="2" fill="#b58bd3"/><path d="M12 43.3h28" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M40 37c6 0 6 7 0 7" fill="none" stroke="#1f1826" stroke-width="3.2" stroke-linecap="round"/><ellipse cx="29" cy="33" rx="13" ry="7" fill="#1f1826"/><path d="M12.5 25l1-7 5 4.2zM22.5 22.2l5-3.7.2 7z" fill="#1f1826"/><circle cx="19" cy="29" r="7.4" fill="#1f1826"/><path d="M14.3 18.9l.5 3.3 2.2-1.7zM26.6 20.7l-2.4 1.8 2.6 1.3z" fill="#c9a7de"/><path d="M14.6 28.6q1.6 1.4 3.2 0M20.4 28.6q1.6 1.4 3.2 0" fill="none" stroke="#e9dcf3" stroke-width="1.3" stroke-linecap="round"/><path d="M18.2 31.2h1.6l-.8 1z" fill="#f2a7c3"/><rect x="46" y="31" width="13" height="17" rx="3.5" fill="#7f47a3"/><path d="M59 35.5c4 0 4 7.5 0 7.5" fill="none" stroke="#7f47a3" stroke-width="2.6"/><rect x="46" y="31" width="13" height="3.4" rx="1.7" fill="#5b2a7a"/></svg><h1 data-t="app">To be read</h1></div><div class="tr"><div class="count" id="count"></div><button class="gear" id="sharebtn" aria-label="Compartir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></button><button class="gear" id="gear" aria-label="Ajustes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div></div>
+    <div class="top"><div class="brand"><svg class="logo" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M49 25c-2-3 2-5 0-8M54 26c-2-3 2-5 0-8" fill="none" stroke="#b894d0" stroke-width="2" stroke-linecap="round"/><rect x="6" y="47" width="40" height="9" rx="2" fill="#5b2a7a"/><path d="M9 51.5h32" stroke="#efe4f6" stroke-width="1.6" stroke-linecap="round"/><rect x="9" y="39" width="35" height="8.5" rx="2" fill="#b58bd3"/><path d="M12 43.3h28" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M40 37c6 0 6 7 0 7" fill="none" stroke="#1f1826" stroke-width="3.2" stroke-linecap="round"/><ellipse cx="29" cy="33" rx="13" ry="7" fill="#1f1826"/><path d="M12.5 25l1-7 5 4.2zM22.5 22.2l5-3.7.2 7z" fill="#1f1826"/><circle cx="19" cy="29" r="7.4" fill="#1f1826"/><path d="M14.3 18.9l.5 3.3 2.2-1.7zM26.6 20.7l-2.4 1.8 2.6 1.3z" fill="#c9a7de"/><path d="M14.6 28.6q1.6 1.4 3.2 0M20.4 28.6q1.6 1.4 3.2 0" fill="none" stroke="#e9dcf3" stroke-width="1.3" stroke-linecap="round"/><path d="M18.2 31.2h1.6l-.8 1z" fill="#f2a7c3"/><rect x="46" y="31" width="13" height="17" rx="3.5" fill="#7f47a3"/><path d="M59 35.5c4 0 4 7.5 0 7.5" fill="none" stroke="#7f47a3" stroke-width="2.6"/><rect x="46" y="31" width="13" height="3.4" rx="1.7" fill="#5b2a7a"/></svg><h1 data-t="app">To be read</h1></div><div class="tr"><div class="count" id="count"></div><button class="gear" id="sharebtn" aria-label="Compartir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></button></div></div>
     <div class="rule"></div>
+  </header>
+  <div id="sent" style="height:1px;margin-top:-1px"></div>
+  <div class="stick" id="stick">
     <label class="search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
       <input id="q" type="search" placeholder="Buscar título, autor, saga…" autocomplete="off">
     </label>
     <div class="chips" id="chips"></div>
-  </header>
+  </div>
   <main class="list" id="list"></main>
 </div>
 
@@ -224,13 +323,18 @@ button{cursor:pointer;background:none;border:0;padding:0}
   <button data-a="new-saga"><span class="ic" style="background:#9a5fb8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="M15.5 5.5l3.8-1 3 15.4-3.8 1z"/></svg></span><span data-t="saga">Saga</span></button>
   <button data-a="new-uni"><span class="ic" style="background:#5b2a7a"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/></svg></span><span data-t="universe">Universo</span></button>
 </div>
-<button class="fab" id="fab" aria-label="Añadir"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+<nav class="nav" id="nav">
+  <button class="nb" id="statsbtn" aria-label="Estadísticas"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span data-t="statsT">Estadísticas</span></button>
+  <button class="fab" id="fab" aria-label="Añadir"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button class="nb" id="gear" aria-label="Ajustes"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-t="settings">Ajustes</span></button>
+</nav>
 <input type="file" id="file" class="vh">
 <input type="file" id="covfile" accept="image/*" class="vh">
 <input type="file" id="jsonfile" accept=".json,application/json" class="vh">
 <div class="back" id="back"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
 <div class="toast" id="toast"></div>
+<div class="dragbar" id="dragbar"></div>
 
 <script>
 const $=s=>document.querySelector(s);
@@ -239,7 +343,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.2.0',BUILD=4;
+const VERSION='0.7.0',BUILD=14;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -274,8 +378,8 @@ const I18N={
   yourRating:'Tu valoración',ratingSaved:'Valoración guardada',
   newSaga:'Nueva saga',inSaga:n=>`${pl(n,'libro','libros')} en esta saga`,sagaSub:'Agrupa libros en orden de lectura',name:'Nombre',order:'Orden',sagaRating:'Valoración de la saga',
   autoHint:'Automática: media de los libros valorados. Toca las estrellas para fijarla a mano.',manual:'Fijada a mano.',backAvg:'Volver a la media',
-  sagaDeleted:'Saga eliminada; sus libros quedan sueltos',sagaUpd:'Saga actualizada',sagaNew:'Saga creada',
-  newUni:'Nuevo universo',uniSub:'Un mundo con sagas y libros sueltos',uniDeleted:'Universo eliminado; su contenido queda suelto',uniUpd:'Universo actualizado',uniNew:'Universo creado',
+  sagaDeleted:'Saga y sus libros eliminados',sagaUpd:'Saga actualizada',sagaNew:'Saga creada',
+  newUni:'Nuevo universo',uniSub:'Un mundo con sagas y libros sueltos',uniDeleted:'Universo y todo su contenido eliminados',uniUpd:'Universo actualizado',uniNew:'Universo creado',
   filtSub:'Afina lo que ves en la lista',minRating:'Valoración mínima',clear:'Limpiar',apply:'Aplicar',
   pickFile:'Elige un archivo .epub o .pdf',reading:'Leyendo el archivo…',detectedT:'Datos detectados',noMeta:'No pude leer los metadatos; rellénalos a mano',noImg:'No pude leer la imagen',
   stars:n=>`${n} estrellas`,remove:'Quitar',
@@ -287,6 +391,17 @@ const I18N={
   exported:'Copia descargada',noExport:'No se pudo descargar la copia aquí',imported:'Copia importada',badBackup:'Ese archivo no es una copia válida',
   about:'Acerca de',version:'Versión',stats:(b,s,u)=>`${pl(b,'libro','libros')} · ${pl(s,'saga','sagas')} · ${pl(u,'universo','universos')}`,
   storage:'Los datos se guardan solo en este dispositivo.',
+  genres:'Géneros',genreOther:'Otro género',genreAdd:'Añadir',genreNone:'Sin género',genrePh:'Escribe un género',suggAuthor:'¿Es de…?',
+  g_fantasy:'Fantasía',g_scifi:'Ciencia ficción',g_romance:'Romance',g_mystery:'Misterio y crimen',g_thriller:'Suspenso',g_horror:'Terror',g_historical:'Histórica',g_ya:'Juvenil',g_classic:'Clásico',g_litfic:'Narrativa',g_nonfic:'No ficción',g_bio:'Biografía',g_selfhelp:'Desarrollo personal',g_comic:'Cómic y manga',g_poetry:'Poesía',g_adventure:'Aventura',
+  statsT:'Estadísticas',statsSub:'Tu lectura de un vistazo',stRead:'Leídos',stPending:'Pendientes',stAvg:'Nota media',stYear:'Este año',stRatings:'Tus notas',stGenres:'Por género',stAuthors:'Autores con más libros',stMonths:'Leídos por mes',stNoGenres:'Añade géneros a tus libros para ver aquí cuáles lees más.',stNoDates:'Desde ahora se guarda la fecha en que marcas un libro como leído; aquí verás tu ritmo por mes.',stEmpty:'Aún no hay libros. Añade alguno y aquí verás tus estadísticas.',stLegend:'Oscuro = leídos · claro = pendientes',stUnrated:'Sin nota',stClose:'Cerrar',
+  st_unread:'Por leer',st_reading:'Leyendo',st_read:'Leído',st_dropped:'Abandonado',
+  stD_unread:'Aún no lo empiezo',stD_reading:'Lo estoy leyendo ahora',stD_read:'Lo terminé',stD_dropped:'Lo dejé a medias y no pienso terminarlo',
+  statusT:'Estado del libro',statusSub:'¿En qué punto está?',readingF:'Leyendo',droppedF:'Abandonados',stateL:'Estado',
+  secReading:'Leyendo',secPending:'Pendientes',secDone:'Terminados',
+  rateLock:'Para calificar un libro debes leerlo o abandonarlo.',sagaRateLock:'Para calificar la saga necesitas al menos un libro leído o abandonado.',
+  delSagaWarn:n=>n?`Al eliminar la saga se borrarán también sus ${pl(n,'libro','libros')}.`:'Al eliminar la saga se borrará todo lo que contiene.',
+  delUniWarn:(s,b)=>`Al eliminar el universo se borrarán también ${pl(s,'saga','sagas')} y ${pl(b,'libro','libros')} (todo lo que contiene).`,
+  delAllSure:'Toca otra vez: se borra todo',storageFull:'No se pudo guardar: el almacenamiento está lleno. Exporta una copia y quita portadas.',genLess:'Menos ▴',shareJson:'Enviar copia de seguridad (.json)',shareJsonD:'Todo tu contenido, para guardarlo o mandarlo por WhatsApp',fileL:'Archivo del libro',fileAttach:'Vincular un archivo .epub o .pdf',fileAttachD:'Guarda solo el enlace (no una copia). Al tocar el libro se abre con tu app de lectura',fileOpen:'Abrir',fileLoad:'Cargar portada y datos',fileRemove:'Quitar',fileLinked:'Archivo vinculado ✓',fileLoaded:'Datos y portada cargados del archivo',fileSaving:'Guardando archivo…',fileSaveFail:'No pude guardar el archivo (el libro se guarda igual)',fileNoApp:'No hay ninguna app instalada para abrir este archivo',fileGone:'No encuentro el archivo (¿lo moviste o borraste?). Vuélvelo a vincular en Editar',fileFail:'No pude abrir el archivo',fileNoRead:'No pude leer los datos del archivo',dragMove:'Suelta para cambiar el orden',dragInto:n=>`Suelta para meterlo en «${n}»`,movedInto:n=>`Movido a «${n}»`,dragFree:'Arrastra sobre una saga o universo para meterlo',dragOut:n=>`Suelta para sacarlo de «${n}»`,dragNoFilter:'Quita la búsqueda y los filtros para reordenar',reordered:'Orden actualizado',takenOut:n=>`Sacado de «${n}»`,stReading:'Leyendo',stDropped:'Abandonados',
   share:'Compartir lista',shareSub:'Tu lista en texto, lista para enviar',shareNow:'Compartir',copy:'Copiar',saveTxt:'Guardar .txt',copied:'Lista copiada',noCopy:'No se pudo copiar; mantén pulsado el texto para copiarlo',shareTitle:'To be read',incl:'Incluir',incUnread:'Sin leer',incRead:'Leídos',shareD:'Envía tu lista en texto por WhatsApp u otra app'
  },
  en:{
@@ -305,8 +420,8 @@ const I18N={
   yourRating:'Your rating',ratingSaved:'Rating saved',
   newSaga:'New series',inSaga:n=>`${pl(n,'book','books')} in this series`,sagaSub:'Group books in reading order',name:'Name',order:'Order',sagaRating:'Series rating',
   autoHint:'Automatic: average of rated books. Tap the stars to set it yourself.',manual:'Set manually.',backAvg:'Back to average',
-  sagaDeleted:'Series deleted; its books are now standalone',sagaUpd:'Series updated',sagaNew:'Series created',
-  newUni:'New universe',uniSub:'A world with series and standalone books',uniDeleted:'Universe deleted; its contents are now standalone',uniUpd:'Universe updated',uniNew:'Universe created',
+  sagaDeleted:'Series and its books deleted',sagaUpd:'Series updated',sagaNew:'Series created',
+  newUni:'New universe',uniSub:'A world with series and standalone books',uniDeleted:'Universe and everything in it deleted',uniUpd:'Universe updated',uniNew:'Universe created',
   filtSub:'Narrow down what you see',minRating:'Minimum rating',clear:'Clear',apply:'Apply',
   pickFile:'Choose an .epub or .pdf file',reading:'Reading file…',detectedT:'Details found',noMeta:'Couldn’t read the details; fill them in by hand',noImg:'Couldn’t read the image',
   stars:n=>`${n} stars`,remove:'Remove',
@@ -318,22 +433,53 @@ const I18N={
   exported:'Backup downloaded',noExport:'Couldn’t download the backup here',imported:'Backup imported',badBackup:'That file isn’t a valid backup',
   about:'About',version:'Version',stats:(b,s,u)=>`${pl(b,'book','books')} · ${pl(s,'series','series')} · ${pl(u,'universe','universes')}`,
   storage:'Your data is stored only on this device.',
+  genres:'Genres',genreOther:'Other genre',genreAdd:'Add',genreNone:'No genre',genrePh:'Type a genre',suggAuthor:'Is it by…?',
+  g_fantasy:'Fantasy',g_scifi:'Sci-fi',g_romance:'Romance',g_mystery:'Mystery & crime',g_thriller:'Thriller',g_horror:'Horror',g_historical:'Historical',g_ya:'Young adult',g_classic:'Classic',g_litfic:'Literary fiction',g_nonfic:'Non-fiction',g_bio:'Biography',g_selfhelp:'Self-help',g_comic:'Comics & manga',g_poetry:'Poetry',g_adventure:'Adventure',
+  statsT:'Statistics',statsSub:'Your reading at a glance',stRead:'Read',stPending:'To read',stAvg:'Avg rating',stYear:'This year',stRatings:'Your ratings',stGenres:'By genre',stAuthors:'Most-read authors',stMonths:'Read per month',stNoGenres:'Add genres to your books to see which ones you read most.',stNoDates:'From now on the date you mark a book as read is saved; you’ll see your monthly pace here.',stEmpty:'No books yet. Add some and your statistics will show up here.',stLegend:'Dark = read · light = to read',stUnrated:'Unrated',stClose:'Close',
+  st_unread:'To read',st_reading:'Reading',st_read:'Read',st_dropped:'Dropped',
+  stD_unread:'Haven’t started it',stD_reading:'Reading it right now',stD_read:'Finished it',stD_dropped:'Stopped halfway and won’t finish it',
+  statusT:'Book status',statusSub:'Where are you with it?',readingF:'Reading',droppedF:'Dropped',stateL:'Status',
+  secReading:'Reading',secPending:'Up next',secDone:'Finished',
+  rateLock:'To rate a book you have to read it or drop it.',sagaRateLock:'To rate the series you need at least one read or dropped book.',
+  delSagaWarn:n=>n?`Deleting the series will also delete its ${pl(n,'book','books')}.`:'Deleting the series deletes everything inside it.',
+  delUniWarn:(s,b)=>`Deleting the universe will also delete ${pl(s,'series','series')} and ${pl(b,'book','books')} (everything inside).`,
+  delAllSure:'Tap again: deletes everything',storageFull:'Couldn’t save: storage is full. Export a backup and remove covers.',genLess:'Less ▴',shareJson:'Send backup (.json)',shareJsonD:'All your content, to keep it or send it via WhatsApp',fileL:'Book file',fileAttach:'Link an .epub or .pdf file',fileAttachD:'Saves only the link (not a copy). Tapping the book opens it in your reader app',fileOpen:'Open',fileLoad:'Load cover and details',fileRemove:'Remove',fileLinked:'File linked ✓',fileLoaded:'Details and cover loaded from the file',fileSaving:'Saving file…',fileSaveFail:'Couldn’t save the file (the book is saved anyway)',fileNoApp:'No installed app can open this file',fileGone:'I can’t find the file (moved or deleted?). Link it again in Edit',fileFail:'Couldn’t open the file',fileNoRead:'Couldn’t read the file’s details',dragMove:'Release to change the order',dragInto:n=>`Release to put it in “${n}”`,movedInto:n=>`Moved to “${n}”`,dragFree:'Drag over a series or universe to put it inside',dragOut:n=>`Release to take it out of “${n}”`,dragNoFilter:'Clear the search and filters to reorder',reordered:'Order updated',takenOut:n=>`Taken out of “${n}”`,stReading:'Reading',stDropped:'Dropped',
   share:'Share list',shareSub:'Your list as text, ready to send',shareNow:'Share',copy:'Copy',saveTxt:'Save .txt',copied:'List copied',noCopy:'Couldn’t copy; long-press the text to copy it',shareTitle:'To be read',incl:'Include',incUnread:'Unread',incRead:'Read',shareD:'Send your list as text via WhatsApp or another app'
  }
 };
 function t(k,...a){const v=(I18N[CFG.lang]||I18N.es)[k];return typeof v==='function'?v(...a):(v==null?k:v)}
+
+const GENRES=['fantasy','scifi','romance','mystery','thriller','horror','historical','ya','classic','litfic','nonfic','bio','selfhelp','comic','poetry','adventure'];
+const gname=g=>{const v=(I18N[CFG.lang]||I18N.es)['g_'+g];return typeof v==='string'?v:g};
+const GHUE={fantasy:272,scifi:218,romance:335,mystery:48,thriller:176,horror:356,historical:34,ya:150,classic:85,litfic:196,nonfic:245,bio:110,selfhelp:310,comic:64,poetry:290,adventure:14};
+const ghue=g=>{if(GHUE[g]!=null)return GHUE[g];let h=0;for(const c of String(g))h=(h*31+c.charCodeAt(0))%360;return h};
+const tag=g=>`<span class="tag" style="--gh:${ghue(g)}" data-a="genre-tag" data-g="${esc(g)}">${esc(gname(g))}</span>`;
+const gsAgg=list=>{const m=new Map();list.forEach(b=>gsOf(b).forEach(g=>m.set(g,(m.get(g)||0)+1)));return [...m.entries()].sort((a,b)=>b[1]-a[1]||coll.compare(gname(a[0]),gname(b[0]))).map(x=>x[0])};
+const dragAttr=(b,inSaga,inUni)=>`data-dk="b:${b.id}" data-grp="${inSaga&&b.sagaId?'s:'+b.sagaId:(inUni&&b.universeId?'u:'+b.universeId:'')}"`;
+const dragAttr0=(b,inSaga,inUni)=>inSaga&&b.sagaId?`data-dk="b:${b.id}" data-grp="s:${b.sagaId}"`:(inUni&&b.universeId?`data-dk="b:${b.id}" data-grp="u:${b.universeId}"`:'');
+const stOf=b=>b.status||(b.read?'read':'unread');
+const fin=b=>{const x=stOf(b);return x==='read'||x==='dropped'};
+const rat=b=>fin(b)?(b.rating||0):0;
+function setStatus(b,st){const was=stOf(b);b.status=st;b.read=st==='read';b.readAt=st==='read'?((was==='read'&&b.readAt)||Date.now()):null}
+function migrate(o){o.universes=Array.isArray(o.universes)?o.universes:[];o.sagas=Array.isArray(o.sagas)?o.sagas:[];o.books=Array.isArray(o.books)?o.books:[];
+  o.books.forEach(b=>{if(!b.status)b.status=b.read?'read':'unread';b.read=b.status==='read'});return o}
+const gsOf=b=>Array.isArray(b.genres)?b.genres:[];
 function applyStatic(){
   document.documentElement.lang=CFG.lang;document.title=t('app');
   document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
-  $('#q').placeholder=t('search');$('#fab').setAttribute('aria-label',t('add'));$('#gear').setAttribute('aria-label',t('settings'));$('#sharebtn').setAttribute('aria-label',t('share'));
+  $('#q').placeholder=t('search');$('#fab').setAttribute('aria-label',t('add'));$('#gear').setAttribute('aria-label',t('settings'));$('#statsbtn').setAttribute('aria-label',t('statsT'));$('#sharebtn').setAttribute('aria-label',t('share'));
 }
 
-function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return {universes:[],sagas:[],books:[]}}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return migrate(JSON.parse(r))}catch(e){}return {universes:[],sagas:[],books:[]}}
 const idle=window.requestIdleCallback||(f=>setTimeout(f,1));
-let svT;function save(){clearTimeout(svT);svT=setTimeout(()=>idle(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},{timeout:1500}),400)}
+let svT,dirty=false,warned=false;
+function flush(){if(!dirty)return;dirty=false;clearTimeout(svT);
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!warned){warned=true;try{toast(t('storageFull'))}catch(_){}}}}
+function save(){dirty=true;clearTimeout(svT);svT=setTimeout(()=>idle(flush,{timeout:1500}),400)}
+addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
 const libs={};function lib(src){return libs[src]||(libs[src]=new Promise((ok,ko)=>{const x=document.createElement('script');x.src=src;x.onload=ok;x.onerror=()=>{delete libs[src];ko()};document.head.appendChild(x)}))}
 let S=load();
-const ui={q:'',status:'all',min:0,author:'',open:{}};
+const ui={q:'',status:'all',min:0,author:'',genres:[],open:{}};
 
 /* ---------- datos ---------- */
 const IX={};function ix(k){const a=S[k],c=IX[k];if(c&&c.ref===a&&c.n===a.length)return c.m;const m=new Map(a.map(x=>[x.id,x]));IX[k]={ref:a,n:a.length,m};return m}
@@ -347,9 +493,9 @@ const looseOf=id=>groups().lo.get(id)||[];
 const uniOfBook=b=>{const s=saga(b.sagaId);return uni(s?s.universeId:b.universeId)};
 const uniBooks=id=>S.sagas.filter(s=>s.universeId===id).flatMap(s=>booksOf(s.id)).concat(looseOf(id));
 function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
-function sagaAuto(s){return avg(booksOf(s.id).map(b=>b.rating||0).filter(r=>r>0))}
+function sagaAuto(s){return avg(booksOf(s.id).map(rat).filter(r=>r>0))}
 function sagaRating(s){return s.ratingOverride!=null?s.ratingOverride:sagaAuto(s)}
-function uniRating(u){return avg(S.sagas.filter(s=>s.universeId===u.id).map(sagaRating).concat(looseOf(u.id).map(b=>b.rating)).filter(r=>r!=null&&r>0))}
+function uniRating(u){return avg(S.sagas.filter(s=>s.universeId===u.id).map(sagaRating).concat(looseOf(u.id).map(rat)).filter(r=>r!=null&&r>0))}
 const fmt=v=>{const r=(Math.round(v*10)/10).toString();return CFG.lang==='es'?r.replace('.',','):r};
 function byOrder(oKey,nKey){return (a,b)=>{
   const ao=a[oKey],bo=b[oKey],ha=ao!=null&&ao!=='',hb=bo!=null&&bo!=='';
@@ -357,10 +503,7 @@ function byOrder(oKey,nKey){return (a,b)=>{
 const idx=b=>{const v=groups().ix2.get(b);return v==null?-1:v};
 
 /* ---------- iconos ---------- */
-function stars(v,size){
-  let h='';for(let i=0;i<5;i++){const f=Math.max(0,Math.min(1,v-i));h+=`<i class="st">★<b style="width:${f*100}%">★</b></i>`}
-  return `<span class="stars"${size?` style="font-size:${size}px"`:''}>${h}</span>`;
-}
+function stars(v,size){return `<span class="stars2" style="--v:${v}${size?';font-size:'+size+'px':''}"></span>`}
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const PEN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
 const CHEV='<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>';
@@ -371,94 +514,135 @@ const I_GEAR='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
 
 /* ---------- filtros ---------- */
 function passes(b){
-  if(ui.status==='unread'&&b.read)return false;
-  if(ui.status==='read'&&!b.read)return false;
-  if(ui.min&&(b.rating||0)<ui.min)return false;
+  if(ui.status!=='all'&&stOf(b)!==ui.status)return false;
+  if(ui.min&&rat(b)<ui.min)return false;
   if(ui.author&&b.author!==ui.author)return false;
+  if(ui.genres.length&&!gsOf(b).some(g=>ui.genres.includes(g)))return false;
   if(ui.q){
     const s=saga(b.sagaId),u=uniOfBook(b);
-    const hay=norm([b.title,b.author,s&&s.name,s&&s.author,u&&u.name,u&&u.author].join(' '));
+    const hay=norm([b.title,b.author,s&&s.name,s&&s.author,u&&u.name,u&&u.author].concat(gsOf(b).map(gname)).join(' '));
     if(!ui.q.split(/\s+/).every(q=>hay.includes(norm(q))))return false;
   }
   return true;
 }
-const filtering=()=>!!(ui.q||ui.status!=='all'||ui.min||ui.author);
+const filtering=()=>!!(ui.q||ui.status!=='all'||ui.min||ui.author||ui.genres.length);
 const isOpen=id=>ui.q?true:(ui.open[id]!=null?ui.open[id]:CFG.autoOpen);
 
 /* ---------- render ---------- */
+const COVC=new Map(),LAZY=new Map();
+function covUrl(c){
+  if(!c||c.slice(0,5)!=='data:')return c;
+  let u=COVC.get(c);if(u)return u;
+  try{const i=c.indexOf(','),bin=atob(c.slice(i+1)),a=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)a[k]=bin.charCodeAt(k);
+    u=URL.createObjectURL(new Blob([a],{type:c.slice(5,c.indexOf(';'))||'image/jpeg'}));COVC.set(c,u);return u}catch(e){return c}
+}
 function bookRow(b,inSaga,parentAuthor,inUni){
-  const cov=b.cover?`<img src="${b.cover}" alt="" decoding="async" loading="lazy">`:initial(b.title);
-  const rt=b.rating>0?stars(b.rating)+`<div>${fmt(b.rating)}</div>`:(b.read?`<span class="add">${t('rate')}</span>`:'');
-  return `<div class="row ${b.read?'read':''} ${inUni?'urow':''}">
+  const cov=b.cover?`<img src="${covUrl(b.cover)}" alt="" decoding="async" loading="lazy">`:initial(b.title);
+  const sx=stOf(b),rr=rat(b);
+  const rt=rr>0?stars(rr)+`<div>${fmt(rr)}</div>`:(fin(b)?`<span class="add">${t('rate')}</span>`:'');
+  const pill=(sx==='reading'||sx==='dropped')?`<span class="pill ${sx}">${t('st_'+sx)}</span>`:'';
+  const gtags=(!inSaga&&!inUni)?gsOf(b).map(tag).join(''):'';
+  return `<div class="row ${sx} ${sx==='read'?'read':''} ${inUni?'urow':''}" ${dragAttr(b,inSaga,inUni)}>
     ${inSaga?`<span class="ord">${b.sagaOrder!=null&&b.sagaOrder!==''?b.sagaOrder:'·'}</span>`:''}
-    <button class="seal" data-a="toggle-read" data-id="${b.id}" aria-label="${b.read?t('markUnread'):t('markRead')}">${CHECK}</button>
+    <button class="seal" data-a="status-book" data-id="${b.id}" aria-label="${t('statusT')}: ${t('st_'+sx)}"><svg class="ico ck"><use href="#${sx==='dropped'?'i-x':'i-check'}"/></svg></button>
     <span class="cov">${cov}</span>
-    <span class="bt"><div class="btitle">${esc(b.title)}</div>${parentAuthor&&norm(parentAuthor)===norm(b.author)?'':`<div class="bauth">${esc(b.author)}</div>`}</span>
+    <span class="bt"><div class="btitle">${esc(b.title)}</div>${parentAuthor&&norm(parentAuthor)===norm(b.author)?'':`<div class="bauth">${esc(b.author)}</div>`}${(pill||gtags)?`<div class="bgen">${pill}${gtags}</div>`:''}</span>
     <span class="br" ${rt?`data-a="rate-book" data-id="${b.id}"`:''}>${rt}</span>
-    <button class="pen" data-a="edit-book" data-id="${b.id}" aria-label="${t('editBook')}">${PEN}</button>
+    ${b.file?`<button class="pen openb" data-a="open-file" data-id="${b.id}" aria-label="${t('fileOpen')}"><svg class="ico"><use href="#i-arrow"/></svg></button>`:''}
+    <button class="pen" data-a="edit-book" data-id="${b.id}" aria-label="${t('editBook')}"><svg class="ico"><use href="#i-pen"/></svg></button>
   </div>`;
 }
-function sagaCard(s,vis,uniAuthor){
-  const all=booksOf(s.id),done=all.length>0&&all.every(b=>b.read);
-  const r=sagaRating(s),readN=all.filter(b=>b.read).length;
+function sagaCard(s,vis,uniAuthor,inUni){
+  const all=booksOf(s.id),done=all.length>0&&all.every(fin);
+  const r=sagaRating(s),readN=all.filter(b=>stOf(b)==='read').length;
   const list=vis.slice().sort(byOrder('sagaOrder','title'));
-  return `<section class="card ${done?'done':''} ${isOpen(s.id)?'open':''}">
+  const open=isOpen(s.id),body=()=>list.map(b=>bookRow(b,true,s.author)).join('')||`<div class="empty" style="padding:14px">${t('noBooks')}</div>`;
+  if(!open)LAZY.set(s.id,body);
+  return `<section class="card ${done?'done':''} ${open?'open':''}" data-dk="s:${s.id}" data-grp="${inUni?'u:'+s.universeId:''}" data-drop="s:${s.id}">
     <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${s.id}">
       ${CHEV}
-      <span class="ttl"><div class="gname">${esc(s.name)}</div><div class="gmeta">${t('saga')}${uniAuthor&&norm(uniAuthor)===norm(s.author)?'':' · '+esc(s.author)}</div></span>
+      <span class="ttl"><div class="gname">${esc(s.name)}</div><div class="gmeta">${t('saga')}${uniAuthor&&norm(uniAuthor)===norm(s.author)?'':' · '+esc(s.author)}</div>${(()=>{const g=inUni?[]:gsAgg(all);return g.length?`<div class="bgen">${g.map(tag).join('')}</div>`:''})()}</span>
       <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}${s.ratingOverride==null?` (${t('avg')})`:''}</span>`:''}<span>${t('readOf',readN,all.length)}</span></span>
-      <button class="pen" data-a="edit-saga" data-id="${s.id}" aria-label="${t('editSaga')}">${PEN}</button>
+      <button class="pen" data-a="edit-saga" data-id="${s.id}" aria-label="${t('editSaga')}"><svg class="ico"><use href="#i-pen"/></svg></button>
     </div>
-    <div class="gbody">${list.map(b=>bookRow(b,true,s.author)).join('')||`<div class="empty" style="padding:14px">${t('noBooks')}</div>`}</div>
+    <div class="gbody">${open?body():''}</div>
   </section>`;
 }
 function sortItems(items){
   const key={alpha:(a,b)=>coll.compare(a.name,b.name),recent:(a,b)=>(b.recent-a.recent)||coll.compare(a.name,b.name),rating:(a,b)=>((b.rating||0)-(a.rating||0))||coll.compare(a.name,b.name)}[CFG.sort]||((a,b)=>coll.compare(a.name,b.name));
-  items.sort((a,b)=>(CFG.readLast?(a.done-b.done):0)||key(a,b));
+  const rank=x=>x.reading?0:(CFG.readLast&&x.done?2:1);
+  items.sort((a,b)=>(rank(a)-rank(b))||(rank(a)===0?coll.compare(a.name,b.name):key(a,b)));
 }
-function render(){
-  ver++;
+let rtok=0;
+function render(persist=true){
+  ver++;LAZY.clear();
   const vis=S.books.filter(passes),f=filtering();
+  const visSaga=new Map(),visLoose=new Map(),standalone=[];
+  vis.forEach(b=>{
+    if(saga(b.sagaId)){(visSaga.get(b.sagaId)||visSaga.set(b.sagaId,[]).get(b.sagaId)).push(b)}
+    else if(uni(b.universeId)){(visLoose.get(b.universeId)||visLoose.set(b.universeId,[]).get(b.universeId)).push(b)}
+    else standalone.push(b);
+  });
+  const sagasByUni=new Map();S.sagas.forEach(s=>{if(s.universeId)(sagasByUni.get(s.universeId)||sagasByUni.set(s.universeId,[]).get(s.universeId)).push(s)});
   const items=[];
-  const recentOf=list=>list.length?Math.max(...list.map(idx)):-1;
+  const recentOf=list=>{let m=-1;for(const b of list){const i=idx(b);if(i>m)m=i}return m};
   S.universes.forEach(u=>{
-    const ss=S.sagas.filter(s=>s.universeId===u.id).map(s=>({s,v:vis.filter(b=>b.sagaId===s.id)}))
-      .filter(x=>x.v.length||!f);
-    const lb=vis.filter(b=>!saga(b.sagaId)&&b.universeId===u.id);
+    const usagas=sagasByUni.get(u.id)||[];
+    const ss=usagas.map(s=>({s,v:visSaga.get(s.id)||[]})).filter(x=>x.v.length||!f);
+    const lb=visLoose.get(u.id)||[];
     if(!ss.length&&!lb.length&&f)return;
     const all=uniBooks(u.id),nl=looseOf(u.id).length;
-    const mix=ss.map(x=>({o:x.s.universeOrder,n:x.s.name,h:()=>sagaCard(x.s,x.v,u.author)}))
+    const mix=ss.map(x=>({o:x.s.universeOrder,n:x.s.name,h:()=>sagaCard(x.s,x.v,u.author,true)}))
       .concat(lb.map(b=>({o:b.universeOrder,n:b.title,h:()=>bookRow(b,false,u.author,true)})));
-    const done=all.length>0&&all.every(b=>b.read);
+    const done=all.length>0&&all.every(fin);
     const r=uniRating(u);
     mix.sort(byOrder('o','n'));
-    const nsg=S.sagas.filter(s=>s.universeId===u.id).length;
+    const nsg=usagas.length;
     const cnt=[nsg?t('sagas',nsg):'',nl?t('books',nl):''].filter(Boolean).join(' · ')||t('empty');
-    items.push({name:u.name,done,rating:r,recent:recentOf(all),html:`<section class="card uni ${isOpen(u.id)?'open':''} ${done?'done':''}">
+    items.push({name:u.name,done,reading:all.some(b=>stOf(b)==='reading'),rating:r,recent:recentOf(all),h:()=>{
+      const open=isOpen(u.id),body=()=>mix.map(x=>x.h()).join('')||`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`;
+      if(!open)LAZY.set(u.id,body);
+      return `<section class="card uni ${open?'open':''} ${done?'done':''}" data-drop="u:${u.id}">
       <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${u.id}">
         ${CHEV}
-        <span class="ttl"><div class="gname">${esc(u.name)}</div><div class="gmeta">${t('universe')} · ${esc(u.author)}</div></span>
+        <span class="ttl"><div class="gname">${esc(u.name)}</div><div class="gmeta">${t('universe')} · ${esc(u.author)}</div>${(()=>{const g=gsAgg(all);return g.length?`<div class="bgen">${g.map(tag).join('')}</div>`:''})()}</span>
         <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}</span>`:''}<span>${cnt}</span></span>
-        <button class="pen" data-a="edit-uni" data-id="${u.id}" aria-label="${t('editUni')}">${PEN}</button>
+        <button class="pen" data-a="edit-uni" data-id="${u.id}" aria-label="${t('editUni')}"><svg class="ico"><use href="#i-pen"/></svg></button>
       </div>
-      <div class="gbody">${mix.map(x=>x.h()).join('')||`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`}</div></section>`});
+      <div class="gbody">${open?body():''}</div></section>`}});
   });
   S.sagas.filter(s=>!uni(s.universeId)).forEach(s=>{
-    const v=vis.filter(b=>b.sagaId===s.id);
+    const v=visSaga.get(s.id)||[];
     if(!v.length&&f)return;
     const all=booksOf(s.id);
-    items.push({name:s.name,done:all.length>0&&all.every(b=>b.read),rating:sagaRating(s),recent:recentOf(all),html:sagaCard(s,v)});
+    items.push({name:s.name,done:all.length>0&&all.every(fin),reading:all.some(b=>stOf(b)==='reading'),rating:sagaRating(s),recent:recentOf(all),h:()=>sagaCard(s,v)});
   });
-  vis.filter(b=>!saga(b.sagaId)&&!uni(b.universeId)).forEach(b=>items.push({name:b.title,done:b.read,rating:b.rating,recent:idx(b),html:bookRow(b,false)}));
+  standalone.forEach(b=>items.push({name:b.title,done:fin(b),reading:stOf(b)==='reading',rating:rat(b),recent:idx(b),h:()=>bookRow(b,false)}));
   sortItems(items);
-  $('#list').innerHTML=items.length?items.map(i=>i.html).join(''):
-    `<div class="empty">${f?t('noMatch'):t('emptyList')}</div>`;
-  const unread=S.books.filter(b=>!b.read).length;
-  $('#count').innerHTML=`<span>${unread} ${t('pending')}</span><span>${S.books.length-unread} ${t('readN')}</span>`;
-  $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['read',t('read')]].map(([k,x])=>
+  const rk=x=>x.reading?0:(CFG.readLast&&x.done?2:1);
+  const cnt=[0,0,0];items.forEach(i=>cnt[rk(i)]++);
+  const multi=cnt.filter(Boolean).length>1;
+  /* pintado por tandas: lo primero aparece enseguida y el resto se añade mientras el teléfono descansa */
+  const tok=++rtok,listEl=$('#list');
+  if(!items.length){listEl.innerHTML=`<div class="empty">${f?t('noMatch'):t('emptyList')}</div>`}
+  else{
+    let i=0,lastR=-1;
+    const build=n=>{let h='';const end=Math.min(items.length,i+n);
+      for(;i<end;i++){const it=items[i],r=rk(it);
+        if(multi&&r!==lastR)h+=`<div class="sep s${r}">${t(['secReading','secPending','secDone'][r])}<span>${cnt[r]}</span></div>`;
+        lastR=r;h+=it.h()}
+      return h};
+    listEl.innerHTML=build(22);
+    const more=()=>{if(tok!==rtok||i>=items.length)return;listEl.insertAdjacentHTML('beforeend',build(40));if(i<items.length)idle(more,{timeout:300})};
+    if(i<items.length)idle(more,{timeout:300});
+  }
+  const nRead=S.books.filter(b=>stOf(b)==='read').length,nPend=S.books.filter(b=>{const x=stOf(b);return x==='unread'||x==='reading'}).length;
+  $('#count').innerHTML=`<span>${nPend} ${t('pending')}</span><span>${nRead} ${t('readN')}</span>`;
+  const nf=(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+(ui.status==='dropped'?1:0);
+  $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')]].map(([k,x])=>
     `<button class="chip" data-a="status" data-k="${k}" aria-pressed="${ui.status===k}">${x}</button>`).join('')+
-    `<button class="chip filt ${ui.min||ui.author?'on':''}" data-a="filters"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${t('filters')}</button>`;
-  save();
+    `<button class="chip filt ${nf?'on':''}" data-a="filters" aria-label="${t('filters')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${nf?`<b>${nf}</b>`:''}</button>`;
+  if(persist)save();
 }
 
 /* ---------- hoja inferior ---------- */
@@ -509,10 +693,98 @@ function armDelete(btn,fn,label,armedLabel){
   };
 }
 
+
+/* ---------- archivos de los libros (copia guardada en la app; en el navegador, IndexedDB) ---------- */
+const FICON='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>';
+const NATIVE=!!(CAP&&(CAP.FileOpener||(window.Capacitor&&window.Capacitor.registerPlugin)));
+const FS=(()=>{
+  const idb=()=>new Promise((ok,ko)=>{const r=indexedDB.open('tbr-files',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)});
+  const op=(mode,fn)=>idb().then(db=>new Promise((ok,ko)=>{const tx=db.transaction('f',mode),rq=fn(tx.objectStore('f'));tx.oncomplete=()=>ok(rq&&rq.result);tx.onerror=()=>ko(tx.error)}));
+  const FO=()=>(CAP&&CAP.FileOpener)||(window.Capacitor&&window.Capacitor.registerPlugin?window.Capacitor.registerPlugin('FileOpener'):null);
+  const mime=n=>/\.pdf$/i.test(n)?'application/pdf':'application/epub+zip';
+  const why=e=>String(e&&(e.message||e));
+  return {
+    /* Android: abre el selector del sistema y guarda el enlace (uri) con permiso permanente; no copia el archivo */
+    async pickNative(){
+      const fo=FO();if(!fo)throw new Error('fail');
+      let r;try{r=await fo.pick()}catch(e){throw new Error(/cancel/i.test(why(e))?'cancelled':'fail')}
+      const type=r.type&&r.type!=='application/octet-stream'?r.type:mime(r.name||'');
+      const ref={name:r.name||'libro',type,uri:r.uri};
+      const blob=await FS.get(ref);
+      return {file:new File([blob],ref.name,{type}),ref};
+    },
+    /* navegador (vista previa): no existen enlaces a archivos del dispositivo, se guarda en IndexedDB */
+    async put(id,file){await op('readwrite',st=>st.put(file,id));return {name:file.name,type:mime(file.name),idb:id}},
+    async get(ref){
+      if(ref.uri){const fo=FO();if(!fo)throw new Error('fail');
+        let r;try{r=await fo.read({uri:ref.uri})}catch(e){throw new Error(/not_found|permission|security/i.test(why(e))?'gone':'fail')}
+        const bin=atob(r.data),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:ref.type})}
+      if(ref.idb){const f=await op('readonly',st=>st.get(ref.idb));if(f)return f}
+      throw new Error('gone');
+    },
+    async open(ref){
+      if(ref.uri){const fo=FO();if(!fo)throw new Error('fail');
+        try{await fo.open({uri:ref.uri,type:ref.type})}
+        catch(e){const m=why(e);throw new Error(/no_app/.test(m)?'noapp':/not_found|permission|security/i.test(m)?'gone':'fail')}
+        return}
+      if(!ref.idb)throw new Error('gone');
+      const f=await op('readonly',st=>st.get(ref.idb));if(!f)throw new Error('gone');
+      const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([f],{type:ref.type}));a.target='_blank';a.rel='noopener';a.download=ref.name;
+      document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000);
+    },
+    async del(ref){try{if(!ref)return;if(ref.uri){const fo=FO();if(fo)await fo.release({uri:ref.uri})}else if(ref.idb)await op('readwrite',st=>st.delete(ref.idb))}catch(e){}}
+  };
+})();
+/* elegir un archivo: en el teléfono con el selector nativo (enlace), en el navegador con el input de siempre */
+async function pickBook(cb){
+  if(NATIVE){
+    try{const {file,ref}=await FS.pickNative();await processPicked(file,ref,cb)}
+    catch(e){if(String(e&&e.message)!=='cancelled')toast(t('fileFail'))}
+    return;
+  }
+  pickTarget=cb;$('#file').click();
+}
+async function openBookFile(b){
+  if(!b||!b.file)return;
+  try{await FS.open(b.file)}catch(e){const m=String(e&&e.message);toast(t(m==='noapp'?'fileNoApp':m==='gone'?'fileGone':'fileFail'))}
+}
+let pickTarget=null;
+
+/* selector de géneros: una sola línea con los más usados y un "···" que despliega el resto */
+function genPicker(box,order,isOn,toggle){
+  let open=false;
+  const fold=()=>{
+    const chips=[...box.querySelectorAll('[data-g]')],more=box.querySelector('[data-more]');
+    if(!more)return;
+    chips.forEach(c=>c.hidden=false);more.hidden=false;
+    if(open){more.textContent=t('genLess');return}
+    for(let k=chips.length;k>=1;k--){
+      chips.forEach((c,i)=>c.hidden=i>=k);
+      const hid=chips.length-k;more.hidden=hid===0;more.textContent=hid?'··· +'+hid:'';
+      const top=chips[0].offsetTop;
+      if(chips.slice(0,k).every(c=>c.offsetTop===top)&&(hid===0||more.offsetTop===top))break;
+    }
+  };
+  const paint=()=>{
+    box.innerHTML=order.map(g=>`<button type="button" class="chip" style="--gh:${ghue(g)}" data-g="${esc(g)}" aria-pressed="${isOn(g)}">${esc(gname(g))}</button>`).join('')+(order.length>1?`<button type="button" class="chip more" data-more></button>`:'');
+    fold();
+  };
+  box.onclick=e=>{
+    if(e.target.closest('[data-more]')){open=!open;fold();return}
+    const x=e.target.closest('[data-g]');if(!x)return;
+    toggle(x.dataset.g);x.setAttribute('aria-pressed',String(isOn(x.dataset.g)));
+  };
+  paint();requestAnimationFrame(fold);
+  try{document.fonts&&document.fonts.ready&&document.fonts.ready.then(()=>{if(box.isConnected)fold()})}catch(e){}
+  setTimeout(()=>{if(box.isConnected)fold()},350);
+  try{let w=box.clientWidth;const ro=new ResizeObserver(()=>{if(!box.isConnected){ro.disconnect();return}if(box.clientWidth!==w){w=box.clientWidth;fold()}});ro.observe(box)}catch(e){}
+  return {paint,expand(){open=true;fold()}};
+}
 /* ---- Libro ---- */
 let curNew=null,curFill=null;
 function bookForm(b,pre){
-  const d=b?{...b}:Object.assign({id:null,title:'',author:'',read:false,rating:0,sagaId:'',sagaOrder:null,cover:null},pre||{});
+  const d=b?{...b}:Object.assign({id:null,title:'',author:'',status:'unread',read:false,rating:0,sagaId:'',sagaOrder:null,cover:null,genres:[],file:null},pre||{});
+  d.genres=gsOf(d).slice();d.status=stOf(d);
   let newSaga=(pre&&pre.sagaName)||'';
   if(newSaga){const ex=S.sagas.find(s=>norm(s.name)===norm(newSaga));if(ex){d.sagaId=ex.id;newSaga=''}else d.sagaId='__new'}
   const opts=S.sagas.slice().sort((a,b)=>coll.compare(a.name,b.name)).map(s=>`<option value="${s.id}" ${d.sagaId===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
@@ -524,11 +796,14 @@ function bookForm(b,pre){
       </div></div></div>
     ${b?'':`<label class="fromfile" for="file"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 17v-6M9 14l3-3 3 3"/></svg></span><span><b>${t('fromFile')}</b><small>${t('fromFileD')}</small></span></label>`}
     ${pre&&pre.fromFile?`<p class="lead">${t('detected')}</p>`:''}
+    <div class="f" id="bfw" style="display:none"><span class="lbl">${t('fileL')}</span><div id="bfile"></div></div>
     <div class="f"><label for="bt">${t('title')}</label><input id="bt" type="text" value="${esc(d.title)}"></div>
-    <div class="f"><label for="ba">${t('author')}</label><input id="ba" type="text" value="${esc(d.author)}"></div>
-    <div class="f"><span class="lbl">${t('status')}</span><div class="seg" id="bseg">
-      <button type="button" data-r="0">${t('toRead')}</button><button type="button" data-r="1">${CHECK.replace('<svg','<svg width="16" height="16"')}${t('isRead')}</button></div></div>
-    <div class="f"><span class="lbl">${t('rating')}</span><div class="box"><div class="rate" id="brate"></div>${CFG.half?`<div class="hint">${t('halfHint')}</div>`:''}</div></div>
+    <div class="f"><label for="ba">${t('author')}</label><input id="ba" type="text" value="${esc(d.author)}" autocomplete="off"><div class="sugg" id="bsug"></div></div>
+    <div class="f"><span class="lbl">${t('status')}</span><div class="seg four" id="bseg">
+      ${['unread','reading','read','dropped'].map(k=>`<button type="button" data-s="${k}">${t('st_'+k)}</button>`).join('')}</div></div>
+    <div class="f"><span class="lbl">${t('rating')}</span><div class="box" id="brbox"><div class="rate" id="brate"></div>${CFG.half?`<div class="hint" id="bhalf">${t('halfHint')}</div>`:''}<div class="lockmsg">${t('rateLock')}</div></div></div>
+    <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="bgen"></div>
+      <div class="gadd"><input id="bgi" type="text" placeholder="${t('genrePh')}" maxlength="30" autocomplete="off"><button type="button" id="bga">${t('genreAdd')}</button></div></div>
     <div class="two pair" id="bsw">
       <div class="f"><label for="bs">${t('saga')}</label><select id="bs"><option value="">${t('noSaga')}</option>${opts}<option value="__new" ${d.sagaId==='__new'?'selected':''}>${t('newSagaOpt')}</option></select></div>
       <div class="f" id="bordw"><label for="bo">${t('sagaNo')}</label><input id="bo" type="number" step="any" inputmode="decimal" value="${d.sagaOrder!=null?d.sagaOrder:''}"></div>
@@ -550,24 +825,86 @@ function bookForm(b,pre){
   $('#covb').onclick=()=>{if(d.cover){d.cover=null;paintHero()}else{
     const fi=$('#covfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
       try{d.cover=await shrink(URL.createObjectURL(f));paintHero()}catch(err){toast(t('noImg'))}};fi.click()}};
-  const segPaint=()=>$('#bseg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String((x.dataset.r==='1')===d.read)));
-  $('#bseg').onclick=e=>{const x=e.target.closest('[data-r]');if(!x)return;d.read=x.dataset.r==='1';segPaint()};segPaint();
+  /* géneros */
+  const usage=new Map();S.books.forEach(b2=>gsOf(b2).forEach(g=>usage.set(g,(usage.get(g)||0)+1)));
+  const gorder=[...new Set([...GENRES,...usage.keys(),...d.genres])].map((g,i)=>[g,i])
+    .sort((x,y)=>(d.genres.includes(y[0])-d.genres.includes(x[0]))||((usage.get(y[0])||0)-(usage.get(x[0])||0))||x[1]-y[1]).map(x=>x[0]);
+  const gp=genPicker($('#bgen'),gorder,g=>d.genres.includes(g),g=>{const i=d.genres.indexOf(g);if(i>=0)d.genres.splice(i,1);else d.genres.push(g)});
+  const addGen=()=>{const el=$('#bgi'),v=el.value.trim();if(!v)return;
+    const k=GENRES.find(g=>norm(gname(g))===norm(v))||gorder.find(g=>norm(gname(g))===norm(v))||v;
+    if(!d.genres.includes(k))d.genres.push(k);
+    if(!gorder.includes(k))gorder.unshift(k);else if(gorder.indexOf(k)>0){gorder.splice(gorder.indexOf(k),1);gorder.unshift(k)}
+    el.value='';gp.paint()};
+  $('#bga').onclick=addGen;$('#bgi').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addGen()}};
+  /* sugerencia de autor (solo con internet; sin conexión no hace nada) */
+  let sq=0;
+  const sug=$('#bsug'),hideSug=()=>{sug.classList.remove('on');sug.innerHTML=''};
+  const askSug=()=>{
+    const mine=++sq;
+    if($('#ba').value.trim()){hideSug();return}
+    clearTimeout(askSug.t);
+    askSug.t=setTimeout(async()=>{
+      if(!$('#bt')||!$('#ba'))return;
+      const r=await suggestAuthors($('#bt').value);
+      if(mine!==sq||!$('#ba')||$('#ba').value.trim()||!r.length){if(mine===sq&&!r.length)hideSug();return}
+      sug.innerHTML=`<span>${t('suggAuthor')}</span>`+r.map(a=>`<button type="button" data-s="${esc(a)}">${esc(a)}</button>`).join('');
+      sug.classList.add('on');
+    },650);
+  };
+  sug.onclick=e=>{const x=e.target.closest('[data-s]');if(!x)return;const el=$('#ba');el.value=x.dataset.s;el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled');hideSug();paintHero()};
+  $('#bt').addEventListener('input',askSug);$('#ba').addEventListener('input',()=>{if($('#ba').value.trim())hideSug();else askSug()});
+  if(!b&&!d.title)hideSug();
+  const segPaint=()=>{$('#bseg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.s===d.status)));
+    $('#brbox').classList.toggle('lock',!(d.status==='read'||d.status==='dropped'))};
+  $('#bseg').onclick=e=>{const x=e.target.closest('[data-s]');if(!x)return;d.status=x.dataset.s;segPaint()};segPaint();
   rateWidget('brate',d.rating||0,v=>d.rating=v);
   const sync=()=>{const v=$('#bs').value,u=$('#bu').value;$('#bordw').style.display=v?'':'none';$('#bsw').classList.toggle('solo',!v);$('#bnew').style.display=v==='__new'?'':'none';
     $('#buw').style.display=v?'none':'';$('#buow').style.display=u?'':'none';$('#buw').classList.toggle('solo',!u)};
-  $('#bs').onchange=sync;$('#bu').onchange=sync;sync();
-  if(!b)curFill=(m,fname)=>{
-    const put=(id,v)=>{if(v==null||v==='')return;const el=$(id);el.value=v;el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled')};
-    put('#bt',m.title);put('#ba',m.author);
-    if(m.cover)d.cover=m.cover;
-    if(m.sagaName){const ex=S.sagas.find(x=>norm(x.name)===norm(m.sagaName));
-      if(ex){$('#bs').value=ex.id}else{$('#bs').value='__new';put('#bn',m.sagaName)}
-      $('#bs').classList.add('filled');if(m.sagaOrder!=null)put('#bo',m.sagaOrder)}
+  let autoAu='';
+  const fillAu=()=>{const sid=$('#bs').value,par=(sid&&sid!=='__new')?saga(sid):(!sid?uni($('#bu').value):null);
+    const el=$('#ba'),cur=el.value.trim();
+    if(par&&par.author&&(!cur||cur===autoAu)){el.value=par.author;autoAu=par.author;el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled');paintHero();hideSug()}};
+  $('#bs').onchange=()=>{sync();fillAu()};$('#bu').onchange=()=>{sync();fillAu()};sync();
+  const applyMeta=(m,fname,over)=>{
+    const put=(id,v,force)=>{if(v==null||v==='')return;const el=$(id);if(!force&&el.value.trim())return;el.value=v;el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled')};
+    put('#bt',m.title,over);put('#ba',m.author,over);
+    if(m.cover&&(over||!d.cover))d.cover=m.cover;
+    if(m.sagaName&&(over||!$('#bs').value)){const ex=S.sagas.find(x=>norm(x.name)===norm(m.sagaName));
+      if(ex){$('#bs').value=ex.id}else{$('#bs').value='__new';put('#bn',m.sagaName,true)}
+      $('#bs').classList.add('filled');if(m.sagaOrder!=null)put('#bo',m.sagaOrder,true)}
     sync();paintHero();
-    const ff=$('.fromfile');if(ff){ff.classList.add('done');ff.querySelector('b').textContent=t('fileRead');ff.querySelector('small').textContent=fname+' · '+t('fileChange')}
   };
-  $('#bcan').onclick=closeSheet;
-  if(b)armDelete($('#bdel'),()=>{S.books=S.books.filter(x=>x.id!==b.id);closeSheet();render();toast(t('bookDeleted'))});
+  /* archivo vinculado */
+  const created=[],removed=[];
+  const paintFile=()=>{
+    $('#bfw').style.display=(b||d.file)?'':'none';
+    const box=$('#bfile');
+    box.innerHTML=d.file?`<div class="fline">${FICON}<span class="fname">${esc(d.file.name)}</span></div>
+      <div class="fbtns"><button type="button" class="pri" data-f="open">${t('fileOpen')}</button><button type="button" data-f="load">${t('fileLoad')}</button><button type="button" class="rm" data-f="rm">${t('fileRemove')}</button></div>`
+      :`<button type="button" class="fromfile" data-f="attach"><span class="ic">${FICON}</span><span><b>${t('fileAttach')}</b><small>${t('fileAttachD')}</small></span></button>`;
+  };
+  $('#bfile').onclick=async e=>{
+    const x=e.target.closest('[data-f]');if(!x)return;const k=x.dataset.f;
+    if(k==='attach'){pickBook(async(f,meta,ref)=>{
+        if(ref){created.push(ref);d.file=ref}else return;
+        applyMeta(meta,f.name,false);paintFile();toast(t('fileLoaded'))});return}
+    if(k==='rm'){if(d.file){removed.push(d.file);d.file=null;paintFile()}return}
+    if(k==='open'){try{await FS.open(d.file)}catch(err){const m=String(err&&err.message);toast(t(m==='noapp'?'fileNoApp':m==='gone'?'fileGone':'fileFail'))}return}
+    if(k==='load'){try{toast(t('reading'));const blob=await FS.get(d.file);const isPdf=/\.pdf$/i.test(d.file.name);
+        const meta=isPdf?await readPdf(blob):await readEpub(blob);applyMeta(meta,d.file.name,true);toast(t('fileLoaded'))}
+      catch(err){toast(String(err&&err.message)==='gone'?t('fileGone'):t('fileNoRead'))}}
+  };
+  paintFile();
+  const ffl=$('.fromfile[for]');if(ffl)ffl.addEventListener('click',e=>{pickTarget=null;if(NATIVE){e.preventDefault();pickBook(null)}});
+  if(!b)curFill=(m,fname,ref)=>{
+    if(ref){d.file=ref;created.push(ref)}
+    applyMeta(m,fname,true);paintFile();
+    const ff=$('.fromfile[for]');if(ff){ff.classList.add('done');ff.querySelector('b').textContent=t('fileRead');ff.querySelector('small').textContent=fname+' · '+t('fileChange')}
+  };
+  const cleanup=()=>{created.forEach(r=>{if(!(d.file&&d.file===r))FS.del(r)});};
+  onDismiss=()=>{created.forEach(r=>FS.del(r))};
+  $('#bcan').onclick=()=>{created.forEach(r=>FS.del(r));closeSheet()};
+  if(b)armDelete($('#bdel'),()=>{FS.del(b.file);created.forEach(r=>FS.del(r));S.books=S.books.filter(x=>x.id!==b.id);closeSheet();render();toast(t('bookDeleted'))});
   $('#bok').onclick=()=>{
     const title=$('#bt').value.trim();if(!title){toast(t('missTitle'));$('#bt').focus();return}
     d.title=title;d.author=$('#ba').value.trim()||t('unknown');
@@ -578,13 +915,25 @@ function bookForm(b,pre){
     d.universeId=sid?'':$('#bu').value;const uo=$('#buo').value;d.universeOrder=(d.universeId&&uo!=='')?parseFloat(uo):null;
     if(!$('#ba').value.trim()){const par=saga(sid)||uni(d.universeId);if(par&&par.author)d.author=par.author}
     delete d.sagaName;delete d.fromFile;
+    removed.forEach(r=>FS.del(r));cleanup();
+    const prev=b?book(b.id):null;d.read=d.status==='read';d.readAt=d.status==='read'?((prev&&prev.read&&prev.readAt)||Date.now()):null;
     if(b)Object.assign(book(b.id),d);else{d.id=uid();S.books.push(d)}
     closeSheet();render();toast(b?t('saved'):t('bookAdded'));
   };
 }
+/* ---- Estado del libro ---- */
+function statusForm(b){
+  const cur=stOf(b);
+  const ico={unread:'',reading:'<span style="width:14px;height:14px;border-radius:50%;background:linear-gradient(90deg,var(--plum2) 50%,#fff 50%);border:1.5px solid var(--plum2)"></span>',read:CHECK.replace('<svg','<svg width="16" height="16"'),dropped:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>'};
+  openSheet(`${hero(`<span class="cov">${b.cover?`<img src="${b.cover}" alt="">`:initial(b.title)}</span>`,esc(b.title),t('statusSub'))}
+    ${['unread','reading','read','dropped'].map(k=>`<button type="button" class="opt" data-s="${k}" aria-pressed="${cur===k}"><span class="oi">${ico[k]}</span><span><b>${t('st_'+k)}</b><small>${t('stD_'+k)}</small></span></button>`).join('')}
+    <div class="btns"><button type="button" class="btn" id="stcan">${t('cancel')}</button></div>`);
+  $('#stcan').onclick=closeSheet;
+  $('#sheet').querySelectorAll('.opt').forEach(o=>o.onclick=()=>{setStatus(book(b.id),o.dataset.s);closeSheet();render()});
+}
 /* ---- Valorar rápido ---- */
 function rateForm(b){
-  let v=b.rating||0;
+  let v=rat(b);
   openSheet(`${hero(`<span class="cov">${b.cover?`<img src="${b.cover}" alt="">`:initial(b.title)}</span>`,esc(b.title),esc(b.author))}
     <div class="f"><span class="lbl">${t('yourRating')}</span><div class="box"><div class="rate" id="qrate"></div></div></div>
     <div class="btns"><button type="button" class="btn" id="qcan">${t('cancel')}</button><button type="button" class="btn main" id="qok">${t('save')}</button></div>`);
@@ -596,7 +945,7 @@ function rateForm(b){
 function sagaForm(s){
   const d=s?{...s}:{id:null,name:'',author:'',universeId:'',universeOrder:null,ratingOverride:null};
   const uopts=S.universes.slice().sort((a,b)=>coll.compare(a.name,b.name)).map(u=>`<option value="${u.id}" ${d.universeId===u.id?'selected':''}>${esc(u.name)}</option>`).join('');
-  const auto=s?sagaAuto(s):null,n=s?booksOf(s.id).length:0;
+  const auto=s?sagaAuto(s):null,n=s?booksOf(s.id).length:0,canRate=s?booksOf(s.id).some(fin):false;
   openSheet(`${hero(medal(I_SAGA),s?t('editSaga'):t('newSaga'),s?t('inSaga',n):t('sagaSub'))}
     <div class="f"><label for="sn">${t('name')}</label><input id="sn" type="text" value="${esc(d.name)}"></div>
     <div class="f"><label for="sa">${t('author')}</label><input id="sa" type="text" value="${esc(d.author)}"></div>
@@ -604,8 +953,9 @@ function sagaForm(s){
       <div class="f"><label for="su">${t('universe')}</label><select id="su"><option value="">${t('none')}</option>${uopts}</select></div>
       <div class="f" id="suow"><label for="suo">${t('order')}</label><input id="suo" type="number" step="any" inputmode="decimal" value="${d.universeOrder!=null?d.universeOrder:''}"></div>
     </div>
-    <div class="f"><span class="lbl">${t('sagaRating')}</span><div class="box"><div class="rate" id="srate"></div>
-      <div class="hint" id="shint"></div></div></div>
+    <div class="f"><span class="lbl">${t('sagaRating')}</span><div class="box ${canRate?'':'lock'}"><div class="rate" id="srate"></div>
+      <div class="hint" id="shint"></div><div class="lockmsg">${t('sagaRateLock')}</div></div></div>
+    ${s?`<div class="warn">${t('delSagaWarn',n)}</div>`:''}
     <div class="btns">${s?`<button type="button" class="btn del" id="sdel">${t('del')}</button>`:''}<button type="button" class="btn" id="scan">${t('cancel')}</button><button type="button" class="btn main" id="sok">${s?t('save'):t('create')}</button></div>`);
   const shown=()=>d.ratingOverride!=null?d.ratingOverride:(auto||0);
   const hint=()=>{$('#shint').innerHTML=d.ratingOverride==null?t('autoHint'):`${t('manual')} <button type="button" class="mini" id="sauto">${t('backAvg')}${auto?' ('+fmt(auto)+')':''}</button>`;
@@ -613,7 +963,7 @@ function sagaForm(s){
   const w=rateWidget('srate',shown(),v=>{d.ratingOverride=v>0?v:null;if(!(v>0))w&&w.set(auto||0);hint()});hint();
   const sync=()=>{const v=$('#su').value;$('#suow').style.display=v?'':'none';$('#suw').classList.toggle('solo',!v)};$('#su').onchange=sync;sync();
   $('#scan').onclick=closeSheet;
-  if(s)armDelete($('#sdel'),()=>{S.books.forEach(b=>{if(b.sagaId===s.id){b.sagaId='';b.sagaOrder=null}});S.sagas=S.sagas.filter(x=>x.id!==s.id);closeSheet();render();toast(t('sagaDeleted'))});
+  if(s)armDelete($('#sdel'),()=>{S.books.filter(b=>b.sagaId===s.id).forEach(b=>FS.del(b.file));S.books=S.books.filter(b=>b.sagaId!==s.id);S.sagas=S.sagas.filter(x=>x.id!==s.id);closeSheet();render();toast(t('sagaDeleted'))},null,t('delAllSure'));
   $('#sok').onclick=()=>{
     const nm=$('#sn').value.trim();if(!nm){toast(t('missName'));$('#sn').focus();return}
     d.name=nm;d.author=$('#sa').value.trim()||t('unknown');d.universeId=$('#su').value;
@@ -625,13 +975,14 @@ function sagaForm(s){
 /* ---- Universo ---- */
 function uniForm(u){
   const d=u?{...u}:{id:null,name:'',author:''};
-  const n=u?S.sagas.filter(s=>s.universeId===u.id).length:0,nl=u?looseOf(u.id).length:0;
+  const n=u?S.sagas.filter(s=>s.universeId===u.id).length:0,nl=u?looseOf(u.id).length:0,uBooks=u?uniBooks(u.id).length:0;
   openSheet(`${hero(medal(I_UNI),u?t('editUni'):t('newUni'),u?[t('sagas',n),t('looseBooks',nl)].join(' · '):t('uniSub'))}
     <div class="f"><label for="un">${t('name')}</label><input id="un" type="text" value="${esc(d.name)}"></div>
     <div class="f"><label for="ua">${t('author')}</label><input id="ua" type="text" value="${esc(d.author)}"></div>
+    ${u?`<div class="warn">${t('delUniWarn',n,uBooks)}</div>`:''}
     <div class="btns">${u?`<button type="button" class="btn del" id="udel">${t('del')}</button>`:''}<button type="button" class="btn" id="ucan">${t('cancel')}</button><button type="button" class="btn main" id="uok">${u?t('save'):t('create')}</button></div>`);
   $('#ucan').onclick=closeSheet;
-  if(u)armDelete($('#udel'),()=>{S.sagas.forEach(s=>{if(s.universeId===u.id){s.universeId='';s.universeOrder=null}});S.books.forEach(b=>{if(b.universeId===u.id){b.universeId='';b.universeOrder=null}});S.universes=S.universes.filter(x=>x.id!==u.id);closeSheet();render();toast(t('uniDeleted'))});
+  if(u)armDelete($('#udel'),()=>{const sids=new Set(S.sagas.filter(x=>x.universeId===u.id).map(x=>x.id));S.books.filter(b=>sids.has(b.sagaId)||b.universeId===u.id).forEach(b=>FS.del(b.file));S.books=S.books.filter(b=>!sids.has(b.sagaId)&&b.universeId!==u.id);S.sagas=S.sagas.filter(x=>!sids.has(x.id));S.universes=S.universes.filter(x=>x.id!==u.id);closeSheet();render();toast(t('uniDeleted'))},null,t('delAllSure'));
   $('#uok').onclick=()=>{const nm=$('#un').value.trim();if(!nm){toast(t('missName'));$('#un').focus();return}
     d.name=nm;d.author=$('#ua').value.trim()||t('unknown');
     if(u)Object.assign(uni(u.id),d);else{d.id=uid();S.universes.push(d)}closeSheet();render();toast(u?t('uniUpd'):t('uniNew'))};
@@ -639,18 +990,103 @@ function uniForm(u){
 /* ---- Filtros ---- */
 function filterForm(){
   const authors=[...new Set(S.books.map(b=>b.author))].sort(coll.compare);
+  const gs=[...new Set(S.books.flatMap(gsOf))].sort((a,b)=>coll.compare(gname(a),gname(b)));
+  let stt=ui.status,m=ui.min,sel=new Set(ui.genres);
+  const states=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('droppedF')]];
   openSheet(`${hero(medal(I_FILT),t('filters'),t('filtSub'))}
+    <div class="f"><span class="lbl">${t('stateL')}</span><div class="chk" id="fst">${states.map(([k,x])=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${stt===k}">${x}</button>`).join('')}</div></div>
+    ${gs.length?`<div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="fgen"></div></div>`:''}
     <div class="f"><span class="lbl">${t('minRating')}</span><div class="box"><div class="rate" id="frate"></div></div></div>
     <div class="f"><label for="fa">${t('author')}</label><select id="fa"><option value="">${t('all')}</option>${authors.map(a=>`<option ${ui.author===a?'selected':''} value="${esc(a)}">${esc(a)}</option>`).join('')}</select></div>
     <div class="btns"><button type="button" class="btn" id="fclr">${t('clear')}</button><button type="button" class="btn main" id="fok">${t('apply')}</button></div>`);
-  let m=ui.min;rateWidget('frate',m,v=>m=v);
-  $('#fclr').onclick=()=>{ui.min=0;ui.author='';closeSheet();render()};
-  $('#fok').onclick=()=>{ui.min=m;ui.author=$('#fa').value;closeSheet();render()};
+  rateWidget('frate',m,v=>m=v);
+  $('#fst').onclick=e=>{const x=e.target.closest('[data-k]');if(!x)return;stt=x.dataset.k;$('#fst').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.k===stt)))};
+  if($('#fgen')){const cnt=new Map();S.books.forEach(b2=>gsOf(b2).forEach(g=>cnt.set(g,(cnt.get(g)||0)+1)));const gi=g=>{const i=GENRES.indexOf(g);return i<0?99:i};const ord=gs.slice().sort((x,y)=>(sel.has(y)-sel.has(x))||(cnt.get(y)-cnt.get(x))||(gi(x)-gi(y))||coll.compare(gname(x),gname(y)));
+    genPicker($('#fgen'),ord,g=>sel.has(g),g=>{if(sel.has(g))sel.delete(g);else sel.add(g)})}
+  $('#fclr').onclick=()=>{ui.min=0;ui.author='';ui.genres=[];ui.status='all';closeSheet();render(false)};
+  $('#fok').onclick=()=>{ui.min=m;ui.author=$('#fa').value;ui.genres=[...sel];ui.status=stt;closeSheet();render(false)};
+}
+/* ---- Sugerencia de autor (Open Library). Sin internet: no hace nada ---- */
+const OLC={};let olCtl=null;
+async function suggestAuthors(title){
+  const q=String(title||'').trim(),nq=norm(q);
+  if(nq.length<3||navigator.onLine===false)return [];
+  if(OLC[nq])return OLC[nq];
+  if(olCtl)olCtl.abort();
+  const ctl=olCtl=new AbortController(),to=setTimeout(()=>ctl.abort(),5000);
+  try{
+    const r=await fetch('https://openlibrary.org/search.json?limit=10&fields=title,author_name&title='+encodeURIComponent(q),{signal:ctl.signal});
+    if(!r.ok)return [];
+    const j=await r.json(),seen=new Set(),out=[];
+    const docs=(j.docs||[]).filter(d=>d.author_name&&d.author_name.length);
+    docs.sort((a,b)=>(norm(b.title).includes(nq)?1:0)-(norm(a.title).includes(nq)?1:0));
+    for(const d of docs){const a=String(d.author_name[0]).trim();if(a&&!seen.has(norm(a))){seen.add(norm(a));out.push(a)}if(out.length>=4)break}
+    OLC[nq]=out;return out;
+  }catch(e){return []}finally{clearTimeout(to)}
+}
+
+/* ---- Estadísticas ---- */
+function statsForm(){
+  const I_ST='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>';
+  const B=S.books,readB=B.filter(b=>stOf(b)==='read'),nReading=B.filter(b=>stOf(b)==='reading').length,nDropped=B.filter(b=>stOf(b)==='dropped').length,nUnread=B.filter(b=>stOf(b)==='unread').length;
+  if(!B.length){openSheet(`${hero(medal(I_ST),t('statsT'),t('statsSub'))}<p class="lead">${t('stEmpty')}</p><div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);$('#stok').onclick=closeSheet;return}
+  const rated=B.map(rat).filter(r=>r>0),av=avg(rated);
+  const yr=new Date().getFullYear(),thisYear=readB.filter(b=>b.readAt&&new Date(b.readAt).getFullYear()===yr).length;
+  const bar=(name,tot,rd,max,h)=>`<div class="bar" ${h!=null?`style="--gh:${h}"`:''}><span class="bn">${esc(name)}</span><span class="bt2"><i style="width:${Math.max(4,Math.round(tot/max*100))}%"><b style="width:${tot?Math.round(rd/tot*100):0}%"></b></i></span><span class="bv">${rd}/${tot}</span></div>`;
+  /* géneros */
+  const gm=new Map();B.forEach(b=>gsOf(b).forEach(g=>{const o=gm.get(g)||{t:0,r:0};o.t++;if(stOf(b)==='read')o.r++;gm.set(g,o)}));
+  const gl=[...gm.entries()].sort((a,b)=>b[1].t-a[1].t||coll.compare(gname(a[0]),gname(b[0]))).slice(0,8);
+  const gmax=gl.length?gl[0][1].t:1;
+  /* notas */
+  const dist=[5,4,3,2,1].map(n=>[n,B.filter(b=>rat(b)>0&&Math.round(rat(b))===n).length]);
+  const dmax=Math.max(1,...dist.map(x=>x[1]));
+  const rbar=(label,n)=>`<div class="bar"><span class="bn">${label}</span><span class="bt2"><i style="width:${n?Math.max(4,Math.round(n/dmax*100)):0}%"><b style="width:100%"></b></i></span><span class="bv">${n}</span></div>`;
+  /* autores */
+  const am=new Map();B.forEach(b=>{const k=b.author||t('unknown');const o=am.get(k)||{t:0,r:0};o.t++;if(stOf(b)==='read')o.r++;am.set(k,o)});
+  const al=[...am.entries()].sort((a,b)=>b[1].t-a[1].t||coll.compare(a[0],b[0])).slice(0,5);
+  const amax=al.length?al[0][1].t:1;
+  /* meses (últimos 12) */
+  const now=new Date(),ms=[];
+  for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);ms.push({y:d.getFullYear(),m:d.getMonth(),n:0})}
+  let dated=0;readB.forEach(b=>{if(!b.readAt)return;dated++;const d=new Date(b.readAt),x=ms.find(z=>z.y===d.getFullYear()&&z.m===d.getMonth());if(x)x.n++});
+  const mmax=Math.max(1,...ms.map(x=>x.n));
+  const mn=new Intl.DateTimeFormat(CFG.lang,{month:'narrow'});
+  const months=dated?`<div class="months">${ms.map(x=>`<div class="${x.n?'':'z'}"><span>${x.n||''}</span><i style="height:${x.n?Math.max(8,Math.round(x.n/mmax*62)):3}px"></i><span>${esc(mn.format(new Date(x.y,x.m,1)))}</span></div>`).join('')}</div>`:`<p class="note">${t('stNoDates')}</p>`;
+  const unrated=B.filter(b=>fin(b)&&!(b.rating>0)).length;
+  openSheet(`${hero(medal(I_ST),t('statsT'),t('statsSub'))}
+    <div class="tiles">
+      <div class="tile"><b>${readB.length}</b><span>${t('stRead')}</span></div>
+      <div class="tile"><b>${nReading}</b><span>${t('stReading')}</span></div>
+      <div class="tile"><b>${nUnread}</b><span>${t('stPending')}</span></div>
+      <div class="tile"><b>${nDropped}</b><span>${t('stDropped')}</span></div>
+      <div class="tile"><b>${av!=null?fmt(av):'–'}</b><span>${t('stAvg')}</span></div>
+      <div class="tile"><b>${thisYear}</b><span>${t('stYear')}</span></div>
+    </div>
+    <div class="sec">${t('stMonths')}</div>${months}
+    <div class="sec">${t('stGenres')}</div>
+    ${gl.length?gl.map(([g,o])=>bar(gname(g),o.t,o.r,gmax,ghue(g))).join('')+`<p class="note">${t('stLegend')}</p>`:`<p class="note">${t('stNoGenres')}</p>`}
+    <div class="sec">${t('stRatings')}</div>
+    ${dist.map(([n,c])=>rbar('★'.repeat(n),c)).join('')}${unrated?rbar(t('stUnrated'),unrated):''}
+    <div class="sec">${t('stAuthors')}</div>
+    ${al.map(([a,o])=>bar(a,o.t,o.r,amax)).join('')}
+    <div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);
+  $('#stok').onclick=closeSheet;
+}
+
+/* copia de seguridad .json (en el teléfono: hoja de compartir; en el navegador: descarga) */
+async function exportBackup(){
+  const json=JSON.stringify({app:'por-leer',version:VERSION,build:BUILD,date:new Date().toISOString(),settings:CFG,data:S},null,1);
+  const name=`to-be-read-${new Date().toISOString().slice(0,10)}.json`;
+  if(CAP){try{await nativeShareFile(name,json)}catch(e){toast(t('noExport'))}return}
+  let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+  if(dl){try{await dl.save({filename:name,data:json});toast(t('exported'))}catch(e){if(e&&e.code!=='declined')toast(t('noExport'))}return}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));a.download=name;
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast(t('exported'))}catch(e){toast(t('noExport'))}
 }
 /* ---- Ajustes ---- */
 function sw(id,on){return `<button type="button" class="switch" role="switch" id="${id}" aria-checked="${on}"><span></span></button>`}
 let cfgSnap=null;
-function applyCfg(){saveCfg();coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});applyStatic();render()}
+function applyCfg(){saveCfg();coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});applyStatic();render(false)}
 function settingsForm(){
   if(!cfgSnap)cfgSnap={...CFG};
   openSheet(`${hero(medal(I_GEAR),t('settings'),t('setSub'))}
@@ -675,23 +1111,16 @@ function settingsForm(){
     <div class="group"><div class="srow"><div class="stx"><div>${t('app')} · ${t('version')} ${VERSION} <span style="color:var(--ink2)">(build ${BUILD})</span></div><small>${t('stats',S.books.length,S.sagas.length,S.universes.length)}<br>${t('storage')}</small></div></div></div>
     <div class="btns"><button type="button" class="btn main" id="sok">${t('done')}</button></div>`);
   $('#ssort').value=CFG.sort;
-  const set=(k,v)=>{CFG[k]=v;saveCfg();render()};
+  const set=(k,v)=>{CFG[k]=v;saveCfg();render(false)};
   $('#slang').onclick=e=>{const x=e.target.closest('[data-l]');if(!x||x.dataset.l===CFG.lang)return;
     CFG.lang=x.dataset.l;applyCfg();const st=$('#sheet').scrollTop;settingsForm();$('#sheet').scrollTop=st};
   $('#ssort').onchange=e=>set('sort',e.target.value);
   [['sread','readLast'],['shalf','half'],['sopen','autoOpen']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen')ui.open={};set(k,v)}});
-  $('#sexp').onclick=async()=>{
-    if(CAP){try{await nativeShareFile(`to-be-read-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({app:'por-leer',version:VERSION,build:BUILD,date:new Date().toISOString(),data:S},null,1))}catch(e){toast(t('noExport'))}return}
-    const json=JSON.stringify({app:'por-leer',version:VERSION,build:BUILD,date:new Date().toISOString(),data:S},null,1);
-    const name=`to-be-read-${new Date().toISOString().slice(0,10)}.json`;
-    let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
-    if(dl){try{await dl.save({filename:name,data:json});toast(t('exported'))}catch(e){if(e&&e.code!=='declined')toast(t('noExport'))}return}
-    try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));a.download=name;
-      document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast(t('exported'))}catch(e){toast(t('noExport'))}};
+  $('#sexp').onclick=exportBackup;
   $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{const j=JSON.parse(await f.text()),d=j.data||j;if(!Array.isArray(d.books)||!Array.isArray(d.sagas))throw 0;
-      S={books:d.books,sagas:d.sagas,universes:Array.isArray(d.universes)?d.universes:[]};ui.open={};render();closeSheet();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
-  armDelete($('#swipe'),()=>{S={books:[],sagas:[],universes:[]};ui.open={};render();closeSheet();toast(t('wiped'))},null,t('wipeSure'));
+      S=migrate({books:d.books,sagas:d.sagas,universes:d.universes});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeSheet();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
+  armDelete($('#swipe'),()=>{S.books.forEach(b=>FS.del(b.file));S={books:[],sagas:[],universes:[]};ui.open={};render();closeSheet();toast(t('wiped'))},null,t('wipeSure'));
   $('#sshare').onclick=()=>{cfgSnap=null;shareForm()};
   $('#sok').onclick=()=>{cfgSnap=null;closeSheet()};
   onDismiss=()=>{const snap=cfgSnap;cfgSnap=null;if(snap&&JSON.stringify(snap)!==JSON.stringify(CFG)){if(snap.autoOpen!==CFG.autoOpen)ui.open={};CFG=snap;applyCfg()}};
@@ -700,10 +1129,10 @@ function settingsForm(){
 /* ---- Compartir lista (formato "[X] Título (n) - Autor [5.0]") ---- */
 function shareText(opt){
   const rows=[];const r1=v=>v>0?` [${(Math.round(v*2)/2).toFixed(1)}]`:'';
-  const bookLine=b=>({done:b.read,name:b.title,rating:b.rating||0,recent:idx(b),line:`[${b.read?'X':' '}] ${b.title} - ${b.author}${b.read?r1(b.rating):''}`});
-  S.sagas.forEach(s=>{const all=booksOf(s.id);const done=all.length>0&&all.every(b=>b.read);
+  const bookLine=b=>({done:fin(b),name:b.title,rating:rat(b),recent:idx(b),line:`[${stOf(b)==='read'?'X':stOf(b)==='dropped'?'-':' '}] ${b.title} - ${b.author}${fin(b)?r1(rat(b)):''}`});
+  S.sagas.forEach(s=>{const all=booksOf(s.id);const done=all.length>0&&all.every(fin);
     /* saga a medio leer: cada libro en su línea */
-    if(all.some(b=>b.read)&&!done){all.forEach(b=>rows.push(bookLine(b)));return}
+    if(all.some(fin)&&!done){all.forEach(b=>rows.push(bookLine(b)));return}
     rows.push({done,name:s.name,rating:sagaRating(s)||0,recent:all.length?Math.max(...all.map(idx)):-1,line:`[${done?'X':' '}] ${s.name}${all.length>1?` (${all.length})`:''} - ${s.author}${done?r1(sagaRating(s)):''}`})});
   S.books.filter(b=>!saga(b.sagaId)).forEach(b=>rows.push(bookLine(b)));
   const f=rows.filter(x=>x.done?opt.read:opt.unread);sortItems(f);
@@ -714,27 +1143,22 @@ function shareForm(){
   openSheet(`${hero(medal('<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>'),t('share'),t('shareSub'))}
     <div class="f"><span class="lbl">${t('incl')}</span><div class="chk" id="shinc"><button type="button" class="chip" data-k="unread" aria-pressed="true">${t('incUnread')}</button><button type="button" class="chip" data-k="read" aria-pressed="true">${t('incRead')}</button></div></div>
     <textarea class="sharetxt" id="shtxt" readonly spellcheck="false"></textarea>
-    <div class="btns" id="shbtns">${(CAP||navigator.share)?`<button type="button" class="btn main" id="shgo">${t('shareNow')}</button>`:''}<button type="button" class="btn ${(CAP||navigator.share)?'':'main'}" id="shcopy">${t('copy')}</button><button type="button" class="btn" id="shsave">${t('saveTxt')}</button></div>`);
+    <div class="btns" id="shbtns"><button type="button" class="btn main" id="shgo">${t('shareNow')}</button><button type="button" class="btn" id="shcopy">${t('copy')}</button></div>`);
   const upd=()=>{$('#shtxt').value=shareText(opt)};upd();
   $('#shinc').onclick=e=>{const x=e.target.closest('[data-k]');if(!x)return;const k=x.dataset.k,o=k==='read'?'unread':'read';if(opt[k]&&!opt[o])return;opt[k]=!opt[k];x.setAttribute('aria-pressed',opt[k]);upd()};
   const txt=()=>$('#shtxt').value;
-  if($('#shgo'))$('#shgo').onclick=async()=>{if(CAP){try{await CAP.Share.share({title:t('shareTitle'),text:txt(),dialogTitle:t('share')})}catch(e){}return}try{await navigator.share({title:t('shareTitle'),text:txt()})}catch(e){if(e&&e.name!=='AbortError')$('#shcopy').click()}};
+  $('#shgo').onclick=async()=>{if(CAP){try{await CAP.Share.share({title:t('shareTitle'),text:txt(),dialogTitle:t('share')})}catch(e){if(!/cancel/i.test(String(e&&(e.message||e))))$('#shcopy').click()}return}if(navigator.share){try{await navigator.share({title:t('shareTitle'),text:txt()})}catch(e){if(e&&e.name!=='AbortError')$('#shcopy').click()}}else $('#shcopy').click()};
   $('#shcopy').onclick=async()=>{
     try{await navigator.clipboard.writeText(txt());toast(t('copied'));return}catch(e){}
     const ta=$('#shtxt');ta.removeAttribute('readonly');ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
     let ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.setAttribute('readonly','');toast(ok?t('copied'):t('noCopy'));
   };
-  $('#shsave').onclick=async()=>{const name='to-be-read.txt';
-    if(CAP){try{await nativeShareFile(name,txt())}catch(e){toast(t('noExport'))}return}
-    let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
-    if(dl){try{await dl.save({filename:name,data:txt()});toast(t('exported'))}catch(e){if(e&&e.code!=='declined')toast(t('noExport'))}return}
-    try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt()],{type:'text/plain'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}catch(e){toast(t('noExport'))}};
 }
 
 /* ---------- importar .epub / .pdf ---------- */
-function shrink(url,w=240){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{
+function shrink(url,w=200){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{
   const c=document.createElement('canvas');c.width=w;c.height=Math.round(im.naturalHeight/im.naturalWidth*w);
-  c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.72))};im.onerror=rej;im.src=url})}
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.7))};im.onerror=rej;im.src=url})}
 async function readEpub(file){
   await lib('lib/jszip.min.js');
   const zip=await JSZip.loadAsync(file);
@@ -783,28 +1207,35 @@ async function readPdf(file){
   }catch(e){}
   return out;
 }
-$('#file').onchange=async e=>{
-  const f=e.target.files[0];e.target.value='';if(!f)return;
+async function processPicked(f,ref0,cb){
   const ext=f.name.split('.').pop().toLowerCase();
-  if(ext!=='epub'&&ext!=='pdf'){toast(t('pickFile'));return}
+  if(ext!=='epub'&&ext!=='pdf'){toast(t('pickFile'));if(ref0)FS.del(ref0);return}
   toast(t('reading'));
   const base=f.name.replace(/\.\w+$/,'').replace(/[_]+/g,' ');
   let meta;
   try{
     meta=ext==='epub'?await readEpub(f):await readPdf(f);
     if(!meta.title)meta.title=base;
-    toast(t('detectedT'));
   }catch(err){meta={fromFile:true,title:base};toast(t('noMeta'))}
-  if(curFill&&$('#sheet').classList.contains('on')&&$('.fromfile')){if($('#bt').value.trim()&&meta.title===base)delete meta.title;curFill(meta,f.name)}
-  else bookForm(null,meta);
+  let ref=ref0;
+  if(!ref){try{ref=await FS.put(uid(),f)}catch(err){toast(t('fileSaveFail'))}}
+  if(cb){await cb(f,meta,ref);return}
+  toast(t('detectedT'));
+  if(curFill&&$('#sheet').classList.contains('on')&&$('.fromfile[for]')){if($('#bt').value.trim()&&meta.title===base)delete meta.title;curFill(meta,f.name,ref)}
+  else bookForm(null,Object.assign(meta,{file:ref}));
+}
+$('#file').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';const cb=pickTarget;pickTarget=null;if(!f)return;
+  await processPicked(f,null,cb);
 };
 
 /* ---------- eventos ---------- */
 function closeMenu(){$('#menu').classList.remove('on');$('#fab').classList.remove('on')}
 $('#fab').onclick=()=>{$('#menu').classList.toggle('on');$('#fab').classList.toggle('on')};
+$('#statsbtn').onclick=()=>{closeMenu();statsForm()};
 $('#gear').onclick=()=>{closeMenu();settingsForm()};
 $('#sharebtn').onclick=()=>{closeMenu();shareForm()};
-let qT;$('#q').addEventListener('input',e=>{clearTimeout(qT);qT=setTimeout(()=>{ui.q=e.target.value.trim();render()},160)});
+let qT;$('#q').addEventListener('input',e=>{clearTimeout(qT);qT=setTimeout(()=>{ui.q=e.target.value.trim();render(false)},160)});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.ghead'))e.target.click();if(e.key==='Escape')dismissSheet()});
 document.addEventListener('click',e=>{
   if(e.target.closest('#sheet'))return;
@@ -812,13 +1243,15 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#menu,#fab'))closeMenu();
   if(!x)return;
   const a=x.dataset.a,id=x.dataset.id;
-  if(a==='toggle-read'){const b=book(id);b.read=!b.read;const r=x.closest('.row');if(r)r.classList.toggle('read',b.read);requestAnimationFrame(()=>setTimeout(render,0));return}
+  if(a==='status-book')return statusForm(book(id));
+  if(a==='open-file')return openBookFile(book(id));
   if(a==='rate-book')return rateForm(book(id));
   if(a==='edit-book')return bookForm(book(id));
   if(a==='edit-saga')return sagaForm(saga(id));
   if(a==='edit-uni')return uniForm(uni(id));
-  if(a==='toggle-open'){ui.open[id]=!isOpen(id);x.parentElement.classList.toggle('open',ui.open[id]);return}
-  if(a==='status'){ui.status=x.dataset.k;render();return}
+  if(a==='toggle-open'){const op=!isOpen(id);ui.open[id]=op;const card=x.parentElement;if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody');if(gb){gb.innerHTML=LAZY.get(id)()}LAZY.delete(id)}card.classList.toggle('open',op);return}
+  if(a==='genre-tag'){const g=x.dataset.g;ui.genres=(ui.genres.length===1&&ui.genres[0]===g)?[]:[g];render(false);return}
+  if(a==='status'){ui.status=x.dataset.k;render(false);return}
   if(a==='filters')return filterForm();
   if(a==='new-book'){closeMenu();return bookForm(null)}
   if(a==='new-saga'){closeMenu();return sagaForm(null)}
@@ -826,6 +1259,135 @@ document.addEventListener('click',e=>{
   if(a==='import'){setTimeout(closeMenu,50)}
 });
 if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if($('#sheet').classList.contains('on'))dismissSheet();else if($('#menu').classList.contains('on'))closeMenu();else CAP.App.exitApp()});
+
+/* ---------- mantener pulsado: reordenar o sacar de una saga/universo ---------- */
+(function(){
+  const list=$('#list'),bar=$('#dragbar');
+  let pend=null,tm=null,D=null,swallowAt=0,rafId=0,lastY=0,lastX=0;
+  const cancel=()=>{clearTimeout(tm);tm=null;pend=null};
+  const parentOf=grp=>grp[0]==='s'?saga(grp.slice(2)):uni(grp.slice(2));
+  const objOf=dk=>dk[0]==='b'?book(dk.slice(2)):saga(dk.slice(2));
+  list.addEventListener('pointerdown',e=>{
+    if(D||!e.isPrimary||(e.pointerType==='mouse'&&e.button!==0))return;
+    const el=e.target.closest('[data-dk]');if(!el)return;
+    if(e.target.closest('.pen,.seal,.br,.tag'))return;
+    cancel();pend={el,x:e.clientX,y:e.clientY};lastY=e.clientY;lastX=e.clientX;
+    tm=setTimeout(begin,430);
+  });
+  document.addEventListener('pointermove',e=>{
+    lastY=e.clientY;lastX=e.clientX;
+    if(pend&&!D){if(Math.abs(e.clientX-pend.x)>9||Math.abs(e.clientY-pend.y)>9)cancel();return}
+    if(D){update()}
+  });
+  document.addEventListener('touchmove',e=>{if(D&&e.cancelable)e.preventDefault()},{passive:false});
+  list.addEventListener('contextmenu',e=>{if(pend||D)e.preventDefault()});
+  document.addEventListener('click',e=>{if(performance.now()-swallowAt<450){e.preventDefault();e.stopPropagation()}},true);
+  function begin(){
+    tm=null;if(!pend)return;const el=pend.el;pend=null;
+    if(filtering()){toast(t('dragNoFilter'));return}
+    const grp=el.dataset.grp||'',sibs=grp?[...list.querySelectorAll('[data-grp="'+grp+'"]')]:[el];
+    if(sibs.length<1)return;
+    const sy=scrollY,r=sibs.map(x=>{const b=x.getBoundingClientRect();return {top:b.top+sy,h:b.height}});
+    const i0=sibs.indexOf(el),cs=getComputedStyle(el);
+    const cb=grp?el.parentElement.getBoundingClientRect():{top:0,bottom:0};
+    D={el,grp,dk:el.dataset.dk,sibs,r,i0,ni:i0,out:false,y0:lastY,s0:sy,
+       h:r[i0].h+(parseFloat(cs.marginTop)||0)+(parseFloat(cs.marginBottom)||0),
+       ctop:cb.top+sy,cbot:cb.bottom+sy,pname:grp?((parentOf(grp)||{}).name||''):'',tgt:null,tgtKey:null};
+    document.body.classList.add('dragging');
+    D.anc=[];for(let n=el.parentElement;n&&n!==list;n=n.parentElement){if(n.classList&&n.classList.contains('card')){n.classList.add('dg-anc');D.anc.push(n)}}
+    sibs.forEach(x=>{if(x!==el)x.classList.add('dsib')});el.classList.add('lift');
+    try{navigator.vibrate&&navigator.vibrate(18)}catch(_){}
+    bar.textContent=grp?t('dragMove'):t('dragFree');bar.classList.remove('out');bar.classList.add('on');
+    loop();update();
+  }
+  function update(){
+    if(!D)return;
+    const sy=scrollY,dy=(lastY-D.y0)+(sy-D.s0);
+    D.el.style.transform='translateY('+dy+'px)';
+    const c=D.r[D.i0].top+D.r[D.i0].h/2+dy;
+    let ni=0;D.r.forEach((q,j)=>{if(j!==D.i0&&q.top+q.h/2<c)ni++});
+    const py=lastY+sy;
+    let out=D.grp?(py<D.ctop-30||py>D.cbot+30):false;
+    /* ¿está encima de una saga/universo donde se pueda meter? (solo fuera de su propio contenedor) */
+    let tgt=null;
+    if(!D.grp||out){
+      const isBook=D.dk[0]==='b';
+      const els=document.elementsFromPoint(lastX,lastY);
+      for(const e0 of els){
+        if(D.el.contains(e0))continue;
+        let n=e0.closest('[data-drop]');
+        while(n){const k=n.dataset.drop;
+          if(!D.el.contains(n)&&k!==D.grp&&(isBook||k[0]==='u')){tgt=n;break}
+          n=n.parentElement?n.parentElement.closest('[data-drop]'):null}
+        if(tgt)break;
+      }
+    }
+    if(tgt!==D.tgt){
+      if(D.tgt)D.tgt.classList.remove('droptgt');
+      D.tgt=tgt;D.tgtKey=tgt?tgt.dataset.drop:null;
+      if(tgt)tgt.classList.add('droptgt');
+    }
+    if(tgt){const o=D.tgtKey[0]==='s'?saga(D.tgtKey.slice(2)):uni(D.tgtKey.slice(2));
+      bar.textContent=t('dragInto',(o&&o.name)||'');bar.classList.remove('out');D.el.classList.remove('out');D.out=false;out=false}
+    else if(out!==D.out||D.was!==(tgt?1:0)){D.out=out;D.el.classList.toggle('out',out);bar.classList.toggle('out',out);bar.textContent=out?t('dragOut',D.pname):(D.grp?t('dragMove'):t('dragFree'))}
+    D.was=tgt?1:0;
+    if(out||tgt)ni=D.i0;
+    D.ni=ni;
+    D.sibs.forEach((x,j)=>{if(j===D.i0)return;let sh=0;
+      if(ni>D.i0&&j>D.i0&&j<=ni)sh=-D.h;else if(ni<D.i0&&j>=ni&&j<D.i0)sh=D.h;
+      x.style.transform=sh?'translateY('+sh+'px)':''});
+  }
+  function loop(){
+    cancelAnimationFrame(rafId);
+    const f=()=>{if(!D)return;const H=innerHeight;
+      if(Math.abs(lastY-D.y0)>10)D.moved=true;
+      if(D.moved){if(lastY<110)scrollBy(0,-Math.min(16,(110-lastY)/6+2));else if(lastY>H-140)scrollBy(0,Math.min(16,(lastY-(H-140))/6+2))}
+      update();rafId=requestAnimationFrame(f)};
+    rafId=requestAnimationFrame(f);
+  }
+  function finish(ok){
+    cancel();if(!D)return;const d=D;D=null;cancelAnimationFrame(rafId);
+    d.sibs.forEach(x=>{x.style.transform='';x.classList.remove('dsib')});
+    d.el.style.transform='';d.el.classList.remove('lift','out');
+    document.body.classList.remove('dragging');bar.classList.remove('on');(d.anc||[]).forEach(n=>n.classList.remove('dg-anc'));
+    swallowAt=performance.now();
+    if(d.tgt)d.tgt.classList.remove('droptgt');
+    if(!ok)return;
+    if(d.tgtKey){
+      const o=objOf(d.dk);if(!o)return;const id=d.tgtKey.slice(2);
+      if(d.tgtKey[0]==='s'){
+        const mx=Math.max(0,...booksOf(id).map(x=>+x.sagaOrder||0));
+        o.sagaId=id;o.sagaOrder=mx+1;o.universeId='';o.universeOrder=null;
+      }else{
+        const mx=Math.max(0,...S.sagas.filter(x=>x.universeId===id).map(x=>+x.universeOrder||0),...looseOf(id).map(x=>+x.universeOrder||0));
+        if(d.dk[0]==='b'){o.sagaId='';o.sagaOrder=null}
+        o.universeId=id;o.universeOrder=mx+1;
+      }
+      ui.open[id]=true;
+      const tg=d.tgtKey[0]==='s'?saga(id):uni(id);
+      render();toast(t('movedInto',(tg&&tg.name)||''));return;
+    }
+    if(d.out){
+      const o=objOf(d.dk);if(!o)return;
+      if(d.dk[0]==='b'){
+        if(d.grp[0]==='s'){const sg=saga(o.sagaId);o.sagaId='';o.sagaOrder=null;
+          if(sg&&sg.universeId){o.universeId=sg.universeId;o.universeOrder=null}}
+        else{o.universeId='';o.universeOrder=null}
+      }else{o.universeId='';o.universeOrder=null}
+      render();toast(t('takenOut',d.pname));return;
+    }
+    if(d.ni!==d.i0){
+      const order=d.sibs.map(x=>x.dataset.dk);const [m]=order.splice(d.i0,1);order.splice(d.ni,0,m);
+      order.forEach((k,i)=>{const o=objOf(k);if(!o)return;if(d.grp[0]==='s')o.sagaOrder=i+1;else o.universeOrder=i+1});
+      render();toast(t('reordered'));
+    }
+  }
+  document.addEventListener('pointerup',()=>finish(true));
+  document.addEventListener('pointercancel',()=>finish(false));
+  addEventListener('blur',()=>finish(false));
+})();
+(function(){const st=$('#stick'),se=$('#sent');
+  try{new IntersectionObserver(en=>{st.classList.toggle('on',!en[0].isIntersecting)},{threshold:0}).observe(se)}catch(e){}})();
 applyStatic();
 render();
 </script>
