@@ -79,8 +79,8 @@ jobs:
           echo "--- Permisos ---"; grep "uses-permission" badging.txt || echo "(ninguno)"
           echo "--- Paquete ---"; grep "^package:" badging.txt
           if grep -q "application-debuggable" badging.txt; then echo "::error::El APK es depurable"; exit 1; fi
-          # Solo se espera el permiso de internet (para sugerir autores); si hay otros, avisa
-          EXTRA=$(grep "uses-permission" badging.txt | grep -v "android.permission.INTERNET" | grep -v "DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" || true)
+          # Solo se esperan internet (sugerencias), cámara (escáner ISBN) e instalar actualizaciones; si hay otros, avisa
+          EXTRA=$(grep "uses-permission" badging.txt | grep -v "android.permission.INTERNET" | grep -v "android.permission.CAMERA" | grep -v "android.permission.REQUEST_INSTALL_PACKAGES" | grep -v "DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" || true)
           if [ -n "$EXTRA" ]; then echo "::warning::Permisos adicionales (revisar):"; echo "$EXTRA"; fi
           echo "Comprobaciones terminadas: firmado y no depurable"
 
