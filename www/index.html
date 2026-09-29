@@ -97,6 +97,17 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .bt{flex:1;min-width:0}
 .btitle{font-family:var(--font-title);font-weight:600;font-size:16px;line-height:1.2}
 .bauth{color:var(--ink2);font-size:14px}
+body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
+.nav #gear.upd,#gear.upd{position:relative}#gear.upd::after{content:"";position:absolute;top:6px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:#e0457b;border:2px solid #fff}
+.withbtn{display:flex;gap:8px;align-items:stretch}.withbtn input{flex:1;min-width:0}
+.scanb{flex:none;width:48px;border:1px solid var(--line);border-radius:12px;background:#f6effa;color:var(--plum);display:grid;place-items:center;cursor:pointer}.scanb:active{background:var(--parch3)}.scanb[hidden]{display:none}
+#scan{position:fixed;inset:0;z-index:90;background:#000;display:none;flex-direction:column;color:#fff}#scan.on{display:flex}
+#scan video{flex:1;min-height:0;width:100%;object-fit:cover;background:#111}
+.scfr{position:absolute;left:8%;right:8%;top:22%;height:26%;border:2px solid rgba(255,255,255,.85);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.35);pointer-events:none}
+.scbar{padding:14px 16px calc(14px + env(safe-area-inset-bottom));background:#1b1224;display:flex;flex-direction:column;gap:10px}
+#scmsg{font-size:14px;text-align:center;opacity:.9}
+.scman{display:flex;gap:8px}.scman input{flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid #5a4870;background:#2a1d38;color:#fff;font-size:16px}
+.scman button,#scx{padding:10px 16px;border-radius:10px;border:0;background:#7b3fa0;color:#fff;font-size:15px;font-weight:600}#scx{background:transparent;border:1px solid #5a4870}
 .read .btitle,.read .bauth{text-decoration:line-through;text-decoration-color:var(--plum2);text-decoration-thickness:1.5px;color:#8c7b98}
 .ord{font-family:var(--font-title);font-weight:600;color:var(--lilac);width:20px;text-align:center;flex:none;font-size:16px}
 .br{flex:none;text-align:right;font-size:14px;color:var(--ink2);padding:6px 0 6px 6px;margin:-6px 0}
@@ -313,7 +324,7 @@ body.dragging{cursor:grabbing}
   <div class="stick" id="stick">
     <label class="search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
-      <input id="q" type="search" placeholder="Buscar título, autor, saga…" autocomplete="off">
+      <input id="q" type="search" placeholder="Buscar título, autor, serie…" autocomplete="off">
     </label>
     <div class="chips" id="chips"></div>
   </div>
@@ -338,6 +349,7 @@ body.dragging{cursor:grabbing}
 <div class="toast" id="toast"></div>
 <div class="dragbar" id="dragbar"></div>
 
+<div id="scan" role="dialog" aria-modal="true"><video id="scv" playsinline muted></video><div class="scfr"></div><div class="scbar"><div id="scmsg"></div><div class="scman"><input id="scisbn" type="text" inputmode="numeric" autocomplete="off"><button type="button" id="scgo"></button></div><button type="button" id="scx"></button></div></div>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -345,7 +357,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.7.1',BUILD=15;
+const VERSION='0.9.0',BUILD=18;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -356,7 +368,7 @@ async function nativeShareFile(name,text){
 const initial=t=>esc((String(t||'').trim()[0]||'·').toUpperCase());
 
 /* ---------- ajustes ---------- */
-const DEF={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en',sort:'alpha',readLast:true,half:true,autoOpen:false};
+const DEF={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en',sort:'alpha',readLast:true,half:true,autoOpen:false,strike:true,groupGen:true,updNotify:true};
 let CFG=(()=>{try{return Object.assign({},DEF,JSON.parse(localStorage.getItem(SKEY)||'{}'))}catch(e){return {...DEF}}})();
 function saveCfg(){try{localStorage.setItem(SKEY,JSON.stringify(CFG))}catch(e){}}
 let coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});
@@ -365,45 +377,45 @@ let coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});
 const pl=(n,a,b)=>`${n} ${n===1?a:b}`;
 const I18N={
  es:{
-  app:'To be read',search:'Buscar título, autor, saga…',all:'Todos',unread:'Sin leer',read:'Leídos',filters:'Filtros',
+  app:'To be read',search:'Buscar título, autor, serie…',all:'Todos',unread:'Sin leer',read:'Leídos',filters:'Filtros',
   pending:'pendientes',readN:'leídos',
-  book:'Libro',saga:'Saga',universe:'Universo',fromFile:'Rellenar desde un archivo',fromFileD:'.epub o .pdf: título, autor, saga y portada',fileRead:'Datos leídos ✓ Revisa y edita lo que quieras',fileChange:'toca para usar otro archivo',add:'Añadir',settings:'Ajustes',
-  rate:'☆ valorar',markRead:'Marcar como leído',markUnread:'Marcar como no leído',editBook:'Editar libro',editSaga:'Editar saga',editUni:'Editar universo',
-  avg:'media',readOf:(a,b)=>`${a}/${b} leídos`,sagas:n=>pl(n,'saga','sagas'),books:n=>pl(n,'libro','libros'),looseBooks:n=>pl(n,'libro suelto','libros sueltos'),
+  book:'Libro',saga:'Serie',universe:'Universo',fromFile:'Rellenar desde un archivo',fromFileD:'.epub o .pdf: título, autor, serie y portada',fileRead:'Datos leídos ✓ Revisa y edita lo que quieras',fileChange:'toca para usar otro archivo',add:'Añadir',settings:'Ajustes',
+  rate:'☆ valorar',markRead:'Marcar como leído',markUnread:'Marcar como no leído',editBook:'Editar libro',editSaga:'Editar serie',editUni:'Editar universo',
+  avg:'media',readOf:(a,b)=>`${a}/${b} leídos`,sagas:n=>pl(n,'serie','series'),books:n=>pl(n,'libro','libros'),looseBooks:n=>pl(n,'libro suelto','libros sueltos'),
   empty:'vacío',emptyBody:'Aún vacío',noBooks:'Sin libros todavía',
   noMatch:'Ningún libro coincide con estos filtros.',emptyList:'Tu lista está vacía. Pulsa + para añadir tu primer libro.',
   newBook:'Nuevo libro',addCover:'Añadir portada',removeCover:'Quitar portada',detected:'Datos detectados en el archivo. Revísalos antes de guardar.',
   title:'Título',author:'Autor',status:'Estado',toRead:'Por leer',isRead:'Leído',rating:'Valoración',halfHint:'Toca la mitad izquierda de una estrella para media.',
-  noSaga:'Sin saga',newSagaOpt:'Nueva saga…',sagaNo:'Número',none:'Ninguno',uniOrder:'Orden',newSagaName:'Nombre de la nueva saga',
+  noSaga:'Sin serie',newSagaOpt:'Nueva serie…',sagaNo:'Número',none:'Ninguno',uniOrder:'Orden',newSagaName:'Nombre de la nueva serie',
   del:'Eliminar',sure:'¿Seguro?',cancel:'Cancelar',save:'Guardar',create:'Crear',
   bookDeleted:'Libro eliminado',missTitle:'Falta el título',missName:'Falta el nombre',unknown:'Autor desconocido',saved:'Cambios guardados',bookAdded:'Libro añadido',
   yourRating:'Tu valoración',ratingSaved:'Valoración guardada',
-  newSaga:'Nueva saga',inSaga:n=>`${pl(n,'libro','libros')} en esta saga`,sagaSub:'Agrupa libros en orden de lectura',name:'Nombre',order:'Orden',sagaRating:'Valoración de la saga',
+  newSaga:'Nueva serie',inSaga:n=>`${pl(n,'libro','libros')} en esta serie`,sagaSub:'Agrupa libros en orden de lectura',name:'Nombre',order:'Orden',sagaRating:'Valoración de la serie',
   autoHint:'Automática: media de los libros valorados. Toca las estrellas para fijarla a mano.',manual:'Fijada a mano.',backAvg:'Volver a la media',
-  sagaDeleted:'Saga y sus libros eliminados',sagaUpd:'Saga actualizada',sagaNew:'Saga creada',
-  newUni:'Nuevo universo',uniSub:'Un mundo con sagas y libros sueltos',uniDeleted:'Universo y todo su contenido eliminados',uniUpd:'Universo actualizado',uniNew:'Universo creado',
+  sagaDeleted:'Serie y sus libros eliminados',sagaUpd:'Serie actualizada',sagaNew:'Serie creada',
+  newUni:'Nuevo universo',uniSub:'Un mundo con series y libros sueltos',uniDeleted:'Universo y todo su contenido eliminados',uniUpd:'Universo actualizado',uniNew:'Universo creado',
   filtSub:'Afina lo que ves en la lista',minRating:'Valoración mínima',clear:'Limpiar',apply:'Aplicar',
   pickFile:'Elige un archivo .epub o .pdf',reading:'Leyendo el archivo…',detectedT:'Datos detectados',noMeta:'No pude leer los metadatos; rellénalos a mano',noImg:'No pude leer la imagen',
   stars:n=>`${n} estrellas`,remove:'Quitar',
   setSub:'Personaliza tu biblioteca',done:'Listo',language:'Idioma',list:'Lista',sortBy:'Ordenar por',sAlpha:'Nombre (A–Z)',sRecent:'Añadidos recientemente',sRating:'Mejor valorados',
   readLast:'Leídos al final',readLastD:'Lo ya terminado baja al fondo de la lista',half:'Medias estrellas',halfD:'Permite valorar con 3,5, 4,5…',
-  autoOpen:'Abrir sagas y universos',autoOpenD:'Mostrarlos desplegados al abrir la app',
+  autoOpen:'Abrir series y universos',autoOpenD:'Mostrarlos desplegados al abrir la app',
   data:'Tus datos',export:'Exportar copia de seguridad',exportD:'Descarga un archivo .json con toda tu lista',importB:'Importar copia de seguridad',importD:'Reemplaza la lista actual por la del archivo',
   wipe:'Borrar todos los datos',wipeD:'Deja la lista vacía. No se puede deshacer',wipeSure:'Toca otra vez para borrar',wiped:'Lista borrada',
   exported:'Copia descargada',noExport:'No se pudo descargar la copia aquí',imported:'Copia importada',badBackup:'Ese archivo no es una copia válida',
-  about:'Acerca de',version:'Versión',stats:(b,s,u)=>`${pl(b,'libro','libros')} · ${pl(s,'saga','sagas')} · ${pl(u,'universo','universos')}`,
+  about:'Acerca de',version:'Versión',stats:(b,s,u)=>`${pl(b,'libro','libros')} · ${pl(s,'serie','series')} · ${pl(u,'universo','universos')}`,
   storage:'Los datos se guardan solo en este dispositivo.',
-  genres:'Géneros',genreOther:'Otro género',genreAdd:'Añadir',genreNone:'Sin género',genrePh:'Escribe un género',suggAuthor:'¿Es de…?',
-  g_fantasy:'Fantasía',g_scifi:'Ciencia ficción',g_romance:'Romance',g_mystery:'Misterio y crimen',g_thriller:'Suspenso',g_horror:'Terror',g_historical:'Histórica',g_ya:'Juvenil',g_classic:'Clásico',g_litfic:'Narrativa',g_nonfic:'No ficción',g_bio:'Biografía',g_selfhelp:'Desarrollo personal',g_comic:'Cómic y manga',g_poetry:'Poesía',g_adventure:'Aventura',
+  genres:'Géneros',genreOther:'Otro género',genreAdd:'Añadir',genreNone:'Sin género',genrePh:'Escribe un género',suggAuthor:'¿Es de…?',updT:'Actualizaciones',updCheck:'Buscar actualización',updInst:v=>`Versión instalada: ${v}`,updChecking:'Buscando…',updNone:'Ya tienes la última versión',updNew:(v,b)=>`Nueva versión ${v} (build ${b})`,updGet:'Toca para descargar e instalar',updWeb:'Toca para abrir la página de descargas',updDl:p=>`Descargando ${p}%…`,updNeedPerm:'Activa «Permitir de esta fuente» y toca de nuevo',updFail:'No pude buscar actualizaciones',updDlFail:'No pude descargar la actualización',updOffline:'Sin conexión a internet',updNotify:'Avisar de nuevas versiones',updNotifyD:'Al abrir la app comprueba (una vez al día, con internet)',updAvail:v=>`Hay una nueva versión (${v}). Ajustes → Actualizaciones`,suggGenres:'Géneros sugeridos:',strike:'Tachar libros leídos',strikeD:'Quita la línea sobre título y autor; se mantiene el tono apagado',groupGen:'Géneros agrupados',groupGenD:'Series y universos muestran los géneros de sus libros',sType:'Por tipo (libros, series, universos)',scanIsbn:'Escanear ISBN',scanT:'Apunta al código de barras del libro',scanManual:'O escribe el ISBN',needNet:'Necesitas conexión a internet para escanear un ISBN',isbnLook:'Buscando libro…',isbnNone:'No encontré ese ISBN',isbnBad:'ISBN no válido',camDenied:'No pude usar la cámara. Escribe el ISBN.',ok:'OK',
+  g_fantasy:'Fantasía',g_scifi:'Ciencia ficción',g_romance:'Romance',g_mystery:'Policiaco',g_thriller:'Suspenso',g_horror:'Terror',g_historical:'Histórica',g_ya:'Juvenil',g_classic:'Clásico',g_dystopia:'Distopía',g_action:'Acción',g_drama:'Drama',g_nonfic:'No ficción',g_bio:'Biografía',g_selfhelp:'Desarrollo personal',g_comic:'Cómic y manga',g_poetry:'Poesía',g_adventure:'Aventura',
   statsT:'Estadísticas',statsSub:'Tu lectura de un vistazo',stRead:'Leídos',stPending:'Pendientes',stAvg:'Nota media',stYear:'Este año',stRatings:'Tus notas',stGenres:'Por género',stAuthors:'Autores con más libros',stMonths:'Leídos por mes',stNoGenres:'Añade géneros a tus libros para ver aquí cuáles lees más.',stNoDates:'Desde ahora se guarda la fecha en que marcas un libro como leído; aquí verás tu ritmo por mes.',stEmpty:'Aún no hay libros. Añade alguno y aquí verás tus estadísticas.',stLegend:'Oscuro = leídos · claro = pendientes',stUnrated:'Sin nota',stClose:'Cerrar',
   st_unread:'Por leer',st_reading:'Leyendo',st_read:'Leído',st_dropped:'Abandonado',
   stD_unread:'Aún no lo empiezo',stD_reading:'Lo estoy leyendo ahora',stD_read:'Lo terminé',stD_dropped:'Lo dejé a medias y no pienso terminarlo',
   statusT:'Estado del libro',statusSub:'¿En qué punto está?',readingF:'Leyendo',droppedF:'Abandonados',stateL:'Estado',
   secReading:'Leyendo',secPending:'Pendientes',secDone:'Terminados',
-  rateLock:'Para calificar un libro debes leerlo o abandonarlo.',sagaRateLock:'Para calificar la saga necesitas al menos un libro leído o abandonado.',
-  delSagaWarn:n=>n?`Al eliminar la saga se borrarán también sus ${pl(n,'libro','libros')}.`:'Al eliminar la saga se borrará todo lo que contiene.',
-  delUniWarn:(s,b)=>`Al eliminar el universo se borrarán también ${pl(s,'saga','sagas')} y ${pl(b,'libro','libros')} (todo lo que contiene).`,
-  delAllSure:'Toca otra vez: se borra todo',storageFull:'No se pudo guardar: el almacenamiento está lleno. Exporta una copia y quita portadas.',genLess:'Menos ▴',shareJson:'Enviar copia de seguridad (.json)',shareJsonD:'Todo tu contenido, para guardarlo o mandarlo por WhatsApp',fileL:'Archivo del libro',fileAttach:'Vincular un archivo .epub o .pdf',fileAttachD:'Guarda solo el enlace (no una copia). Al tocar el libro se abre con tu app de lectura',fileOpen:'Abrir',fileLoad:'Cargar portada y datos',fileRemove:'Quitar',fileLinked:'Archivo vinculado ✓',fileLoaded:'Datos y portada cargados del archivo',fileSaving:'Guardando archivo…',fileSaveFail:'No pude guardar el archivo (el libro se guarda igual)',fileNoApp:'No hay ninguna app instalada para abrir este archivo',fileGone:'No encuentro el archivo (¿lo moviste o borraste?). Vuélvelo a vincular en Editar',fileFail:'No pude abrir el archivo',fileNoRead:'No pude leer los datos del archivo',dragMove:'Suelta para cambiar el orden',dragInto:n=>`Suelta para meterlo en «${n}»`,movedInto:n=>`Movido a «${n}»`,dragFree:'Arrastra sobre una saga o universo para meterlo',dragOut:n=>`Suelta para sacarlo de «${n}»`,dragNoFilter:'Quita la búsqueda y los filtros para reordenar',reordered:'Orden actualizado',takenOut:n=>`Sacado de «${n}»`,stReading:'Leyendo',stDropped:'Abandonados',
+  rateLock:'Para calificar un libro debes leerlo o abandonarlo.',sagaRateLock:'Para calificar la serie necesitas al menos un libro leído o abandonado.',
+  delSagaWarn:n=>n?`Al eliminar la serie se borrarán también sus ${pl(n,'libro','libros')}.`:'Al eliminar la serie se borrará todo lo que contiene.',
+  delUniWarn:(s,b)=>`Al eliminar el universo se borrarán también ${pl(s,'serie','series')} y ${pl(b,'libro','libros')} (todo lo que contiene).`,
+  delAllSure:'Toca otra vez: se borra todo',storageFull:'No se pudo guardar: el almacenamiento está lleno. Exporta una copia y quita portadas.',genLess:'Menos ▴',shareJson:'Enviar copia de seguridad (.json)',shareJsonD:'Todo tu contenido, para guardarlo o mandarlo por WhatsApp',fileL:'Archivo del libro',fileAttach:'Vincular un archivo .epub o .pdf',fileAttachD:'Guarda solo el enlace (no una copia). Al tocar el libro se abre con tu app de lectura',fileOpen:'Abrir',fileLoad:'Cargar portada y datos',fileRemove:'Quitar',fileLinked:'Archivo vinculado ✓',fileLoaded:'Datos y portada cargados del archivo',fileSaving:'Guardando archivo…',fileSaveFail:'No pude guardar el archivo (el libro se guarda igual)',fileNoApp:'No hay ninguna app instalada para abrir este archivo',fileGone:'No encuentro el archivo (¿lo moviste o borraste?). Vuélvelo a vincular en Editar',fileFail:'No pude abrir el archivo',fileNoRead:'No pude leer los datos del archivo',dragMove:'Suelta para cambiar el orden',dragInto:n=>`Suelta para meterlo en «${n}»`,movedInto:n=>`Movido a «${n}»`,dragFree:'Arrastra sobre una serie o universo para meterlo',dragOut:n=>`Suelta para sacarlo de «${n}»`,dragNoFilter:'Quita la búsqueda y los filtros para reordenar',reordered:'Orden actualizado',takenOut:n=>`Sacado de «${n}»`,stReading:'Leyendo',stDropped:'Abandonados',
   share:'Compartir lista',shareSub:'Tu lista en texto, lista para enviar',shareNow:'Compartir',copy:'Copiar',saveTxt:'Guardar .txt',copied:'Lista copiada',noCopy:'No se pudo copiar; mantén pulsado el texto para copiarlo',shareTitle:'To be read',incl:'Incluir',incUnread:'Sin leer',incRead:'Leídos',shareD:'Envía tu lista en texto por WhatsApp u otra app'
  },
  en:{
@@ -435,8 +447,8 @@ const I18N={
   exported:'Backup downloaded',noExport:'Couldn’t download the backup here',imported:'Backup imported',badBackup:'That file isn’t a valid backup',
   about:'About',version:'Version',stats:(b,s,u)=>`${pl(b,'book','books')} · ${pl(s,'series','series')} · ${pl(u,'universe','universes')}`,
   storage:'Your data is stored only on this device.',
-  genres:'Genres',genreOther:'Other genre',genreAdd:'Add',genreNone:'No genre',genrePh:'Type a genre',suggAuthor:'Is it by…?',
-  g_fantasy:'Fantasy',g_scifi:'Sci-fi',g_romance:'Romance',g_mystery:'Mystery & crime',g_thriller:'Thriller',g_horror:'Horror',g_historical:'Historical',g_ya:'Young adult',g_classic:'Classic',g_litfic:'Literary fiction',g_nonfic:'Non-fiction',g_bio:'Biography',g_selfhelp:'Self-help',g_comic:'Comics & manga',g_poetry:'Poetry',g_adventure:'Adventure',
+  genres:'Genres',genreOther:'Other genre',genreAdd:'Add',genreNone:'No genre',genrePh:'Type a genre',suggAuthor:'Is it by…?',updT:'Updates',updCheck:'Check for updates',updInst:v=>`Installed version: ${v}`,updChecking:'Checking…',updNone:'You have the latest version',updNew:(v,b)=>`New version ${v} (build ${b})`,updGet:'Tap to download and install',updWeb:'Tap to open the downloads page',updDl:p=>`Downloading ${p}%…`,updNeedPerm:'Turn on “Allow from this source” and tap again',updFail:'Couldn’t check for updates',updDlFail:'Couldn’t download the update',updOffline:'No internet connection',updNotify:'Notify about new versions',updNotifyD:'When the app opens it checks (once a day, online)',updAvail:v=>`A new version is available (${v}). Settings → Updates`,suggGenres:'Suggested genres:',strike:'Strike through read books',strikeD:'Removes the line over title and author; keeps the faded look',groupGen:'Grouped genres',groupGenD:'Series and universes show the genres of their books',sType:'By type (books, series, universes)',scanIsbn:'Scan ISBN',scanT:'Point at the book’s barcode',scanManual:'Or type the ISBN',needNet:'You need an internet connection to scan an ISBN',isbnLook:'Looking up the book…',isbnNone:'I couldn’t find that ISBN',isbnBad:'Invalid ISBN',camDenied:'Couldn’t use the camera. Type the ISBN.',ok:'OK',
+  g_fantasy:'Fantasy',g_scifi:'Sci-fi',g_romance:'Romance',g_mystery:'Crime & mystery',g_thriller:'Thriller',g_horror:'Horror',g_historical:'Historical',g_ya:'Young adult',g_classic:'Classic',g_dystopia:'Dystopia',g_action:'Action',g_drama:'Drama',g_nonfic:'Non-fiction',g_bio:'Biography',g_selfhelp:'Self-help',g_comic:'Comics & manga',g_poetry:'Poetry',g_adventure:'Adventure',
   statsT:'Statistics',statsSub:'Your reading at a glance',stRead:'Read',stPending:'To read',stAvg:'Avg rating',stYear:'This year',stRatings:'Your ratings',stGenres:'By genre',stAuthors:'Most-read authors',stMonths:'Read per month',stNoGenres:'Add genres to your books to see which ones you read most.',stNoDates:'From now on the date you mark a book as read is saved; you’ll see your monthly pace here.',stEmpty:'No books yet. Add some and your statistics will show up here.',stLegend:'Dark = read · light = to read',stUnrated:'Unrated',stClose:'Close',
   st_unread:'To read',st_reading:'Reading',st_read:'Read',st_dropped:'Dropped',
   stD_unread:'Haven’t started it',stD_reading:'Reading it right now',stD_read:'Finished it',stD_dropped:'Stopped halfway and won’t finish it',
@@ -451,12 +463,14 @@ const I18N={
 };
 function t(k,...a){const v=(I18N[CFG.lang]||I18N.es)[k];return typeof v==='function'?v(...a):(v==null?k:v)}
 
-const GENRES=['fantasy','scifi','romance','mystery','thriller','horror','historical','ya','classic','litfic','nonfic','bio','selfhelp','comic','poetry','adventure'];
+const GENRES=['fantasy','scifi','romance','mystery','thriller','horror','historical','ya','classic','nonfic','bio','selfhelp','comic','poetry','adventure','dystopia','action','drama'];
 const gname=g=>{const v=(I18N[CFG.lang]||I18N.es)['g_'+g];return typeof v==='string'?v:g};
-const GHUE={fantasy:272,scifi:218,romance:335,mystery:48,thriller:176,horror:356,historical:34,ya:150,classic:85,litfic:196,nonfic:245,bio:110,selfhelp:310,comic:64,poetry:290,adventure:14};
+const GHUE={fantasy:272,scifi:218,romance:335,mystery:48,thriller:176,horror:356,historical:34,ya:150,classic:85,dystopia:128,action:24,drama:195,nonfic:245,bio:110,selfhelp:310,comic:64,poetry:290,adventure:14};
 const ghue=g=>{if(GHUE[g]!=null)return GHUE[g];let h=0;for(const c of String(g))h=(h*31+c.charCodeAt(0))%360;return h};
 const tag=g=>`<span class="tag" style="--gh:${ghue(g)}" data-a="genre-tag" data-g="${esc(g)}">${esc(gname(g))}</span>`;
 const gsAgg=list=>{const m=new Map();list.forEach(b=>gsOf(b).forEach(g=>m.set(g,(m.get(g)||0)+1)));return [...m.entries()].sort((a,b)=>b[1]-a[1]||coll.compare(gname(a[0]),gname(b[0]))).map(x=>x[0])};
+const gsAlpha=g=>g.slice().sort((a,b)=>coll.compare(gname(a),gname(b)));
+const aggTags=g=>{if(!g.length||!CFG.groupGen)return '';const top=gsAlpha(g.slice(0,5)),more=g.length-5;return `<div class="bgen">${top.map(tag).join('')}${more>0?`<span class="tag" style="--gh:270;opacity:.75">+${more}</span>`:''}</div>`};
 const dragAttr=(b,inSaga,inUni)=>`data-dk="b:${b.id}" data-grp="${inSaga&&b.sagaId?'s:'+b.sagaId:(inUni&&b.universeId?'u:'+b.universeId:'')}"`;
 const dragAttr0=(b,inSaga,inUni)=>inSaga&&b.sagaId?`data-dk="b:${b.id}" data-grp="s:${b.sagaId}"`:(inUni&&b.universeId?`data-dk="b:${b.id}" data-grp="u:${b.universeId}"`:'');
 const stOf=b=>b.status||(b.read?'read':'unread');
@@ -464,7 +478,7 @@ const fin=b=>{const x=stOf(b);return x==='read'||x==='dropped'};
 const rat=b=>fin(b)?(b.rating||0):0;
 function setStatus(b,st){const was=stOf(b);b.status=st;b.read=st==='read';b.readAt=st==='read'?((was==='read'&&b.readAt)||Date.now()):null}
 function migrate(o){o.universes=Array.isArray(o.universes)?o.universes:[];o.sagas=Array.isArray(o.sagas)?o.sagas:[];o.books=Array.isArray(o.books)?o.books:[];
-  o.books.forEach(b=>{if(!b.status)b.status=b.read?'read':'unread';b.read=b.status==='read'});return o}
+  o.books.forEach(b=>{if(!b.status)b.status=b.read?'read':'unread';b.read=b.status==='read';if(Array.isArray(b.genres)&&b.genres.includes('litfic'))b.genres=b.genres.filter(g=>g!=='litfic')});return o}
 const gsOf=b=>Array.isArray(b.genres)?b.genres:[];
 function applyStatic(){
   document.documentElement.lang=CFG.lang;document.title=t('app');
@@ -544,7 +558,7 @@ function bookRow(b,inSaga,parentAuthor,inUni){
   const sx=stOf(b),rr=rat(b);
   const rt=rr>0?stars(rr)+`<div>${fmt(rr)}</div>`:(fin(b)?`<span class="add">${t('rate')}</span>`:'');
   const pill=(sx==='reading'||sx==='dropped')?`<span class="pill ${sx}">${t('st_'+sx)}</span>`:'';
-  const gtags=(!inSaga&&!inUni)?gsOf(b).map(tag).join(''):'';
+  const gtags=(!inSaga&&!inUni)?(()=>{const g=gsAlpha(gsOf(b));return g.slice(0,3).map(tag).join('')+(g.length>3?`<span class="tag" style="--gh:270;opacity:.75" data-a="edit-book" data-id="${b.id}">+${g.length-3}</span>`:'')})():'';
   return `<div class="row ${sx} ${sx==='read'?'read':''} ${inUni?'urow':''}" ${dragAttr(b,inSaga,inUni)}>
     ${inSaga?`<span class="ord">${b.sagaOrder!=null&&b.sagaOrder!==''?b.sagaOrder:'·'}</span>`:''}
     <button class="seal" data-a="status-book" data-id="${b.id}" aria-label="${t('statusT')}: ${t('st_'+sx)}"><svg class="ico ck"><use href="#${sx==='dropped'?'i-x':'i-check'}"/></svg></button>
@@ -564,7 +578,7 @@ function sagaCard(s,vis,uniAuthor,inUni){
   return `<section class="card ${done?'done':''} ${open?'open':''}" data-dk="s:${s.id}" data-grp="${inUni?'u:'+s.universeId:''}" data-drop="s:${s.id}">
     <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${s.id}">
       ${CHEV}
-      <span class="ttl"><div class="gname">${esc(s.name)}</div><div class="gmeta">${t('saga')}${uniAuthor&&norm(uniAuthor)===norm(s.author)?'':' · '+esc(s.author)}</div>${(()=>{const g=inUni?[]:gsAgg(all);return g.length?`<div class="bgen">${g.map(tag).join('')}</div>`:''})()}</span>
+      <span class="ttl"><div class="gname">${esc(s.name)}</div><div class="gmeta">${t('saga')}${uniAuthor&&norm(uniAuthor)===norm(s.author)?'':' · '+esc(s.author)}</div>${aggTags(inUni?[]:gsAgg(all))}</span>
       <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}${s.ratingOverride==null?` (${t('avg')})`:''}</span>`:''}<span>${t('readOf',readN,all.length)}</span></span>
       <button class="pen" data-a="edit-saga" data-id="${s.id}" aria-label="${t('editSaga')}"><svg class="ico"><use href="#i-pen"/></svg></button>
     </div>
@@ -572,13 +586,13 @@ function sagaCard(s,vis,uniAuthor,inUni){
   </section>`;
 }
 function sortItems(items){
-  const key={alpha:(a,b)=>coll.compare(a.name,b.name),recent:(a,b)=>(b.recent-a.recent)||coll.compare(a.name,b.name),rating:(a,b)=>((b.rating||0)-(a.rating||0))||coll.compare(a.name,b.name)}[CFG.sort]||((a,b)=>coll.compare(a.name,b.name));
+  const key={alpha:(a,b)=>coll.compare(a.name,b.name),recent:(a,b)=>(b.recent-a.recent)||coll.compare(a.name,b.name),rating:(a,b)=>((b.rating||0)-(a.rating||0))||coll.compare(a.name,b.name),type:(a,b)=>((a.k||0)-(b.k||0))||coll.compare(a.name,b.name)}[CFG.sort]||((a,b)=>coll.compare(a.name,b.name));
   const rank=x=>x.reading?0:(CFG.readLast&&x.done?2:1);
   items.sort((a,b)=>(rank(a)-rank(b))||(rank(a)===0?coll.compare(a.name,b.name):key(a,b)));
 }
 let rtok=0;
 function render(persist=true){
-  ver++;LAZY.clear();
+  ver++;LAZY.clear();document.body.classList.toggle('nostrike',!CFG.strike);
   const vis=S.books.filter(passes),f=filtering();
   const visSaga=new Map(),visLoose=new Map(),standalone=[];
   vis.forEach(b=>{
@@ -602,13 +616,13 @@ function render(persist=true){
     mix.sort(byOrder('o','n'));
     const nsg=usagas.length;
     const cnt=[nsg?t('sagas',nsg):'',nl?t('books',nl):''].filter(Boolean).join(' · ')||t('empty');
-    items.push({name:u.name,done,reading:all.some(b=>stOf(b)==='reading'),rating:r,recent:recentOf(all),h:()=>{
+    items.push({k:2,name:u.name,done,reading:all.some(b=>stOf(b)==='reading'),rating:r,recent:recentOf(all),h:()=>{
       const open=isOpen(u.id),body=()=>mix.map(x=>x.h()).join('')||`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`;
       if(!open)LAZY.set(u.id,body);
       return `<section class="card uni ${open?'open':''} ${done?'done':''}" data-drop="u:${u.id}">
       <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${u.id}">
         ${CHEV}
-        <span class="ttl"><div class="gname">${esc(u.name)}</div><div class="gmeta">${t('universe')} · ${esc(u.author)}</div>${(()=>{const g=gsAgg(all);return g.length?`<div class="bgen">${g.map(tag).join('')}</div>`:''})()}</span>
+        <span class="ttl"><div class="gname">${esc(u.name)}</div><div class="gmeta">${t('universe')} · ${esc(u.author)}</div>${aggTags(gsAgg(all))}</span>
         <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}</span>`:''}<span>${cnt}</span></span>
         <button class="pen" data-a="edit-uni" data-id="${u.id}" aria-label="${t('editUni')}"><svg class="ico"><use href="#i-pen"/></svg></button>
       </div>
@@ -618,16 +632,17 @@ function render(persist=true){
     const v=visSaga.get(s.id)||[];
     if(!v.length&&f)return;
     const all=booksOf(s.id);
-    items.push({name:s.name,done:all.length>0&&all.every(fin),reading:all.some(b=>stOf(b)==='reading'),rating:sagaRating(s),recent:recentOf(all),h:()=>sagaCard(s,v)});
+    items.push({k:1,name:s.name,done:all.length>0&&all.every(fin),reading:all.some(b=>stOf(b)==='reading'),rating:sagaRating(s),recent:recentOf(all),h:()=>sagaCard(s,v)});
   });
-  standalone.forEach(b=>items.push({name:b.title,done:fin(b),reading:stOf(b)==='reading',rating:rat(b),recent:idx(b),h:()=>bookRow(b,false)}));
+  standalone.forEach(b=>items.push({k:0,name:b.title,done:fin(b),reading:stOf(b)==='reading',rating:rat(b),recent:idx(b),h:()=>bookRow(b,false)}));
   sortItems(items);
   const rk=x=>x.reading?0:(CFG.readLast&&x.done?2:1);
   const cnt=[0,0,0];items.forEach(i=>cnt[rk(i)]++);
   const multi=cnt.filter(Boolean).length>1;
   /* pintado por tandas: lo primero aparece enseguida y el resto se añade mientras el teléfono descansa */
   const tok=++rtok,listEl=$('#list'),hideDone=HD&&multi&&!ui.q&&ui.status==='all';
-  if(!items.length){listEl.innerHTML=`<div class="empty">${f?t('noMatch'):t('emptyList')}</div>`}
+  const sy=window.scrollY,lh=listEl.offsetHeight;
+  if(!items.length){listEl.style.minHeight='';listEl.innerHTML=`<div class="empty">${f?t('noMatch'):t('emptyList')}</div>`}
   else{
     let i=0,lastR=-1;
     const build=n=>{let h='';const end=Math.min(items.length,i+n);
@@ -635,8 +650,11 @@ function render(persist=true){
         if(multi&&r!==lastR)h+=r===2?`<button type="button" class="sep s2 tg" data-a="tgdone" aria-expanded="${!hideDone}"><svg class="chv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>${t('secDone')}<span>${cnt[r]}</span></button>`:`<div class="sep s${r}">${t(['secReading','secPending'][r])}<span>${cnt[r]}</span></div>`;
         lastR=r;if(r===2&&hideDone)continue;h+=it.h()}
       return h};
+    if(lh>0&&sy>0)listEl.style.minHeight=lh+'px';
     listEl.innerHTML=build(22);
-    const more=()=>{if(tok!==rtok||i>=items.length)return;listEl.insertAdjacentHTML('beforeend',build(40));if(i<items.length)idle(more,{timeout:300})};
+    if(sy>0)window.scrollTo({top:sy,behavior:'instant'});
+    if(i>=items.length)listEl.style.minHeight='';
+    const more=()=>{if(tok!==rtok)return;if(i>=items.length){listEl.style.minHeight='';return}listEl.insertAdjacentHTML('beforeend',build(40));if(i<items.length)idle(more,{timeout:300});else listEl.style.minHeight=''};
     if(i<items.length)idle(more,{timeout:300});
   }
   const nRead=S.books.filter(b=>stOf(b)==='read').length,nPend=S.books.filter(b=>{const x=stOf(b);return x==='unread'||x==='reading'}).length;
@@ -756,20 +774,25 @@ let pickTarget=null;
 /* selector de géneros: una sola línea con los más usados y un "···" que despliega el resto */
 function genPicker(box,order,isOn,toggle){
   let open=false;
+  const alpha=(x,y)=>coll.compare(x.dataset.n,y.dataset.n);
   const fold=()=>{
-    const chips=[...box.querySelectorAll('[data-g]')],more=box.querySelector('[data-more]');
+    const more=box.querySelector('[data-more]');
     if(!more)return;
-    chips.forEach(c=>c.hidden=false);more.hidden=false;
-    if(open){more.textContent=t('genLess');return}
-    for(let k=chips.length;k>=1;k--){
+    const chips=[...box.querySelectorAll('[data-g]')].sort((x,y)=>x.dataset.i-y.dataset.i);
+    chips.forEach(c=>{box.insertBefore(c,more);c.hidden=false});more.hidden=false;
+    if(open){chips.slice().sort(alpha).forEach(c=>box.insertBefore(c,more));more.textContent=t('genLess');return}
+    let k=chips.length;
+    for(;k>=1;k--){
       chips.forEach((c,i)=>c.hidden=i>=k);
       const hid=chips.length-k;more.hidden=hid===0;more.textContent=hid?'··· +'+hid:'';
       const top=chips[0].offsetTop;
       if(chips.slice(0,k).every(c=>c.offsetTop===top)&&(hid===0||more.offsetTop===top))break;
     }
+    if(k<1)k=1;
+    [...chips.slice(0,k).sort(alpha),...chips.slice(k).sort(alpha)].forEach(c=>box.insertBefore(c,more));
   };
   const paint=()=>{
-    box.innerHTML=order.map(g=>`<button type="button" class="chip" style="--gh:${ghue(g)}" data-g="${esc(g)}" aria-pressed="${isOn(g)}">${esc(gname(g))}</button>`).join('')+(order.length>1?`<button type="button" class="chip more" data-more></button>`:'');
+    box.innerHTML=order.map((g,i)=>`<button type="button" class="chip" style="--gh:${ghue(g)}" data-i="${i}" data-n="${esc(gname(g))}" data-g="${esc(g)}" aria-pressed="${isOn(g)}">${esc(gname(g))}</button>`).join('')+(order.length>1?`<button type="button" class="chip more" data-more></button>`:'');
     fold();
   };
   box.onclick=e=>{
@@ -800,13 +823,13 @@ function bookForm(b,pre){
     ${b?'':`<label class="fromfile" for="file"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 17v-6M9 14l3-3 3 3"/></svg></span><span><b>${t('fromFile')}</b><small>${t('fromFileD')}</small></span></label>`}
     ${pre&&pre.fromFile?`<p class="lead">${t('detected')}</p>`:''}
     <div class="f" id="bfw" style="display:none"><span class="lbl">${t('fileL')}</span><div id="bfile"></div></div>
-    <div class="f"><label for="bt">${t('title')}</label><input id="bt" type="text" value="${esc(d.title)}"></div>
+    <div class="f"><label for="bt">${t('title')}</label><div class="withbtn"><input id="bt" type="text" value="${esc(d.title)}"><button type="button" class="scanb" id="bisbn" aria-label="${t('scanIsbn')}" title="${t('scanIsbn')}" ${navigator.onLine===false?'hidden':''}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 8v8M11 8v8M14 8v8M17 8v8"/></svg></button></div></div>
     <div class="f"><label for="ba">${t('author')}</label><input id="ba" type="text" value="${esc(d.author)}" autocomplete="off"><div class="sugg" id="bsug"></div></div>
     <div class="f"><span class="lbl">${t('status')}</span><div class="seg four" id="bseg">
       ${['unread','reading','read','dropped'].map(k=>`<button type="button" data-s="${k}">${t('st_'+k)}</button>`).join('')}</div></div>
     <div class="f"><span class="lbl">${t('rating')}</span><div class="box" id="brbox"><div class="rate" id="brate"></div>${CFG.half?`<div class="hint" id="bhalf">${t('halfHint')}</div>`:''}<div class="lockmsg">${t('rateLock')}</div></div></div>
     <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="bgen"></div>
-      <div class="gadd"><input id="bgi" type="text" placeholder="${t('genrePh')}" maxlength="30" autocomplete="off"><button type="button" id="bga">${t('genreAdd')}</button></div></div>
+      <div class="gadd"><input id="bgi" type="text" placeholder="${t('genrePh')}" maxlength="30" autocomplete="off"><button type="button" id="bga">${t('genreAdd')}</button></div><div class="sugg" id="gsug"></div></div>
     <div class="two pair" id="bsw">
       <div class="f"><label for="bs">${t('saga')}</label><select id="bs"><option value="">${t('noSaga')}</option>${opts}<option value="__new" ${d.sagaId==='__new'?'selected':''}>${t('newSagaOpt')}</option></select></div>
       <div class="f" id="bordw"><label for="bo">${t('sagaNo')}</label><input id="bo" type="number" step="any" inputmode="decimal" value="${d.sagaOrder!=null?d.sagaOrder:''}"></div>
@@ -833,11 +856,35 @@ function bookForm(b,pre){
   const gorder=[...new Set([...GENRES,...usage.keys(),...d.genres])].map((g,i)=>[g,i])
     .sort((x,y)=>(d.genres.includes(y[0])-d.genres.includes(x[0]))||((usage.get(y[0])||0)-(usage.get(x[0])||0))||x[1]-y[1]).map(x=>x[0]);
   const gp=genPicker($('#bgen'),gorder,g=>d.genres.includes(g),g=>{const i=d.genres.indexOf(g);if(i>=0)d.genres.splice(i,1);else d.genres.push(g)});
+  const addG=k=>{if(!d.genres.includes(k))d.genres.push(k);
+    const ix=gorder.indexOf(k);if(ix<0)gorder.unshift(k);else if(ix>0){gorder.splice(ix,1);gorder.unshift(k)}gp.paint()};
   const addGen=()=>{const el=$('#bgi'),v=el.value.trim();if(!v)return;
     const k=GENRES.find(g=>norm(gname(g))===norm(v))||gorder.find(g=>norm(gname(g))===norm(v))||v;
-    if(!d.genres.includes(k))d.genres.push(k);
-    if(!gorder.includes(k))gorder.unshift(k);else if(gorder.indexOf(k)>0){gorder.splice(gorder.indexOf(k),1);gorder.unshift(k)}
-    el.value='';gp.paint()};
+    addG(k);el.value=''};
+  /* géneros sugeridos (solo con internet) */
+  let gq=0;
+  const gsug=$('#gsug'),showGen=list=>{const l=(list||[]).filter(g=>!d.genres.includes(g));
+    if(!l.length){gsug.classList.remove('on');gsug.innerHTML='';return}
+    gsug.innerHTML=`<span>${t('suggGenres')}</span>`+l.map(g=>`<button type="button" data-g="${esc(g)}">+ ${esc(gname(g))}</button>`).join('');gsug.classList.add('on')};
+  gsug.onclick=e=>{const x=e.target.closest('[data-g]');if(!x)return;addG(x.dataset.g);x.remove();if(!gsug.querySelector('[data-g]')){gsug.classList.remove('on');gsug.innerHTML=''}};
+  const askGen=()=>{const mine=++gq;clearTimeout(askGen.t);
+    askGen.t=setTimeout(async()=>{if(!$('#bt'))return;const r=await suggestGenres($('#bt').value);if(mine===gq&&$('#bt'))showGen(r)},900)};
+  $('#bt').addEventListener('input',askGen);
+  if(b&&d.title&&!d.genres.length)askGen();
+  /* escanear ISBN */
+  $('#bisbn').onclick=()=>{
+    if(navigator.onLine===false){toast(t('needNet'));return}
+    openScanner(async isbn=>{
+      toast(t('isbnLook'));
+      const r=await isbnLookup(isbn);
+      if(!$('#bt'))return;
+      if(!r){toast(t('isbnNone'));return}
+      const put=(id,v)=>{const el=$(id);if(!v||el.value.trim())return;el.value=v;el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled')};
+      put('#bt',r.title);put('#ba',r.author);paintHero();hideSug();
+      showGen(genresFromSubjects(r.subjects));
+      if(r.cover&&!d.cover){try{const rr=await fetch(r.cover),bl=await rr.blob();d.cover=await shrink(URL.createObjectURL(bl));paintHero()}catch(e){}}
+    });
+  };
   $('#bga').onclick=addGen;$('#bgi').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addGen()}};
   /* sugerencia de autor (solo con internet; sin conexión no hace nada) */
   let sq=0;
@@ -1010,22 +1057,144 @@ function filterForm(){
   $('#fok').onclick=()=>{ui.min=m;ui.author=$('#fa').value;ui.genres=[...sel];ui.status=stt;closeSheet();render(false)};
 }
 /* ---- Sugerencia de autor (Open Library). Sin internet: no hace nada ---- */
-const OLC={};let olCtl=null;
-async function suggestAuthors(title){
+const OLC={};
+function olSearch(title){
   const q=String(title||'').trim(),nq=norm(q);
-  if(nq.length<3||navigator.onLine===false)return [];
+  if(nq.length<3||navigator.onLine===false)return Promise.resolve([]);
   if(OLC[nq])return OLC[nq];
-  if(olCtl)olCtl.abort();
-  const ctl=olCtl=new AbortController(),to=setTimeout(()=>ctl.abort(),5000);
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),6000);
+  const pr=(async()=>{
+    try{
+      const r=await fetch('https://openlibrary.org/search.json?limit=8&fields=title,author_name,subject&title='+encodeURIComponent(q),{signal:ctl.signal});
+      if(!r.ok)throw 0;
+      const j=await r.json(),docs=(j.docs||[]).filter(d=>d.author_name&&d.author_name.length);
+      docs.sort((a,b)=>(norm(b.title).includes(nq)?1:0)-(norm(a.title).includes(nq)?1:0));
+      return docs;
+    }catch(e){delete OLC[nq];return []}finally{clearTimeout(to)}
+  })();
+  OLC[nq]=pr;return pr;
+}
+async function suggestAuthors(title){
+  const docs=await olSearch(title),seen=new Set(),out=[];
+  for(const d of docs){const a=String(d.author_name[0]).trim();if(a&&!seen.has(norm(a))){seen.add(norm(a));out.push(a)}if(out.length>=4)break}
+  return out;
+}
+/* temas de Open Library (en inglés casi siempre) -> nuestros géneros */
+const GMAP=[['fantasy',/fantas|magic|wizard|dragon|fairy|sorcer|brujer|hechic/],['scifi',/science fiction|sci-fi|scifi|ciencia ficci|space opera|aliens|extraterrestr|cyberpunk/],
+ ['romance',/romanc|love stor|romantic|amor/],['mystery',/mystery|detective|crime|whodunit|murder|policia|policial|misterio|novela negra/],
+ ['thriller',/thriller|suspense|espionage|spy |spies|espionaje/],['horror',/horror|ghost|vampire|zombie|haunted|terror|gothic|g[oó]tic/],
+ ['historical',/historical|hist[oó]rica|historic fiction/],['ya',/young adult|juvenile|teen|juvenil|children/],['classic',/classic|cl[aá]sic/],
+ ['nonfic',/nonfiction|non-fiction|essays|ensayo|no ficci/],['bio',/biograph|memoir|biograf|autobiograph/],['selfhelp',/self-help|self help|autoayuda|personal development|motivation|desarrollo personal/],
+ ['comic',/comic|graphic novel|manga|c[oó]mic|historieta/],['poetry',/poetry|poems|poes[ií]a|poemas/],['adventure',/adventure|aventura/],
+ ['dystopia',/dystopi|distop/],['action',/\baction\b|acci[oó]n/],['drama',/\bdrama\b|\bplays\b/]];
+function genresFromSubjects(subs){
+  const sc=new Map();
+  (subs||[]).forEach(x=>{const t2=String(x&&x.name||x).toLowerCase();GMAP.forEach(([g,re])=>{if(re.test(t2))sc.set(g,(sc.get(g)||0)+1)})});
+  return [...sc.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]).slice(0,5);
+}
+async function suggestGenres(title){
+  const docs=await olSearch(title),nq=norm(title);
+  let pick=docs.filter(d=>norm(d.title).includes(nq)||nq.includes(norm(d.title))).slice(0,3);
+  if(!pick.length)pick=docs.slice(0,2);
+  return genresFromSubjects(pick.flatMap(d=>d.subject||[]));
+}
+/* ISBN -> datos del libro (solo con internet) */
+async function isbnLookup(isbn){
+  if(navigator.onLine===false)return null;
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
   try{
-    const r=await fetch('https://openlibrary.org/search.json?limit=10&fields=title,author_name&title='+encodeURIComponent(q),{signal:ctl.signal});
-    if(!r.ok)return [];
-    const j=await r.json(),seen=new Set(),out=[];
-    const docs=(j.docs||[]).filter(d=>d.author_name&&d.author_name.length);
-    docs.sort((a,b)=>(norm(b.title).includes(nq)?1:0)-(norm(a.title).includes(nq)?1:0));
-    for(const d of docs){const a=String(d.author_name[0]).trim();if(a&&!seen.has(norm(a))){seen.add(norm(a));out.push(a)}if(out.length>=4)break}
-    OLC[nq]=out;return out;
-  }catch(e){return []}finally{clearTimeout(to)}
+    let r=await fetch('https://openlibrary.org/search.json?limit=1&fields=title,author_name,subject,cover_i&q=isbn:'+encodeURIComponent(isbn),{signal:ctl.signal});
+    const j=r.ok?await r.json():{},d=(j.docs||[])[0];
+    if(d&&d.title)return {title:d.title,author:(d.author_name||[])[0]||'',subjects:d.subject||[],cover:d.cover_i?'https://covers.openlibrary.org/b/id/'+d.cover_i+'-M.jpg':''};
+    r=await fetch('https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:'+encodeURIComponent(isbn),{signal:ctl.signal});
+    const k=r.ok?await r.json():{},e=k['ISBN:'+isbn];
+    if(e&&e.title)return {title:e.title,author:((e.authors||[])[0]||{}).name||'',subjects:e.subjects||[],cover:(e.cover&&(e.cover.medium||e.cover.small))||''};
+    return null;
+  }catch(e){return null}finally{clearTimeout(to)}
+}
+/* ---- Lector de código de barras EAN-13 (ISBN) sin librerías ---- */
+const EANL=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+const EANP=['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
+const runsOfBits=s=>{const r=[];let c=s[0],n=1;for(let i=1;i<s.length;i++){if(s[i]===c)n++;else{r.push(n);c=s[i];n=1}}r.push(n);return r};
+const EANT={L:EANL.map(runsOfBits),
+  R:EANL.map(x=>runsOfBits([...x].map(c=>c==='0'?'1':'0').join(''))),
+  G:EANL.map(x=>runsOfBits([...x].map(c=>c==='0'?'1':'0').reverse().join('')))};
+function eanDigit(w,tabs){
+  const T=w[0]+w[1]+w[2]+w[3],u=T/7;let best=null,be=9;
+  for(const k of tabs)for(let d=0;d<10;d++){const tb=EANT[k][d];let e=0;for(let j=0;j<4;j++)e+=Math.abs(w[j]/u-tb[j]);if(e<be){be=e;best=[d,k]}}
+  return be<1.8?best:null;
+}
+function eanFromRuns(runs,startDark){
+  for(let i=startDark?0:1;i+58<runs.length;i+=2){
+    const a=runs[i],b=runs[i+1],c=runs[i+2],m=(a+b+c)/3;
+    if(m<1||a>m*1.7||b>m*1.7||c>m*1.7||a<m*.45||b<m*.45||c<m*.45)continue;
+    const dg=[];let par='',ok=true;
+    for(let k=0;k<6&&ok;k++){const r=eanDigit(runs.slice(i+3+4*k,i+7+4*k),['L','G']);if(!r)ok=false;else{dg.push(r[0]);par+=r[1]}}
+    if(!ok)continue;
+    const f=EANP.indexOf(par);if(f<0)continue;
+    for(let k=0;k<6&&ok;k++){const r=eanDigit(runs.slice(i+32+4*k,i+36+4*k),['R']);if(!r)ok=false;else dg.push(r[0])}
+    if(!ok)continue;
+    const all=[f,...dg];let sum=0;for(let k=0;k<12;k++)sum+=all[k]*(k%2?3:1);
+    if((10-sum%10)%10!==all[12])continue;
+    const str=all.join('');if(!/^97[89]/.test(str))continue;
+    return str;
+  }
+  return null;
+}
+function eanFromRow(g,W){
+  const pre=new Float64Array(W+1);for(let x=0;x<W;x++)pre[x+1]=pre[x]+g[x];
+  const win=Math.max(20,W>>3),bits=new Uint8Array(W);
+  for(let x=0;x<W;x++){const a=Math.max(0,x-win),b=Math.min(W,x+win),mean=(pre[b]-pre[a])/(b-a);bits[x]=g[x]<mean*.9?1:0}
+  const runs=[];let c=bits[0],n=1;for(let x=1;x<W;x++){if(bits[x]===c)n++;else{runs.push(n);c=bits[x];n=1}}runs.push(n);
+  const first=bits[0]===1;
+  let r=eanFromRuns(runs,first);if(r)return r;
+  const rev=runs.slice().reverse(),lastDark=(runs.length%2===1)?first:!first;
+  return eanFromRuns(rev,lastDark);
+}
+function eanFromImage(ctx,W,H){
+  const img=ctx.getImageData(0,0,W,H).data,g=new Float64Array(W);
+  for(let k=0;k<45;k++){
+    const y=Math.round(H*(.22+.56*((k*0.618)%1)));
+    for(let x=0;x<W;x++){const o=(y*W+x)*4;g[x]=img[o]*.3+img[o+1]*.59+img[o+2]*.11}
+    const r=eanFromRow(g,W);if(r)return r;
+  }
+  return null;
+}
+const isbnOk=v=>{v=String(v).replace(/[\s-]/g,'');if(/^97[89]\d{10}$/.test(v)){let s2=0;for(let k=0;k<12;k++)s2+=(+v[k])*(k%2?3:1);return (10-s2%10)%10===+v[12]?v:null}
+  if(/^\d{9}[\dXx]$/.test(v)){let s2=0;for(let k=0;k<9;k++)s2+=(+v[k])*(10-k);s2+=/x/i.test(v[9])?10:+v[9];return s2%11===0?v.toUpperCase():null}return null};
+let scanState=null;
+function closeScanner(){const sc=$('#scan');if(scanState){scanState.stop=true;clearTimeout(scanState.t);try{scanState.stream&&scanState.stream.getTracks().forEach(x=>x.stop())}catch(e){}}scanState=null;sc.classList.remove('on');const v=$('#scv');try{v.pause();v.srcObject=null}catch(e){}}
+async function openScanner(onIsbn){
+  const sc=$('#scan'),v=$('#scv'),msg=$('#scmsg'),inp=$('#scisbn');
+  $('#scx').textContent=t('cancel');$('#scgo').textContent=t('ok');inp.placeholder=t('scanManual');msg.textContent=t('scanT');inp.value='';
+  sc.classList.add('on');
+  const st=scanState={stop:false,t:0,stream:null};
+  const done=isbn=>{if(st.stop)return;closeScanner();onIsbn(isbn)};
+  $('#scx').onclick=closeScanner;
+  const manual=()=>{const k=isbnOk(inp.value);if(!k){toast(t('isbnBad'));return}done(k)};
+  $('#scgo').onclick=manual;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();manual()}};
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw 0;
+    st.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+    if(st.stop){st.stream.getTracks().forEach(x=>x.stop());return}
+    v.srcObject=st.stream;await v.play();
+  }catch(e){msg.textContent=t('camDenied');return}
+  let det=null;try{if('BarcodeDetector' in window)det=new BarcodeDetector({formats:['ean_13']})}catch(e){}
+  const cv=document.createElement('canvas'),ctx=cv.getContext('2d',{willReadFrequently:true});
+  const tick=async()=>{
+    if(st.stop)return;
+    try{
+      if(v.videoWidth){
+        const W=Math.min(800,v.videoWidth),H=Math.round(v.videoHeight/v.videoWidth*W);cv.width=W;cv.height=H;ctx.drawImage(v,0,0,W,H);
+        let code=null;
+        if(det){try{const r=await det.detect(cv);if(r&&r[0]){const k=isbnOk(r[0].rawValue);if(k)code=k}}catch(e){det=null}}
+        if(!code){const r=eanFromImage(ctx,W,H);if(r&&isbnOk(r))code=r}
+        if(code){done(code);return}
+      }
+    }catch(e){}
+    st.t=setTimeout(tick,140);
+  };
+  tick();
 }
 
 /* ---- Estadísticas ---- */
@@ -1050,7 +1219,7 @@ function statsForm(){
   const amax=al.length?al[0][1].t:1;
   /* meses (últimos 12) */
   const now=new Date(),ms=[];
-  for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);ms.push({y:d.getFullYear(),m:d.getMonth(),n:0})}
+  for(let m=0;m<12;m++)ms.push({y:now.getFullYear(),m,n:0});
   let dated=0;readB.forEach(b=>{if(!b.readAt)return;dated++;const d=new Date(b.readAt),x=ms.find(z=>z.y===d.getFullYear()&&z.m===d.getMonth());if(x)x.n++});
   const mmax=Math.max(1,...ms.map(x=>x.n));
   const mn=new Intl.DateTimeFormat(CFG.lang,{month:'narrow'});
@@ -1065,7 +1234,7 @@ function statsForm(){
       <div class="tile"><b>${av!=null?fmt(av):'–'}</b><span>${t('stAvg')}</span></div>
       <div class="tile"><b>${thisYear}</b><span>${t('stYear')}</span></div>
     </div>
-    <div class="sec">${t('stMonths')}</div>${months}
+    <div class="sec">${t('stMonths')} · ${now.getFullYear()}</div>${months}
     <div class="sec">${t('stGenres')}</div>
     ${gl.length?gl.map(([g,o])=>bar(gname(g),o.t,o.r,gmax,ghue(g))).join('')+`<p class="note">${t('stLegend')}</p>`:`<p class="note">${t('stNoGenres')}</p>`}
     <div class="sec">${t('stRatings')}</div>
@@ -1098,10 +1267,17 @@ function settingsForm(){
     <div class="sec">${t('list')}</div>
     <div class="group">
       <div class="srow"><div class="stx"><div>${t('sortBy')}</div></div>
-        <select id="ssort" class="ssel"><option value="alpha">${t('sAlpha')}</option><option value="recent">${t('sRecent')}</option><option value="rating">${t('sRating')}</option></select></div>
+        <select id="ssort" class="ssel"><option value="alpha">${t('sAlpha')}</option><option value="recent">${t('sRecent')}</option><option value="rating">${t('sRating')}</option><option value="type">${t('sType')}</option></select></div>
       <label class="srow" for="sread"><div class="stx"><div>${t('readLast')}</div><small>${t('readLastD')}</small></div>${sw('sread',CFG.readLast)}</label>
+      <label class="srow" for="sstrike"><div class="stx"><div>${t('strike')}</div><small>${t('strikeD')}</small></div>${sw('sstrike',CFG.strike)}</label>
+      <label class="srow" for="sgroup"><div class="stx"><div>${t('groupGen')}</div><small>${t('groupGenD')}</small></div>${sw('sgroup',CFG.groupGen)}</label>
       <label class="srow" for="shalf"><div class="stx"><div>${t('half')}</div><small>${t('halfD')}</small></div>${sw('shalf',CFG.half)}</label>
       <label class="srow" for="sopen"><div class="stx"><div>${t('autoOpen')}</div><small>${t('autoOpenD')}</small></div>${sw('sopen',CFG.autoOpen)}</label>
+    </div>
+    <div class="sec">${t('updT')}</div>
+    <div class="group">
+      <button type="button" class="srow" id="supd"><div class="stx"><div id="supdT"></div><small id="supdD"></small></div><span class="sic">⟳</span></button>
+      <label class="srow" for="snot"><div class="stx"><div>${t('updNotify')}</div><small>${t('updNotifyD')}</small></div>${sw('snot',CFG.updNotify)}</label>
     </div>
     <div class="sec">${t('data')}</div>
     <div class="group">
@@ -1118,7 +1294,8 @@ function settingsForm(){
   $('#slang').onclick=e=>{const x=e.target.closest('[data-l]');if(!x||x.dataset.l===CFG.lang)return;
     CFG.lang=x.dataset.l;applyCfg();const st=$('#sheet').scrollTop;settingsForm();$('#sheet').scrollTop=st};
   $('#ssort').onchange=e=>set('sort',e.target.value);
-  [['sread','readLast'],['shalf','half'],['sopen','autoOpen']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen')ui.open={};set(k,v)}});
+  [['sread','readLast'],['sstrike','strike'],['sgroup','groupGen'],['shalf','half'],['sopen','autoOpen'],['snot','updNotify']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen')ui.open={};set(k,v)}});
+  updPaint();$('#supd').onclick=updClick;
   $('#sexp').onclick=exportBackup;
   $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{const j=JSON.parse(await f.text()),d=j.data||j;if(!Array.isArray(d.books)||!Array.isArray(d.sagas))throw 0;
@@ -1127,6 +1304,66 @@ function settingsForm(){
   $('#sshare').onclick=()=>{cfgSnap=null;shareForm()};
   $('#sok').onclick=()=>{cfgSnap=null;closeSheet()};
   onDismiss=()=>{const snap=cfgSnap;cfgSnap=null;if(snap&&JSON.stringify(snap)!==JSON.stringify(CFG)){if(snap.autoOpen!==CFG.autoOpen)ui.open={};CFG=snap;applyCfg()}};
+}
+
+/* ---- Actualizaciones desde GitHub Releases ---- */
+const REPO='oliveA3/to-be-read';
+let UPD=null,updBusy=false,updPct=-1;
+const cmpVer=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0?1:-1}return 0};
+const updBadge=()=>{const g=$('#gear');if(g)g.classList.toggle('upd',!!(UPD&&UPD.url))};
+async function checkUpdate(){
+  if(navigator.onLine===false)return 'offline';
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
+  try{
+    const r=await fetch('https://api.github.com/repos/'+REPO+'/releases/latest',{signal:ctl.signal,headers:{Accept:'application/vnd.github+json'}});
+    if(!r.ok)throw 0;const j=await r.json();
+    const m=/(\d+\.\d+\.\d+)(?:-build(\d+))?/.exec(j.tag_name||'');if(!m)throw 0;
+    const ver=m[1],bld=m[2]?+m[2]:0,newer=bld?bld>BUILD:cmpVer(ver,VERSION)>0;
+    const a=(j.assets||[]).find(x=>/\.apk$/i.test(x.name||''));
+    UPD=newer&&a?{ver,bld,url:a.browser_download_url,page:j.html_url}:{none:true};
+    try{localStorage.setItem('por-leer-upd',String(Date.now()))}catch(e){}
+    updBadge();return 'ok';
+  }catch(e){return 'fail'}finally{clearTimeout(to)}
+}
+const updPlugin=()=>(CAP&&CAP.FileOpener)||(window.Capacitor&&window.Capacitor.registerPlugin?window.Capacitor.registerPlugin('FileOpener'):null);
+async function installUpdate(onProg){
+  const fo=CAP?updPlugin():null;
+  if(!fo){window.open(UPD.page||UPD.url,'_blank');return 'web'}
+  let h=null;
+  try{
+    try{h=await fo.addListener('updateProgress',e=>onProg&&onProg(e.pct))}catch(e){}
+    await fo.installUpdate({url:UPD.url});return 'ok';
+  }catch(e){return /needs_permission/.test(String(e&&(e.message||e)))?'perm':'fail'}
+  finally{try{h&&h.remove()}catch(e){}}
+}
+function updPaint(msg){
+  const T=$('#supdT'),D=$('#supdD');if(!T)return;
+  if(msg){T.textContent=msg;D.textContent='';return}
+  if(updPct>=0){T.textContent=t('updDl',updPct);D.textContent='';return}
+  if(UPD&&UPD.url){T.textContent=t('updNew',UPD.ver,UPD.bld);D.textContent=CAP?t('updGet'):t('updWeb');return}
+  T.textContent=UPD&&UPD.none?t('updNone'):t('updCheck');D.textContent=t('updInst',VERSION+' (build '+BUILD+')');
+}
+async function updClick(){
+  if(updBusy)return;
+  updBusy=true;
+  try{
+    if(UPD&&UPD.url){
+      updPct=0;updPaint();
+      const r=await installUpdate(p=>{updPct=p;updPaint()});updPct=-1;
+      if(r==='perm')toast(t('updNeedPerm'));else if(r==='fail')toast(t('updDlFail'));
+      updPaint();return;
+    }
+    updPaint(t('updChecking'));
+    const r=await checkUpdate();
+    if(r==='offline')toast(t('updOffline'));else if(r==='fail')toast(t('updFail'));
+    updPaint();
+  }finally{updBusy=false}
+}
+function autoUpdateCheck(){
+  if(!CAP||!CFG.updNotify||navigator.onLine===false)return;
+  let last=0;try{last=+localStorage.getItem('por-leer-upd')||0}catch(e){}
+  if(Date.now()-last<12*3600*1000)return;
+  setTimeout(async()=>{if(await checkUpdate()==='ok'&&UPD&&UPD.url)toast(t('updAvail',UPD.ver))},3000);
 }
 
 /* ---- Compartir lista (formato "[X] Título (n) - Autor [5.0]") ---- */
@@ -1262,7 +1499,7 @@ document.addEventListener('click',e=>{
   if(a==='new-uni'){closeMenu();return uniForm(null)}
   if(a==='import'){setTimeout(closeMenu,50)}
 });
-if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if($('#sheet').classList.contains('on'))dismissSheet();else if($('#menu').classList.contains('on'))closeMenu();else CAP.App.exitApp()});
+if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if($('#scan').classList.contains('on'))closeScanner();else if($('#sheet').classList.contains('on'))dismissSheet();else if($('#menu').classList.contains('on'))closeMenu();else CAP.App.exitApp()});
 
 /* ---------- mantener pulsado: reordenar o sacar de una saga/universo ---------- */
 (function(){
@@ -1394,6 +1631,7 @@ if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if($('#sheet').classList.c
   try{new IntersectionObserver(en=>{st.classList.toggle('on',!en[0].isIntersecting)},{threshold:0}).observe(se)}catch(e){}})();
 applyStatic();
 render();
+autoUpdateCheck();
 </script>
 </body>
 </html>

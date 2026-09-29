@@ -127,6 +127,20 @@ fs.writeFileSync(gradlePath, g);
     fs.writeFileSync(mp, m);
     console.log('Manifiesto: tráfico sin cifrar desactivado');
   }
+  // Cámara: solo para escanear el código de barras (ISBN). No es obligatoria para instalar la app.
+  m = fs.readFileSync(mp, 'utf8');
+  if (!/android\.permission\.CAMERA/.test(m)) {
+    m = m.replace(/<application\b/, '<uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n    <application');
+    fs.writeFileSync(mp, m);
+    console.log('Manifiesto: permiso de cámara añadido (escáner ISBN)');
+  }
+  // Instalar la actualización descargada desde GitHub (Android pide confirmación al usuario)
+  m = fs.readFileSync(mp, 'utf8');
+  if (!/REQUEST_INSTALL_PACKAGES/.test(m)) {
+    m = m.replace(/<application\b/, '<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <application');
+    fs.writeFileSync(mp, m);
+    console.log('Manifiesto: permiso para instalar actualizaciones añadido');
+  }
 })();
 
 /* ---------- 2c. Enlaces a archivos de libros (plugin propio, sin copiar el archivo) ---------- */
@@ -145,6 +159,14 @@ fs.writeFileSync(gradlePath, g);
     'import android.content.Intent;',
     'import android.database.Cursor;',
     'import android.net.Uri;',
+    'import android.os.Build;',
+    'import android.provider.Settings;',
+    'import androidx.core.content.FileProvider;',
+    'import java.io.File;',
+    'import java.io.FileInputStream;',
+    'import java.io.FileOutputStream;',
+    'import java.net.HttpURLConnection;',
+    'import java.net.URL;',
     'import android.provider.OpenableColumns;',
     'import android.util.Base64;',
     'import androidx.activity.result.ActivityResult;',
@@ -259,6 +281,76 @@ fs.writeFileSync(gradlePath, g);
     '            // nada que soltar',
     '        }',
     '        call.resolve();',
+    '    }',
+    '',
+    '    /** Descarga la nueva version (APK) desde GitHub y abre el instalador del sistema. */',
+    '    @PluginMethod',
+    '    public void installUpdate(final PluginCall call) {',
+    '        final String u = call.getString("url");',
+    '        if (u == null || !u.startsWith("https://")) { call.reject("bad_url"); return; }',
+    '        String host = Uri.parse(u).getHost();',
+    '        if (host == null || !(host.equals("github.com") || host.endsWith(".github.com") || host.endsWith(".githubusercontent.com"))) { call.reject("bad_host"); return; }',
+    '        final android.content.Context ctx = getContext();',
+    '        if (Build.VERSION.SDK_INT >= 26 && !ctx.getPackageManager().canRequestPackageInstalls()) {',
+    '            try {',
+    '                Intent s = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + ctx.getPackageName()));',
+    '                s.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);',
+    '                ctx.startActivity(s);',
+    '            } catch (Exception e) {',
+    '                // si no se puede abrir el ajuste, el usuario lo activa a mano',
+    '            }',
+    '            call.reject("needs_permission");',
+    '            return;',
+    '        }',
+    '        new Thread(new Runnable() {',
+    '            public void run() {',
+    '                HttpURLConnection c = null;',
+    '                try {',
+    '                    File f = new File(ctx.getCacheDir(), "update.apk");',
+    '                    c = (HttpURLConnection) new URL(u).openConnection();',
+    '                    c.setInstanceFollowRedirects(true);',
+    '                    c.setConnectTimeout(15000);',
+    '                    c.setReadTimeout(60000);',
+    '                    int code = c.getResponseCode();',
+    '                    if (code != 200) { call.reject("http_" + code); return; }',
+    '                    long total = c.getContentLengthLong();',
+    '                    long got = 0;',
+    '                    int last = -1;',
+    '                    try (InputStream in = c.getInputStream(); FileOutputStream out = new FileOutputStream(f)) {',
+    '                        byte[] buf = new byte[65536];',
+    '                        int n;',
+    '                        while ((n = in.read(buf)) > 0) {',
+    '                            out.write(buf, 0, n);',
+    '                            got += n;',
+    '                            if (total > 0) {',
+    '                                int pct = (int) (got * 100 / total);',
+    '                                if (pct != last) {',
+    '                                    last = pct;',
+    '                                    JSObject p = new JSObject();',
+    '                                    p.put("pct", pct);',
+    '                                    notifyListeners("updateProgress", p);',
+    '                                }',
+    '                            }',
+    '                        }',
+    '                    }',
+    '                    boolean zip = false;',
+    '                    try (FileInputStream fi = new FileInputStream(f)) {',
+    '                        zip = fi.read() == \'P\' && fi.read() == \'K\';',
+    '                    }',
+    '                    if (f.length() < 100000 || !zip) { call.reject("bad_file"); return; }',
+    '                    Uri uri = FileProvider.getUriForFile(ctx, ctx.getPackageName() + ".fileprovider", f);',
+    '                    Intent i = new Intent(Intent.ACTION_VIEW);',
+    '                    i.setDataAndType(uri, "application/vnd.android.package-archive");',
+    '                    i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);',
+    '                    ctx.startActivity(i);',
+    '                    call.resolve();',
+    '                } catch (Exception e) {',
+    '                    call.reject(String.valueOf(e.getMessage()));',
+    '                } finally {',
+    '                    if (c != null) c.disconnect();',
+    '                }',
+    '            }',
+    '        }).start();',
     '    }',
     '}',
     ''
