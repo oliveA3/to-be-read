@@ -58,6 +58,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .search input::placeholder{color:#9b89a8;font-style:italic}
 .search svg{flex:none;color:var(--ink2)}
 .chips{display:flex;gap:5px;margin:9px 0 2px;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chips .chip{font-size:13px;padding:4px 8px}.chips{gap:4px}.chips .chip.filt{position:sticky;right:0;background:#f6eff9;box-shadow:-8px 0 8px 2px #f6eff9}
 .chip{padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:transparent;font-size:14px;color:var(--ink2);flex:none;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--plum);border-color:var(--plum);color:#f8f0fb}
 .chip.filt{margin-left:auto;display:flex;align-items:center;gap:4px;padding:4px 9px}.chip.filt b{font-weight:600}
@@ -244,6 +245,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .sep::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
 .sep span{font-weight:600;color:var(--ink2);letter-spacing:0}
 .sep.s2{color:var(--ink2);margin-top:22px;padding-top:14px;border-top:2px dashed var(--line)}
+.sep.tg{width:100%;background:none;border:0;border-top:2px dashed var(--line);font:inherit;font-size:12px;letter-spacing:.7px;text-transform:uppercase;font-weight:700;cursor:pointer;text-align:left}.sep.tg .chv{transition:transform .2s;transform:rotate(90deg)}.sep.tg[aria-expanded=false] .chv{transform:none}
 .sep.s0{color:var(--plum)}
 .pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.6px;line-height:1.4}
 .pill.reading{background:var(--plum);color:#fff}
@@ -343,7 +345,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.7.0',BUILD=14;
+const VERSION='0.7.1',BUILD=15;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -479,6 +481,7 @@ function save(){dirty=true;clearTimeout(svT);svT=setTimeout(()=>idle(flush,{time
 addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
 const libs={};function lib(src){return libs[src]||(libs[src]=new Promise((ok,ko)=>{const x=document.createElement('script');x.src=src;x.onload=ok;x.onerror=()=>{delete libs[src];ko()};document.head.appendChild(x)}))}
 let S=load();
+let HD=false;try{HD=localStorage.getItem('por-leer-hd')==='1'}catch(e){}
 const ui={q:'',status:'all',min:0,author:'',genres:[],open:{}};
 
 /* ---------- datos ---------- */
@@ -623,14 +626,14 @@ function render(persist=true){
   const cnt=[0,0,0];items.forEach(i=>cnt[rk(i)]++);
   const multi=cnt.filter(Boolean).length>1;
   /* pintado por tandas: lo primero aparece enseguida y el resto se añade mientras el teléfono descansa */
-  const tok=++rtok,listEl=$('#list');
+  const tok=++rtok,listEl=$('#list'),hideDone=HD&&multi&&!ui.q&&ui.status==='all';
   if(!items.length){listEl.innerHTML=`<div class="empty">${f?t('noMatch'):t('emptyList')}</div>`}
   else{
     let i=0,lastR=-1;
     const build=n=>{let h='';const end=Math.min(items.length,i+n);
       for(;i<end;i++){const it=items[i],r=rk(it);
-        if(multi&&r!==lastR)h+=`<div class="sep s${r}">${t(['secReading','secPending','secDone'][r])}<span>${cnt[r]}</span></div>`;
-        lastR=r;h+=it.h()}
+        if(multi&&r!==lastR)h+=r===2?`<button type="button" class="sep s2 tg" data-a="tgdone" aria-expanded="${!hideDone}"><svg class="chv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>${t('secDone')}<span>${cnt[r]}</span></button>`:`<div class="sep s${r}">${t(['secReading','secPending'][r])}<span>${cnt[r]}</span></div>`;
+        lastR=r;if(r===2&&hideDone)continue;h+=it.h()}
       return h};
     listEl.innerHTML=build(22);
     const more=()=>{if(tok!==rtok||i>=items.length)return;listEl.insertAdjacentHTML('beforeend',build(40));if(i<items.length)idle(more,{timeout:300})};
@@ -638,8 +641,8 @@ function render(persist=true){
   }
   const nRead=S.books.filter(b=>stOf(b)==='read').length,nPend=S.books.filter(b=>{const x=stOf(b);return x==='unread'||x==='reading'}).length;
   $('#count').innerHTML=`<span>${nPend} ${t('pending')}</span><span>${nRead} ${t('readN')}</span>`;
-  const nf=(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+(ui.status==='dropped'?1:0);
-  $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')]].map(([k,x])=>
+  const nf=(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+0;
+  $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('st_dropped')]].map(([k,x])=>
     `<button class="chip" data-a="status" data-k="${k}" aria-pressed="${ui.status===k}">${x}</button>`).join('')+
     `<button class="chip filt ${nf?'on':''}" data-a="filters" aria-label="${t('filters')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${nf?`<b>${nf}</b>`:''}</button>`;
   if(persist)save();
@@ -990,12 +993,12 @@ function uniForm(u){
 /* ---- Filtros ---- */
 function filterForm(){
   const authors=[...new Set(S.books.map(b=>b.author))].sort(coll.compare);
-  const gs=[...new Set(S.books.flatMap(gsOf))].sort((a,b)=>coll.compare(gname(a),gname(b)));
+  const gs=[...new Set([...S.books.flatMap(gsOf),...GENRES])].sort((a,b)=>coll.compare(gname(a),gname(b)));
   let stt=ui.status,m=ui.min,sel=new Set(ui.genres);
   const states=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('droppedF')]];
   openSheet(`${hero(medal(I_FILT),t('filters'),t('filtSub'))}
     <div class="f"><span class="lbl">${t('stateL')}</span><div class="chk" id="fst">${states.map(([k,x])=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${stt===k}">${x}</button>`).join('')}</div></div>
-    ${gs.length?`<div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="fgen"></div></div>`:''}
+    <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="fgen"></div></div>
     <div class="f"><span class="lbl">${t('minRating')}</span><div class="box"><div class="rate" id="frate"></div></div></div>
     <div class="f"><label for="fa">${t('author')}</label><select id="fa"><option value="">${t('all')}</option>${authors.map(a=>`<option ${ui.author===a?'selected':''} value="${esc(a)}">${esc(a)}</option>`).join('')}</select></div>
     <div class="btns"><button type="button" class="btn" id="fclr">${t('clear')}</button><button type="button" class="btn main" id="fok">${t('apply')}</button></div>`);
@@ -1251,6 +1254,7 @@ document.addEventListener('click',e=>{
   if(a==='edit-uni')return uniForm(uni(id));
   if(a==='toggle-open'){const op=!isOpen(id);ui.open[id]=op;const card=x.parentElement;if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody');if(gb){gb.innerHTML=LAZY.get(id)()}LAZY.delete(id)}card.classList.toggle('open',op);return}
   if(a==='genre-tag'){const g=x.dataset.g;ui.genres=(ui.genres.length===1&&ui.genres[0]===g)?[]:[g];render(false);return}
+  if(a==='tgdone'){HD=!HD;try{localStorage.setItem('por-leer-hd',HD?'1':'0')}catch(e){}render(false);return}
   if(a==='status'){ui.status=x.dataset.k;render(false);return}
   if(a==='filters')return filterForm();
   if(a==='new-book'){closeMenu();return bookForm(null)}

@@ -1,6 +1,6 @@
 {
   "name": "por-leer",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "description": "To be read: tu lista de libros, sagas y universos",
   "scripts": {
