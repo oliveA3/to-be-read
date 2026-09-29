@@ -70,6 +70,20 @@ jobs:
           if [ -n "$APKSIGNER" ]; then "$APKSIGNER" verify --print-certs "to-be-read-${{ steps.ver.outputs.version }}.apk"; fi
           ls -la to-be-read-*.apk
 
+      - name: Comprobaciones de seguridad del APK
+        run: |
+          APK="to-be-read-${{ steps.ver.outputs.version }}.apk"
+          AAPT2=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)
+          if [ -z "$AAPT2" ]; then echo "aapt2 no disponible, omito la inspección"; exit 0; fi
+          "$AAPT2" dump badging "$APK" > badging.txt
+          echo "--- Permisos ---"; grep "uses-permission" badging.txt || echo "(ninguno)"
+          echo "--- Paquete ---"; grep "^package:" badging.txt
+          if grep -q "application-debuggable" badging.txt; then echo "::error::El APK es depurable"; exit 1; fi
+          # Solo se espera el permiso de internet (para sugerir autores); si hay otros, avisa
+          EXTRA=$(grep "uses-permission" badging.txt | grep -v "android.permission.INTERNET" | grep -v "DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" || true)
+          if [ -n "$EXTRA" ]; then echo "::warning::Permisos adicionales (revisar):"; echo "$EXTRA"; fi
+          echo "Comprobaciones terminadas: firmado y no depurable"
+
       - name: Guardar APK (Actions)
         uses: actions/upload-artifact@v4
         with:
