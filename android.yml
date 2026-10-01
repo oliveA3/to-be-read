@@ -1,0 +1,104 @@
+name: Compilar APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Aceptar licencias del SDK de Android (ya viene instalado en el runner)
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+
+      - name: Preparar y comprobar clave de firma
+        run: node scripts/configure-android.js keystore
+
+      - name: Leer versión de www/index.html
+        id: ver
+        run: |
+          echo "version=$(grep -oP "const VERSION='\K[0-9.]+" www/index.html)" >> $GITHUB_OUTPUT
+          echo "build=$(grep -oP "const VERSION='[0-9.]+',BUILD=\K[0-9]+" www/index.html)" >> $GITHUB_OUTPUT
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Crear proyecto Android
+        run: npx cap add android
+
+      - name: Icono y pantalla de inicio
+        run: npx capacitor-assets generate --android
+
+      - name: Ver iconos generados
+        run: find android/app/src/main/res -name "ic_launcher*" | sort
+
+      - name: Versión, firma e icono
+        run: node scripts/configure-android.js
+
+      - name: Copiar la web a Android
+        run: npx cap sync android
+
+      - name: Compilar APK firmado
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+          ls -la app/build/outputs/apk/release/
+
+      - name: Preparar y verificar el APK
+        run: |
+          APK=$(find android/app/build/outputs/apk/release -name "*.apk" | head -1)
+          test -n "$APK" || { echo "::error::No se generó ningún APK"; exit 1; }
+          case "$APK" in *unsigned*) echo "::error::El APK salió sin firmar"; exit 1;; esac
+          cp "$APK" "to-be-read-${{ steps.ver.outputs.version }}.apk"
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -1)
+          if [ -n "$APKSIGNER" ]; then "$APKSIGNER" verify --print-certs "to-be-read-${{ steps.ver.outputs.version }}.apk"; fi
+          ls -la to-be-read-*.apk
+
+      - name: Comprobaciones de seguridad del APK
+        run: |
+          APK="to-be-read-${{ steps.ver.outputs.version }}.apk"
+          AAPT2=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)
+          if [ -z "$AAPT2" ]; then echo "aapt2 no disponible, omito la inspección"; exit 0; fi
+          "$AAPT2" dump badging "$APK" > badging.txt
+          echo "--- Permisos ---"; grep "uses-permission" badging.txt || echo "(ninguno)"
+          echo "--- Paquete ---"; grep "^package:" badging.txt
+          if grep -q "application-debuggable" badging.txt; then echo "::error::El APK es depurable"; exit 1; fi
+          # Solo se esperan internet (sugerencias), cámara (escáner ISBN) e instalar actualizaciones; si hay otros, avisa
+          EXTRA=$(grep "uses-permission" badging.txt | grep -v "android.permission.INTERNET" | grep -v "android.permission.CAMERA" | grep -v "android.permission.REQUEST_INSTALL_PACKAGES" | grep -v "DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" || true)
+          if [ -n "$EXTRA" ]; then echo "::warning::Permisos adicionales (revisar):"; echo "$EXTRA"; fi
+          echo "Comprobaciones terminadas: firmado y no depurable"
+
+      - name: Guardar APK (Actions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: to-be-read-${{ steps.ver.outputs.version }}
+          path: to-be-read-*.apk
+
+      - name: Publicar en Releases (repo público solo de descargas)
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: ${{ vars.RELEASES_REPO || 'oliveA3/to-be-read-releases' }}
+          token: ${{ secrets.RELEASES_REPO_TOKEN }}
+          tag_name: v${{ steps.ver.outputs.version }}-build${{ steps.ver.outputs.build }}
+          name: To be read ${{ steps.ver.outputs.version }} (build ${{ steps.ver.outputs.build }})
+          files: to-be-read-*.apk
+          make_latest: true
