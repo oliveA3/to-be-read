@@ -156,10 +156,13 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .hero h2{font-family:var(--font-title);font-weight:600;font-size:24px;margin:0;line-height:1.1}
 .hero .hs{opacity:.85;font-size:15px;margin-top:2px;overflow-wrap:anywhere}
 .covbtn{margin-top:8px;display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff}
+.notebtn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-weight:700;font-size:13px;color:var(--plum2);background:var(--parch3);border:1.5px dashed var(--lilac);border-radius:999px;padding:6px 12px;cursor:pointer}
+.notebtn.has{border-style:solid;background:var(--plum2);color:#fff}
+#bnote{margin-top:8px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;resize:vertical;min-height:50px;color-scheme:light}
 .lead{color:var(--ink2);margin:10px 0 0}
 .f{margin:14px 0}
 .f label,.lbl{display:block;font-size:12px;color:var(--ink2);margin-bottom:5px;letter-spacing:.6px;text-transform:uppercase;font-weight:600}
-.f input[type=text],.f input[type=number],.f select{width:100%;padding:10px 12px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:16px;outline:0;transition:border-color .15s,box-shadow .15s}
+.f input[type=text],.f input[type=number],.f input[type=date],.f select{width:100%;padding:10px 12px;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:10px;font-size:16px;outline:0;transition:border-color .15s,box-shadow .15s;color-scheme:light}
 .f input:focus,.f select:focus{border-color:var(--plum2);box-shadow:0 0 0 3px rgba(127,71,163,.18)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .two.pair{grid-template-columns:minmax(0,1fr) 104px}
@@ -251,6 +254,13 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .months div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--ink2);gap:3px}
 .months i{display:block;width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--plum2),var(--plum));min-height:2px}
 .months div.z i{background:var(--parch3)}
+.myear{display:flex;align-items:center;gap:2px;margin-top:8px}
+.myear .mwrap{flex:1;min-width:0}
+.myear .months{margin-top:4px}
+.myrlabel{text-align:center;font-family:var(--font-title);font-weight:600;font-size:15px;color:var(--plum)}
+.yarr{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--plum2);border:1px solid var(--line);background:#fff}
+.yarr:active{background:var(--parch3)}
+.yarr:disabled{opacity:.3;pointer-events:none}
 .stick{position:sticky;top:0;z-index:15;margin:0 -16px;padding:8px 16px 8px;background:var(--parch);border-bottom:1px solid transparent}
 .stick.on{border-bottom-color:var(--line);box-shadow:0 5px 10px -6px rgba(60,25,85,.28)}
 .head .rule{margin:10px 0 4px}
@@ -403,7 +413,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.9.27',BUILD=45;
+const VERSION='0.9.31',BUILD=49;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -421,7 +431,7 @@ async function nativeSaveDownload(name,text,mime){
 const initial=t=>esc((String(t||'').trim()[0]||'·').toUpperCase());
 
 /* ---------- ajustes ---------- */
-const DEF={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en',sort:'alpha',readLast:true,half:true,autoOpen:false,strike:true,magic:true,groupGen:true,innerGen:false,updNotify:true,autoSaga:true};
+const DEF={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en',sort:'alpha',readLast:true,half:true,autoOpen:false,expandReading:false,strike:true,magic:true,groupGen:true,innerGen:false,updNotify:true,autoSaga:true};
 const LOWEND=(()=>{try{return (navigator.deviceMemory&&navigator.deviceMemory<=2)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2)}catch(e){return false}})();
 let CFG=(()=>{try{const sv=JSON.parse(localStorage.getItem(SKEY)||'{}');const c=Object.assign({},DEF,sv);if(sv.magic===undefined&&LOWEND)c.magic=false;return c}catch(e){return {...DEF}}})();
 function saveCfg(){try{localStorage.setItem(SKEY,JSON.stringify(CFG))}catch(e){}}
@@ -440,7 +450,7 @@ const I18N={
   noMatch:'Ningún libro coincide con estos filtros.',emptyList:'Tu lista está vacía. Pulsa + para añadir tu primer libro.',
   newBook:'Nuevo libro',addCover:'Añadir portada',removeCover:'Quitar portada',detected:'Datos detectados en el archivo. Revísalos antes de guardar.',
   title:'Título',author:'Autor',status:'Estado',toRead:'Por leer',isRead:'Leído',rating:'Valoración',halfHint:'Toca la mitad izquierda de una estrella para media.',
-  noSaga:'Sin serie',newSagaOpt:'Nueva serie…',sagaNo:'Orden',none:'Ninguno',uniOrder:'Orden',newSagaName:'Nombre de la nueva serie',
+  noSaga:'Sin serie',newSagaOpt:'Nueva serie…',sagaNo:'Orden',none:'Ninguno',uniOrder:'Orden',newSagaName:'Nombre de la nueva serie',readAtL:'Fecha de lectura',yearPrev:'Año anterior',yearNext:'Año siguiente',
   del:'Eliminar',sure:'¿Seguro?',cancel:'Cancelar',save:'Guardar',create:'Crear',
   bookDeleted:'Libro eliminado',missTitle:'Falta el título',missName:'Falta el nombre',unknown:'Autor desconocido',saved:'Cambios guardados',bookAdded:'Libro añadido',
   yourRating:'Tu valoración',ratingSaved:'Valoración guardada',
@@ -454,12 +464,14 @@ const I18N={
   setSub:'Personaliza tu biblioteca',done:'Listo',language:'Idioma',list:'Lista',sortBy:'Ordenar por',sAlpha:'Nombre (A–Z)',sRecent:'Añadidos recientemente',sRating:'Mejor valorados',
   readLast:'Leídos al final',readLastD:'Lo ya terminado baja al fondo de la lista',half:'Medias estrellas',halfD:'Permite valorar con 3,5, 4,5…',
   autoOpen:'Abrir series y universos',autoOpenD:'Mostrarlos desplegados al abrir la app',
+  expandReading:'Expandir series con libros leyendo',expandReadingD:'Si una serie tiene un libro marcado como «leyendo», se muestra desplegada',
+  noteBtn:'Nota',notePh:'Escribe una nota o comentario sobre el libro…',
   data:'Tus datos',export:'Exportar copia de seguridad',exportD:'Descarga un archivo .json con toda tu lista',importB:'Importar copia de seguridad',importD:'Reemplaza la lista actual por la del archivo',
   wipe:'Borrar todos los datos',wipeD:'Deja la lista vacía. No se puede deshacer',wipeSure:'Toca otra vez para borrar',wiped:'Lista borrada',
   exported:'Copia descargada',noExport:'No se pudo descargar la copia aquí',imported:'Copia importada',badBackup:'Ese archivo no es una copia válida',
   about:'Acerca de',version:'Versión',stats:(b,s,u)=>`${pl(b,'libro','libros')} · ${pl(s,'serie','series')} · ${pl(u,'universo','universos')}`,
   storage:'Los datos se guardan solo en este dispositivo.',
-  genres:'Géneros',genreOther:'Otro género',genreAdd:'Añadir',genreNone:'Sin género',genrePh:'Escribe un género',suggAuthor:'¿Es de…?',magic:'Fondo mágico',magicD:'Degradado diagonal morado con brillos y tarjetas semitransparentes (en teléfonos muy lentos viene apagado)',fileBig:'Archivo grande: se enlazó sin leer portada ni datos',updT:'Actualizaciones',updCheck:'Buscar actualización',updInst:v=>`Versión instalada: ${v}`,updChecking:'Buscando…',updNone:'Ya tienes la última versión',updNew:(v,b)=>`Nueva versión ${v} (build ${b})`,updGet:'Toca para descargar e instalar',updWeb:'Toca para abrir la página de descargas',updGetBtn:'Instalar',updOpenBtn:'Abrir',updDl:p=>`Descargando ${p}%…`,updNeedPerm:'Activa «Permitir de esta fuente» y toca de nuevo',updFail:'No pude buscar actualizaciones',updDlFail:'No pude descargar la actualización',updOffline:'Sin conexión a internet',updNotify:'Avisar de nuevas versiones',updNotifyD:'Al abrir la app comprueba (una vez al día, con internet)',updAvail:v=>`Hay una nueva versión (${v}). Ajustes → Actualizaciones`,suggGenres:'Géneros sugeridos:',strike:'Tachar libros leídos',strikeD:'Quita la línea sobre título y autor; se mantiene el tono apagado',groupGen:'Géneros agrupados',groupGenD:'Series y universos muestran los géneros de sus libros',innerGen:'Géneros en libros agrupados',innerGenD:'Los libros dentro de una serie o universo también muestran su género',autoSaga:'Crear series autodetectadas',autoSagaD:'Activado: si la serie no existe, la crea. Apagado: solo la usa si ya la tienes.',sType:'Por tipo (libros, series, universos)',scanIsbn:'Escanear ISBN',scanT:'Apunta al código de barras del libro',scanManual:'O escribe el ISBN',needNet:'Necesitas conexión a internet para escanear un ISBN',isbnLook:'Buscando libro…',isbnNone:'No encontré ese ISBN',isbnBad:'ISBN no válido',camDenied:'No pude usar la cámara. Escribe el ISBN.',ok:'OK',
+  genres:'Géneros',genreOther:'Otro género',genreAdd:'Añadir',genreNone:'Sin género',genrePh:'Escribe un género',suggAuthor:'¿Es de…?',magic:'Fondo mágico',magicD:'Degradado diagonal morado con brillos y tarjetas semitransparentes (en teléfonos muy lentos viene apagado)',fileBig:'Archivo grande: se enlazó sin leer portada ni datos',updT:'Actualizaciones',updCheck:'Buscar actualización',updInst:v=>`Versión instalada: ${v}`,updChecking:'Buscando…',updNone:'Ya tienes la última versión',updNew:(v,b)=>`Nueva versión ${v} (build ${b})`,updGet:'Toca para descargar e instalar',updWeb:'Toca para abrir la página de descargas',updGetBtn:'Instalar',updOpenBtn:'Abrir',updDl:'Descargando…',updNeedPerm:'Activa «Permitir de esta fuente» y toca de nuevo',updFail:'No pude buscar actualizaciones',updDlFail:'No pude descargar la actualización',updOffline:'Sin conexión a internet',updNotify:'Avisar de nuevas versiones',updNotifyD:'Al abrir la app comprueba (una vez al día, con internet)',updAvail:v=>`Hay una nueva versión (${v}). Ajustes → Actualizaciones`,suggGenres:'Géneros sugeridos:',strike:'Tachar libros leídos',strikeD:'Quita la línea sobre título y autor; se mantiene el tono apagado',groupGen:'Géneros agrupados',groupGenD:'Series y universos muestran los géneros de sus libros',innerGen:'Géneros en libros agrupados',innerGenD:'Los libros dentro de una serie o universo también muestran su género',autoSaga:'Crear series autodetectadas',autoSagaD:'Activado: si la serie no existe, la crea. Apagado: solo la usa si ya la tienes.',sType:'Por tipo (libros, series, universos)',scanIsbn:'Escanear ISBN',scanT:'Apunta al código de barras del libro',scanManual:'O escribe el ISBN',needNet:'Necesitas conexión a internet para escanear un ISBN',isbnLook:'Buscando libro…',isbnNone:'No encontré ese ISBN',isbnBad:'ISBN no válido',camDenied:'No pude usar la cámara. Escribe el ISBN.',ok:'OK',
   g_fantasy:'Fantasía',g_scifi:'Ciencia ficción',g_romance:'Romance',g_mystery:'Policiaco',g_thriller:'Suspenso',g_horror:'Terror',g_historical:'Histórica',g_ya:'Juvenil',g_classic:'Clásico',g_dystopia:'Distopía',g_action:'Acción',g_drama:'Drama',g_nonfic:'No ficción',g_bio:'Biografía',g_selfhelp:'Desarrollo personal',g_comic:'Cómic y manga',g_poetry:'Poesía',g_adventure:'Aventura',
   statsT:'Estadísticas',statsSub:'Tu lectura de un vistazo',stRead:'Leídos',stPending:'Pendientes',stAvg:'Nota media',stYear:'Este año',stRatings:'Tus notas',stGenres:'Por género',stAuthors:'Autores con más libros',stMonths:'Leídos por mes',stNoGenres:'Añade géneros a tus libros para ver aquí cuáles lees más.',stNoDates:'Desde ahora se guarda la fecha en que marcas un libro como leído; aquí verás tu ritmo por mes.',stEmpty:'Aún no hay libros. Añade alguno y aquí verás tus estadísticas.',stLegend:'Oscuro = leídos · claro = pendientes',stUnrated:'Sin nota',stClose:'Cerrar',
   st_unread:'Por leer',st_reading:'Leyendo',st_read:'Leído',st_dropped:'Abandonado',
@@ -482,7 +494,7 @@ const I18N={
   noMatch:'No books match these filters.',emptyList:'Your list is empty. Tap + to add your first book.',
   newBook:'New book',addCover:'Add cover',removeCover:'Remove cover',detected:'Details found in the file. Check them before saving.',
   title:'Title',author:'Author',status:'Status',toRead:'To read',isRead:'Read',rating:'Rating',halfHint:'Tap the left half of a star for a half.',
-  noSaga:'No series',newSagaOpt:'New series…',sagaNo:'Order',none:'None',uniOrder:'Order',newSagaName:'New series name',
+  noSaga:'No series',newSagaOpt:'New series…',sagaNo:'Order',none:'None',uniOrder:'Order',newSagaName:'New series name',readAtL:'Date read',yearPrev:'Previous year',yearNext:'Next year',
   del:'Delete',sure:'Sure?',cancel:'Cancel',save:'Save',create:'Create',
   bookDeleted:'Book deleted',missTitle:'Title is missing',missName:'Name is missing',unknown:'Unknown author',saved:'Changes saved',bookAdded:'Book added',
   yourRating:'Your rating',ratingSaved:'Rating saved',
@@ -496,12 +508,14 @@ const I18N={
   setSub:'Make the library yours',done:'Done',language:'Language',list:'List',sortBy:'Sort by',sAlpha:'Name (A–Z)',sRecent:'Recently added',sRating:'Top rated',
   readLast:'Read books last',readLastD:'Finished books move to the bottom',half:'Half stars',halfD:'Allow ratings like 3.5, 4.5…',
   autoOpen:'Expand series and universes',autoOpenD:'Show them open when the app starts',
+  expandReading:'Expand series you’re reading',expandReadingD:'If a series has a book marked as “reading”, show it expanded',
+  noteBtn:'Note',notePh:'Write a note or comment about this book…',
   data:'Your data',export:'Export backup',exportD:'Download a .json file with your whole list',importB:'Import backup',importD:'Replaces the current list with the file’s',
   wipe:'Delete all data',wipeD:'Leaves the list empty. Can’t be undone',wipeSure:'Tap again to delete',wiped:'List deleted',
   exported:'Backup downloaded',noExport:'Couldn’t download the backup here',imported:'Backup imported',badBackup:'That file isn’t a valid backup',
   about:'About',version:'Version',stats:(b,s,u)=>`${pl(b,'book','books')} · ${pl(s,'series','series')} · ${pl(u,'universe','universes')}`,
   storage:'Your data is stored only on this device.',
-  genres:'Genres',genreOther:'Other genre',genreAdd:'Add',genreNone:'No genre',genrePh:'Type a genre',suggAuthor:'Is it by…?',magic:'Magic background',magicD:'Diagonal purple gradient with sparkles and translucent cards',fileBig:'Large file: linked without reading cover or details',updT:'Updates',updCheck:'Check for updates',updInst:v=>`Installed version: ${v}`,updChecking:'Checking…',updNone:'You have the latest version',updNew:(v,b)=>`New version ${v} (build ${b})`,updGet:'Tap to download and install',updWeb:'Tap to open the downloads page',updGetBtn:'Install',updOpenBtn:'Open',updDl:p=>`Downloading ${p}%…`,updNeedPerm:'Turn on “Allow from this source” and tap again',updFail:'Couldn’t check for updates',updDlFail:'Couldn’t download the update',updOffline:'No internet connection',updNotify:'Notify about new versions',updNotifyD:'When the app opens it checks (once a day, online)',updAvail:v=>`A new version is available (${v}). Settings → Updates`,suggGenres:'Suggested genres:',strike:'Strike through read books',strikeD:'Removes the line over title and author; keeps the faded look',groupGen:'Grouped genres',groupGenD:'Series and universes show the genres of their books',innerGen:'Genres on grouped books',innerGenD:'Books inside a series or universe also show their genres',autoSaga:'Create auto-detected series',autoSagaD:'On: creates the detected series if it doesn’t exist. Off: only uses it if you already have it.',sType:'By type (books, series, universes)',scanIsbn:'Scan ISBN',scanT:'Point at the book’s barcode',scanManual:'Or type the ISBN',needNet:'You need an internet connection to scan an ISBN',isbnLook:'Looking up the book…',isbnNone:'I couldn’t find that ISBN',isbnBad:'Invalid ISBN',camDenied:'Couldn’t use the camera. Type the ISBN.',ok:'OK',
+  genres:'Genres',genreOther:'Other genre',genreAdd:'Add',genreNone:'No genre',genrePh:'Type a genre',suggAuthor:'Is it by…?',magic:'Magic background',magicD:'Diagonal purple gradient with sparkles and translucent cards',fileBig:'Large file: linked without reading cover or details',updT:'Updates',updCheck:'Check for updates',updInst:v=>`Installed version: ${v}`,updChecking:'Checking…',updNone:'You have the latest version',updNew:(v,b)=>`New version ${v} (build ${b})`,updGet:'Tap to download and install',updWeb:'Tap to open the downloads page',updGetBtn:'Install',updOpenBtn:'Open',updDl:'Downloading…',updNeedPerm:'Turn on “Allow from this source” and tap again',updFail:'Couldn’t check for updates',updDlFail:'Couldn’t download the update',updOffline:'No internet connection',updNotify:'Notify about new versions',updNotifyD:'When the app opens it checks (once a day, online)',updAvail:v=>`A new version is available (${v}). Settings → Updates`,suggGenres:'Suggested genres:',strike:'Strike through read books',strikeD:'Removes the line over title and author; keeps the faded look',groupGen:'Grouped genres',groupGenD:'Series and universes show the genres of their books',innerGen:'Genres on grouped books',innerGenD:'Books inside a series or universe also show their genres',autoSaga:'Create auto-detected series',autoSagaD:'On: creates the detected series if it doesn’t exist. Off: only uses it if you already have it.',sType:'By type (books, series, universes)',scanIsbn:'Scan ISBN',scanT:'Point at the book’s barcode',scanManual:'Or type the ISBN',needNet:'You need an internet connection to scan an ISBN',isbnLook:'Looking up the book…',isbnNone:'I couldn’t find that ISBN',isbnBad:'Invalid ISBN',camDenied:'Couldn’t use the camera. Type the ISBN.',ok:'OK',
   g_fantasy:'Fantasy',g_scifi:'Sci-fi',g_romance:'Romance',g_mystery:'Crime',g_thriller:'Thriller',g_horror:'Horror',g_historical:'Historical',g_ya:'Young adult',g_classic:'Classic',g_dystopia:'Dystopia',g_action:'Action',g_drama:'Drama',g_nonfic:'Non-fiction',g_bio:'Biography',g_selfhelp:'Self-help',g_comic:'Comics & manga',g_poetry:'Poetry',g_adventure:'Adventure',
   statsT:'Statistics',statsSub:'Your reading at a glance',stRead:'Read',stPending:'To read',stAvg:'Avg rating',stYear:'This year',stRatings:'Your ratings',stGenres:'By genre',stAuthors:'Most-read authors',stMonths:'Read per month',stNoGenres:'Add genres to your books to see which ones you read most.',stNoDates:'From now on the date you mark a book as read is saved; you’ll see your monthly pace here.',stEmpty:'No books yet. Add some and your statistics will show up here.',stLegend:'Dark = read · light = to read',stUnrated:'Unrated',stClose:'Close',
   st_unread:'To read',st_reading:'Reading',st_read:'Read',st_dropped:'Dropped',
@@ -602,6 +616,8 @@ function sagaAuto(s){return avg(booksOf(s.id).map(rat).filter(r=>r>0))}
 function sagaRating(s){return s.ratingOverride!=null?s.ratingOverride:sagaAuto(s)}
 function uniRating(u){return avg(S.sagas.filter(s=>s.universeId===u.id).map(sagaRating).concat(looseOf(u.id).map(rat)).filter(r=>r!=null&&r>0))}
 const fmt=v=>{const r=(Math.round(v*10)/10).toString();return CFG.lang==='es'?r.replace('.',','):r};
+const dateInputVal=ts=>{const d=new Date(ts);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+const dateFromInput=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');if(!m)return Date.now();return new Date(+m[1],+m[2]-1,+m[3],12,0,0).getTime()};
 function byOrder(oKey,nKey){return (a,b)=>{
   const ao=a[oKey],bo=b[oKey],ha=ao!=null&&ao!=='',hb=bo!=null&&bo!=='';
   if(ha&&hb&&ao!==bo)return ao-bo; if(ha!==hb)return ha?-1:1; return coll.compare(a[nKey],b[nKey]);};}
@@ -631,7 +647,7 @@ function passes(b){
   return true;
 }
 const filtering=()=>!!(ui.q||ui.status!=='all'||ui.min||ui.author||ui.genres.length);
-const isOpen=id=>ui.q?true:(ui.open[id]!=null?ui.open[id]:CFG.autoOpen);
+const isOpen=(id,hasReading)=>ui.q?true:(ui.open[id]!=null?ui.open[id]:(CFG.autoOpen||(!!hasReading&&CFG.expandReading)));
 
 /* ---------- render ---------- */
 const COVC=new Map(),LAZY=new Map();
@@ -661,7 +677,7 @@ function sagaCard(s,vis,uniAuthor,inUni){
   const all=booksOf(s.id),done=all.length>0&&all.every(fin);
   const r=sagaRating(s),readN=all.filter(b=>stOf(b)==='read').length;
   const list=vis.slice().sort(byOrder('sagaOrder','title'));
-  const open=isOpen(s.id),body=()=>list.map(b=>bookRow(b,true,s.author)).join('')||`<div class="empty" style="padding:14px">${t('noBooks')}</div>`;
+  const open=isOpen(s.id,all.some(b=>stOf(b)==='reading')),body=()=>list.map(b=>bookRow(b,true,s.author)).join('')||`<div class="empty" style="padding:14px">${t('noBooks')}</div>`;
   if(!open)LAZY.set(s.id,body);
   return `<section class="card ${done?'done':''} ${open?'open':''}" data-dk="s:${s.id}" data-grp="${inUni?'u:'+s.universeId:''}" data-drop="s:${s.id}">
     <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${s.id}">
@@ -704,8 +720,9 @@ function render(persist=true){
     mix.sort(byOrder('o','n'));
     const nsg=usagas.length;
     const cnt=[nsg?t('sagas',nsg):'',nl?t('books',nl):''].filter(Boolean).join(' · ')||t('empty');
-    items.push({k:2,name:u.name,done,reading:all.some(b=>stOf(b)==='reading'),rating:r,recent:recentOf(all),h:()=>{
-      const open=isOpen(u.id),body=()=>mix.map(x=>x.h()).join('')||`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`;
+    const uReading=all.some(b=>stOf(b)==='reading');
+    items.push({k:2,name:u.name,done,reading:uReading,rating:r,recent:recentOf(all),h:()=>{
+      const open=isOpen(u.id,uReading),body=()=>mix.map(x=>x.h()).join('')||`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`;
       if(!open)LAZY.set(u.id,body);
       return `<section class="card uni ${open?'open':''} ${done?'done':''}" data-drop="u:${u.id}">
       <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${u.id}">
@@ -933,17 +950,19 @@ function bookForm(b,pre){
     <div class="f"><label for="ba">${t('author')}</label><input id="ba" type="text" value="${esc(d.author)}" autocomplete="off"><div class="sugg" id="bsug"></div></div>
     <div class="f"><span class="lbl">${t('status')}</span><div class="seg four" id="bseg">
       ${['unread','reading','read','dropped'].map(k=>`<button type="button" data-s="${k}">${t('st_'+k)}</button>`).join('')}</div></div>
+    <div class="f" id="breadatw" style="display:none"><label for="breadat">${t('readAtL')}</label><input id="breadat" type="date" value="${esc(dateInputVal(d.readAt||Date.now()))}"></div>
     <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="bgen"></div>
 <div class="sugg" id="gsug"></div></div>
     <div class="two pair" id="bsw">
       <div class="f"><label for="bs">${t('saga')}</label><select id="bs"><option value="">${t('noSaga')}</option>${opts}<option value="__new" ${d.sagaId==='__new'?'selected':''}>${t('newSagaOpt')}</option></select></div>
       <div class="f" id="bordw"><label for="bo">${t('sagaNo')}</label><input id="bo" type="number" step="any" inputmode="decimal" value="${d.sagaOrder!=null?d.sagaOrder:''}"></div>
     </div>
+    <div class="f" id="bnew" style="display:none"><label for="bn">${t('newSagaName')}</label><input id="bn" type="text" value="${esc(newSaga)}"></div>
     <div class="two pair" id="buw">
       <div class="f"><label for="bu">${t('universe')}</label><select id="bu"><option value="">${t('none')}</option>${S.universes.slice().sort((a,b)=>coll.compare(a.name,b.name)).map(u=>`<option value="${u.id}" ${uSel===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
       <div class="f" id="buow"><label for="buo">${t('uniOrder')}</label><input id="buo" type="number" step="any" inputmode="decimal" value="${uoInit!=null?uoInit:''}"></div>
     </div>
-    <div class="f" id="bnew" style="display:none"><label for="bn">${t('newSagaName')}</label><input id="bn" type="text" value="${esc(newSaga)}"></div>
+    <div class="f" id="bnotew"><button type="button" class="notebtn" id="bnoteb" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>${t('noteBtn')}</span></button><textarea id="bnote" rows="2" placeholder="${t('notePh')}" style="display:${d.note&&d.note.trim()?'block':'none'}">${esc(d.note||'')}</textarea></div>
     <div class="f"><span class="lbl">${t('rating')}</span><div class="box" id="brbox"><div class="rate" id="brate"></div>${CFG.half?`<div class="hint" id="bhalf">${t('halfHint')}</div>`:''}<div class="lockmsg">${t('rateLock')}</div></div></div>
     <div class="btns">${b?`<button type="button" class="btn del" id="bdel">${t('del')}</button>`:''}<button type="button" class="btn" id="bcan">${t('cancel')}</button><button type="button" class="btn main" id="bok">${b?t('save'):t('add')}</button></div>`);
   const paintHero=()=>{
@@ -954,6 +973,11 @@ function bookForm(b,pre){
     $('#covt').textContent=d.cover?t('removeCover'):t('addCover');
   };
   $('#bt').oninput=paintHero;$('#ba').oninput=paintHero;paintHero();
+  const noteBtn=$('#bnoteb'),noteArea=$('#bnote');
+  const noteSync=()=>{noteBtn.classList.toggle('has',!!(d.note&&d.note.trim()));noteBtn.setAttribute('aria-expanded',noteArea.style.display!=='none'?'true':'false')};
+  noteSync();
+  noteBtn.onclick=()=>{const show=noteArea.style.display==='none';noteArea.style.display=show?'block':'none';if(show)noteArea.focus();noteSync()};
+  noteArea.oninput=()=>{d.note=noteArea.value;noteSync()};
   $('#covb').onclick=()=>{if(d.cover){d.cover=null;paintHero()}else{
     const fi=$('#covfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
       try{d.cover=await shrink(URL.createObjectURL(f));paintHero()}catch(err){toast(t('noImg'))}};fi.click()}};
@@ -1011,7 +1035,8 @@ function bookForm(b,pre){
   $('#bt').addEventListener('input',askSug);$('#ba').addEventListener('input',()=>{if($('#ba').value.trim())hideSug();else askSug()});
   if(!b&&!d.title)hideSug();
   const segPaint=()=>{$('#bseg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.s===d.status)));
-    $('#brbox').classList.toggle('lock',!(d.status==='read'||d.status==='dropped'))};
+    $('#brbox').classList.toggle('lock',!(d.status==='read'||d.status==='dropped'));
+    $('#breadatw').style.display=d.status==='read'?'':'none'};
   $('#bseg').onclick=e=>{const x=e.target.closest('[data-s]');if(!x)return;d.status=x.dataset.s;segPaint()};segPaint();
   rateWidget('brate',d.rating||0,v=>d.rating=v);
   const sync=()=>{const v=$('#bs').value,u=$('#bu').value;$('#bordw').style.display=v?'':'none';$('#bsw').classList.toggle('solo',!v);$('#bnew').style.display=v==='__new'?'':'none';
@@ -1088,10 +1113,11 @@ function bookForm(b,pre){
       d.universeId=$('#bu').value;d.universeOrder=(d.universeId&&uo!=='')?parseFloat(uo):null;
     }
     if(!$('#ba').value.trim()){const par=saga(sid)||uni(d.universeId);if(par&&par.author)d.author=par.author}
+    const noteV=$('#bnote').value.trim();if(noteV)d.note=noteV;else delete d.note;
     delete d.sagaName;delete d.fromFile;
     removed.forEach(r=>FS.del(r));cleanup();
-    const prev=b?book(b.id):null;d.read=d.status==='read';d.readAt=d.status==='read'?((prev&&prev.read&&prev.readAt)||Date.now()):null;
-    if(b)Object.assign(book(b.id),d);else{d.id=uid();S.books.push(d)}
+    d.read=d.status==='read';d.readAt=d.status==='read'?dateFromInput($('#breadat').value):null;
+    if(b){const bk=book(b.id);Object.assign(bk,d);if(!noteV)delete bk.note}else{d.id=uid();S.books.push(d)}
     closeSheet();render();toast(b?t('saved'):t('bookAdded'));
   };
 }
@@ -1365,13 +1391,22 @@ function statsForm(){
   const am=new Map();B.forEach(b=>{const k=b.author||t('unknown');const o=am.get(k)||{t:0,r:0};o.t++;if(stOf(b)==='read')o.r++;am.set(k,o)});
   const al=[...am.entries()].sort((a,b)=>b[1].t-a[1].t||coll.compare(a[0],b[0])).slice(0,5);
   const amax=al.length?al[0][1].t:1;
-  /* meses (últimos 12) */
-  const now=new Date(),ms=[];
-  for(let m=0;m<12;m++)ms.push({y:now.getFullYear(),m,n:0});
-  let dated=0;readB.forEach(b=>{if(!b.readAt)return;dated++;const d=new Date(b.readAt),x=ms.find(z=>z.y===d.getFullYear()&&z.m===d.getMonth());if(x)x.n++});
-  const mmax=Math.max(1,...ms.map(x=>x.n));
+  /* meses, por año navegable */
+  const now=new Date(),curYear=now.getFullYear();
+  const datedYears=readB.filter(b=>b.readAt).map(b=>new Date(b.readAt).getFullYear());
+  const hasAnyDated=datedYears.length>0;
+  const minYear=hasAnyDated?Math.min(curYear,...datedYears):curYear,maxYear=curYear;
+  let statsYear=maxYear;
   const mn=new Intl.DateTimeFormat(CFG.lang,{month:'narrow'});
-  const months=dated?`<div class="months">${ms.map(x=>`<div class="${x.n?'':'z'}"><span>${x.n||''}</span><i style="height:${x.n?Math.max(8,Math.round(x.n/mmax*62)):3}px"></i><span>${esc(mn.format(new Date(x.y,x.m,1)))}</span></div>`).join('')}</div>`:`<p class="note">${t('stNoDates')}</p>`;
+  const monthsGrid=year=>{const ms=[];for(let m=0;m<12;m++)ms.push({m,n:0});
+    readB.forEach(b=>{if(!b.readAt)return;const d=new Date(b.readAt);if(d.getFullYear()!==year)return;ms[d.getMonth()].n++});
+    const mmax=Math.max(1,...ms.map(x=>x.n));
+    return `<div class="months">${ms.map(x=>`<div class="${x.n?'':'z'}"><span>${x.n||''}</span><i style="height:${x.n?Math.max(8,Math.round(x.n/mmax*62)):3}px"></i><span>${esc(mn.format(new Date(year,x.m,1)))}</span></div>`).join('')}</div>`};
+  const months=hasAnyDated?`<div class="myear">
+      <button type="button" class="yarr" id="yprev" aria-label="${t('yearPrev')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div class="mwrap"><div class="myrlabel" id="myrlabel">${statsYear}</div><div id="mgrid">${monthsGrid(statsYear)}</div></div>
+      <button type="button" class="yarr" id="ynext" aria-label="${t('yearNext')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>`:`<p class="note">${t('stNoDates')}</p>`;
   const unrated=B.filter(b=>fin(b)&&!(b.rating>0)).length;
   openSheet(`${hero(medal(I_ST),t('statsT'),t('statsSub'))}
     <div class="tiles">
@@ -1382,7 +1417,7 @@ function statsForm(){
       <div class="tile"><b>${av!=null?fmt(av):'–'}</b><span>${t('stAvg')}</span></div>
       <div class="tile"><b>${thisYear}</b><span>${t('stYear')}</span></div>
     </div>
-    <div class="sec">${t('stMonths')} · ${now.getFullYear()}</div>${months}
+    <div class="sec">${t('stMonths')}</div>${months}
     <div class="sec">${t('stGenres')}</div>
     ${gl.length?gl.map(([g,o])=>bar(gname(g),o.t,o.r,gmax,ghue(g))).join('')+`<p class="note">${t('stLegend')}</p>`:`<p class="note">${t('stNoGenres')}</p>`}
     <div class="sec">${t('stRatings')}</div>
@@ -1391,6 +1426,13 @@ function statsForm(){
     ${al.map(([a,o])=>bar(a,o.t,o.r,amax)).join('')}
     <div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);
   $('#stok').onclick=closeSheet;
+  if(hasAnyDated){
+    const paintYear=()=>{$('#myrlabel').textContent=statsYear;$('#mgrid').innerHTML=monthsGrid(statsYear);
+      $('#yprev').disabled=statsYear<=minYear;$('#ynext').disabled=statsYear>=maxYear};
+    paintYear();
+    $('#yprev').onclick=()=>{if(statsYear>minYear){statsYear--;paintYear()}};
+    $('#ynext').onclick=()=>{if(statsYear<maxYear){statsYear++;paintYear()}};
+  }
 }
 
 /* copia de seguridad .json (en el teléfono: hoja de compartir; en el navegador: descarga) */
@@ -1428,6 +1470,7 @@ function settingsForm(){
       <label class="srow" for="sasaga"><div class="stx"><div>${t('autoSaga')}</div><small>${t('autoSagaD')}</small></div>${sw('sasaga',CFG.autoSaga)}</label>
       <label class="srow" for="shalf"><div class="stx"><div>${t('half')}</div><small>${t('halfD')}</small></div>${sw('shalf',CFG.half)}</label>
       <label class="srow" for="sopen"><div class="stx"><div>${t('autoOpen')}</div><small>${t('autoOpenD')}</small></div>${sw('sopen',CFG.autoOpen)}</label>
+      <label class="srow" for="sexpr"><div class="stx"><div>${t('expandReading')}</div><small>${t('expandReadingD')}</small></div>${sw('sexpr',CFG.expandReading)}</label>
     </div>
     <div class="sec">${t('updT')}</div>
     <div class="group">
@@ -1449,7 +1492,7 @@ function settingsForm(){
   $('#slang').onclick=e=>{const x=e.target.closest('[data-l]');if(!x||x.dataset.l===CFG.lang)return;
     CFG.lang=x.dataset.l;applyCfg();const st=$('#sheet').scrollTop;settingsForm();$('#sheet').scrollTop=st};
   $('#ssort').onchange=e=>set('sort',e.target.value);
-  [['sread','readLast'],['smagic','magic'],['sstrike','strike'],['sgroup','groupGen'],['sinner','innerGen'],['sasaga','autoSaga'],['shalf','half'],['sopen','autoOpen'],['snot','updNotify']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen')ui.open={};set(k,v)}});
+  [['sread','readLast'],['smagic','magic'],['sstrike','strike'],['sgroup','groupGen'],['sinner','innerGen'],['sasaga','autoSaga'],['shalf','half'],['sopen','autoOpen'],['sexpr','expandReading'],['snot','updNotify']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen'||k==='expandReading')ui.open={};set(k,v)}});
   updPaint();$('#supd').onclick=updClick;
   $('#sexp').onclick=exportBackup;
   $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
@@ -1458,7 +1501,7 @@ function settingsForm(){
   armDelete($('#swipe'),()=>{S.books.forEach(b=>FS.del(b.file));S={books:[],sagas:[],universes:[]};ui.open={};render();closeSheet();toast(t('wiped'))},null,t('wipeSure'));
   $('#sshare').onclick=()=>{cfgSnap=null;shareForm()};
   $('#sok').onclick=()=>{cfgSnap=null;closeSheet()};
-  onDismiss=()=>{const snap=cfgSnap;cfgSnap=null;if(snap&&JSON.stringify(snap)!==JSON.stringify(CFG)){if(snap.autoOpen!==CFG.autoOpen)ui.open={};CFG=snap;applyCfg()}};
+  onDismiss=()=>{const snap=cfgSnap;cfgSnap=null;if(snap&&JSON.stringify(snap)!==JSON.stringify(CFG)){if(snap.autoOpen!==CFG.autoOpen||snap.expandReading!==CFG.expandReading)ui.open={};CFG=snap;applyCfg()}};
 }
 
 /* ---- Actualizaciones desde GitHub Releases ---- */
@@ -1495,7 +1538,7 @@ function updPaint(msg){
   const T=$('#supdT'),D=$('#supdD'),I=$('#supdS');if(!T)return;
   I.className='sic';
   if(msg){T.textContent=msg;D.textContent='';I.textContent='⟳';return}
-  if(updPct>=0){T.textContent=t('updDl',updPct);D.textContent='';I.className='sic pill';I.textContent=updPct+'%';return}
+  if(updPct>=0){T.textContent=t('updDl');D.textContent='';I.className='sic pill';I.textContent=updPct+'%';return}
   if(UPD&&UPD.url){T.textContent=t('updNew',UPD.ver,UPD.bld);D.textContent='';I.className='sic pill';I.textContent=CAP?t('updGetBtn'):t('updOpenBtn');return}
   T.textContent=UPD&&UPD.none?t('updNone'):t('updCheck');D.textContent=t('updInst',VERSION+' (build '+BUILD+')');I.textContent='⟳';
 }
@@ -1721,7 +1764,7 @@ document.addEventListener('click',e=>{
   if(a==='edit-book')return bookForm(book(id));
   if(a==='edit-saga')return sagaForm(saga(id));
   if(a==='edit-uni')return uniForm(uni(id));
-  if(a==='toggle-open'){const op=!isOpen(id);ui.open[id]=op;const card=x.parentElement;if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody');if(gb){gb.innerHTML=LAZY.get(id)()}LAZY.delete(id)}card.classList.toggle('open',op);return}
+  if(a==='toggle-open'){const card=x.parentElement;const op=!card.classList.contains('open');ui.open[id]=op;if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody');if(gb){gb.innerHTML=LAZY.get(id)()}LAZY.delete(id)}card.classList.toggle('open',op);return}
   if(a==='genre-tag'){const g=x.dataset.g;ui.genres=(ui.genres.length===1&&ui.genres[0]===g)?[]:[g];render(false);return}
   if(a==='tgdone'){HD=!HD;try{localStorage.setItem('por-leer-hd',HD?'1':'0')}catch(e){}render(false);const le=$('#list');if(le){le.classList.remove('swap');void le.offsetWidth;le.classList.add('swap')}return}
   if(a==='status'){ui.status=x.dataset.k;render(false);return}
