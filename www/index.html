@@ -114,6 +114,10 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .ord{font-family:var(--font-title);font-weight:600;color:var(--lilac);width:20px;text-align:center;flex:none;font-size:16px}
 .br{flex:none;text-align:right;font-size:14px;color:var(--ink2);padding:6px 0 6px 6px;margin:-6px 0}
 .br .add{color:var(--lilac);font-size:14px;border:1px dashed var(--line);border-radius:999px;padding:2px 8px}
+.bacts{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.bbtns{display:flex;align-items:center}
+.rdate{position:absolute;top:9px;right:14px;font-size:10px;line-height:1;color:var(--ink2);opacity:.75;white-space:nowrap}
+.gbody .rdate{top:6px;right:10px}
 
 .st{position:relative;display:inline-block;color:var(--star0);font-family:Arial,sans-serif;line-height:1}
 .st b{position:absolute;left:0;top:0;overflow:hidden;color:var(--star);font-weight:400;white-space:nowrap}
@@ -413,7 +417,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.9.31',BUILD=49;
+const VERSION='0.9.35',BUILD=53;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -431,9 +435,12 @@ async function nativeSaveDownload(name,text,mime){
 const initial=t=>esc((String(t||'').trim()[0]||'·').toUpperCase());
 
 /* ---------- ajustes ---------- */
-const DEF={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en',sort:'alpha',readLast:true,half:true,autoOpen:false,expandReading:false,strike:true,magic:true,groupGen:true,innerGen:false,updNotify:true,autoSaga:true};
+const DEF={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en',sortPend:'alpha',sortDone:'dateDesc',readLast:true,innerDate:false,half:true,autoOpen:false,expandReading:false,strike:true,magic:true,groupGen:true,innerGen:false,updNotify:true,autoSaga:true};
 const LOWEND=(()=>{try{return (navigator.deviceMemory&&navigator.deviceMemory<=2)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2)}catch(e){return false}})();
-let CFG=(()=>{try{const sv=JSON.parse(localStorage.getItem(SKEY)||'{}');const c=Object.assign({},DEF,sv);if(sv.magic===undefined&&LOWEND)c.magic=false;return c}catch(e){return {...DEF}}})();
+let CFG=(()=>{try{const sv=JSON.parse(localStorage.getItem(SKEY)||'{}');const c=Object.assign({},DEF,sv);if(sv.magic===undefined&&LOWEND)c.magic=false;
+  /* migración: el viejo ajuste único "sort" se reparte en los dos nuevos si aún no se habían guardado */
+  if(sv.sort!==undefined){if(sv.sortPend===undefined)c.sortPend=sv.sort==='recent'?'alpha':sv.sort;if(sv.sortDone===undefined)c.sortDone=sv.sort==='recent'?'dateDesc':sv.sort}
+  return c}catch(e){return {...DEF}}})();
 function saveCfg(){try{localStorage.setItem(SKEY,JSON.stringify(CFG))}catch(e){}}
 let coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});
 
@@ -461,7 +468,7 @@ const I18N={
   filtSub:'Afina lo que ves en la lista',minRating:'Valoración mínima',clear:'Limpiar',apply:'Aplicar',
   pickFile:'Elige un archivo .epub o .pdf',reading:'Leyendo el archivo…',detectedT:'Datos detectados',noMeta:'No pude leer los metadatos; rellénalos a mano',noImg:'No pude leer la imagen',
   stars:n=>`${n} estrellas`,remove:'Quitar',
-  setSub:'Personaliza tu biblioteca',done:'Listo',language:'Idioma',list:'Lista',sortBy:'Ordenar por',sAlpha:'Nombre (A–Z)',sRecent:'Añadidos recientemente',sRating:'Mejor valorados',
+  setSub:'Personaliza tu biblioteca',done:'Listo',language:'Idioma',list:'Lista',sortPendL:'Ordenar pendientes y en curso',sortDoneL:'Ordenar leídos y abandonados',sAlpha:'Nombre (A–Z)',sRating:'Mejor valorados',sDateDesc:'Fecha de lectura: reciente primero',sDateAsc:'Fecha de lectura: antigua primero',innerDate:'Fecha en libros agrupados',innerDateD:'Los libros dentro de una serie o universo también muestran su fecha de lectura',
   readLast:'Leídos al final',readLastD:'Lo ya terminado baja al fondo de la lista',half:'Medias estrellas',halfD:'Permite valorar con 3,5, 4,5…',
   autoOpen:'Abrir series y universos',autoOpenD:'Mostrarlos desplegados al abrir la app',
   expandReading:'Expandir series con libros leyendo',expandReadingD:'Si una serie tiene un libro marcado como «leyendo», se muestra desplegada',
@@ -476,7 +483,7 @@ const I18N={
   statsT:'Estadísticas',statsSub:'Tu lectura de un vistazo',stRead:'Leídos',stPending:'Pendientes',stAvg:'Nota media',stYear:'Este año',stRatings:'Tus notas',stGenres:'Por género',stAuthors:'Autores con más libros',stMonths:'Leídos por mes',stNoGenres:'Añade géneros a tus libros para ver aquí cuáles lees más.',stNoDates:'Desde ahora se guarda la fecha en que marcas un libro como leído; aquí verás tu ritmo por mes.',stEmpty:'Aún no hay libros. Añade alguno y aquí verás tus estadísticas.',stLegend:'Oscuro = leídos · claro = pendientes',stUnrated:'Sin nota',stClose:'Cerrar',
   st_unread:'Por leer',st_reading:'Leyendo',st_read:'Leído',st_dropped:'Abandonado',
   stD_unread:'Aún no lo empiezo',stD_reading:'Lo estoy leyendo ahora',stD_read:'Lo terminé',stD_dropped:'Lo dejé a medias y no pienso terminarlo',
-  statusT:'Estado del libro',statusSub:'¿En qué punto está?',readingF:'Leyendo',droppedF:'Abandonados',stateL:'Estado',
+  statusT:'Estado del libro',statusSub:'¿En qué punto está?',readingF:'Leyendo',droppedF:'Abandonados',stateL:'Estado',stateHint:'Puedes elegir varios a la vez',
   secReading:'Leyendo',secPending:'Pendientes',secDone:'Terminados',
   rateLock:'Para calificar un libro debes leerlo o abandonarlo.',sagaRateLock:'Para calificar la serie necesitas al menos un libro leído o abandonado.',
   delSagaWarn:n=>n?`Al eliminar la serie se borrarán también sus ${pl(n,'libro','libros')}.`:'Al eliminar la serie se borrará todo lo que contiene.',
@@ -505,7 +512,7 @@ const I18N={
   filtSub:'Narrow down what you see',minRating:'Minimum rating',clear:'Clear',apply:'Apply',
   pickFile:'Choose an .epub or .pdf file',reading:'Reading file…',detectedT:'Details found',noMeta:'Couldn’t read the details; fill them in by hand',noImg:'Couldn’t read the image',
   stars:n=>`${n} stars`,remove:'Remove',
-  setSub:'Make the library yours',done:'Done',language:'Language',list:'List',sortBy:'Sort by',sAlpha:'Name (A–Z)',sRecent:'Recently added',sRating:'Top rated',
+  setSub:'Make the library yours',done:'Done',language:'Language',list:'List',sortPendL:'Sort unread & reading',sortDoneL:'Sort read & dropped',sAlpha:'Name (A–Z)',sRating:'Top rated',sDateDesc:'Read date: newest first',sDateAsc:'Read date: oldest first',innerDate:'Read date on grouped books',innerDateD:'Books inside a series or universe also show their read date',
   readLast:'Read books last',readLastD:'Finished books move to the bottom',half:'Half stars',halfD:'Allow ratings like 3.5, 4.5…',
   autoOpen:'Expand series and universes',autoOpenD:'Show them open when the app starts',
   expandReading:'Expand series you’re reading',expandReadingD:'If a series has a book marked as “reading”, show it expanded',
@@ -520,7 +527,7 @@ const I18N={
   statsT:'Statistics',statsSub:'Your reading at a glance',stRead:'Read',stPending:'To read',stAvg:'Avg rating',stYear:'This year',stRatings:'Your ratings',stGenres:'By genre',stAuthors:'Most-read authors',stMonths:'Read per month',stNoGenres:'Add genres to your books to see which ones you read most.',stNoDates:'From now on the date you mark a book as read is saved; you’ll see your monthly pace here.',stEmpty:'No books yet. Add some and your statistics will show up here.',stLegend:'Dark = read · light = to read',stUnrated:'Unrated',stClose:'Close',
   st_unread:'To read',st_reading:'Reading',st_read:'Read',st_dropped:'Dropped',
   stD_unread:'Haven’t started it',stD_reading:'Reading it right now',stD_read:'Finished it',stD_dropped:'Stopped halfway and won’t finish it',
-  statusT:'Book status',statusSub:'Where are you with it?',readingF:'Reading',droppedF:'Dropped',stateL:'Status',
+  statusT:'Book status',statusSub:'Where are you with it?',readingF:'Reading',droppedF:'Dropped',stateL:'Status',stateHint:'You can pick several at once',
   secReading:'Reading',secPending:'Up next',secDone:'Finished',
   rateLock:'To rate a book you have to read it or drop it.',sagaRateLock:'To rate the series you need at least one read or dropped book.',
   delSagaWarn:n=>n?`Deleting the series will also delete its ${pl(n,'book','books')}.`:'Deleting the series deletes everything inside it.',
@@ -598,7 +605,8 @@ addEventListener('pagehide',flush);document.addEventListener('visibilitychange',
 const libs={};function lib(src){return libs[src]||(libs[src]=new Promise((ok,ko)=>{const x=document.createElement('script');x.src=src;x.onload=ok;x.onerror=()=>{delete libs[src];ko()};document.head.appendChild(x)}))}
 let S=load();
 let HD=false;try{HD=localStorage.getItem('por-leer-hd')==='1'}catch(e){}
-const ui={q:'',status:'all',min:0,author:'',genres:[],open:{}};
+const ui={q:'',status:['all'],min:0,author:'',genres:[],open:{}};
+const allSt=a=>a.length===1&&a[0]==='all';
 
 /* ---------- datos ---------- */
 const IX={};function ix(k){const a=S[k],c=IX[k];if(c&&c.ref===a&&c.n===a.length)return c.m;const m=new Map(a.map(x=>[x.id,x]));IX[k]={ref:a,n:a.length,m};return m}
@@ -616,6 +624,7 @@ function sagaAuto(s){return avg(booksOf(s.id).map(rat).filter(r=>r>0))}
 function sagaRating(s){return s.ratingOverride!=null?s.ratingOverride:sagaAuto(s)}
 function uniRating(u){return avg(S.sagas.filter(s=>s.universeId===u.id).map(sagaRating).concat(looseOf(u.id).map(rat)).filter(r=>r!=null&&r>0))}
 const fmt=v=>{const r=(Math.round(v*10)/10).toString();return CFG.lang==='es'?r.replace('.',','):r};
+const fmtDate=ts=>{try{return new Intl.DateTimeFormat(CFG.lang,{day:'2-digit',month:'2-digit',year:'2-digit'}).format(ts)}catch(e){return ''}};
 const dateInputVal=ts=>{const d=new Date(ts);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
 const dateFromInput=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');if(!m)return Date.now();return new Date(+m[1],+m[2]-1,+m[3],12,0,0).getTime()};
 function byOrder(oKey,nKey){return (a,b)=>{
@@ -635,7 +644,7 @@ const I_GEAR='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
 
 /* ---------- filtros ---------- */
 function passes(b){
-  if(ui.status!=='all'&&stOf(b)!==ui.status)return false;
+  if(!allSt(ui.status)&&!ui.status.includes(stOf(b)))return false;
   if(ui.min&&rat(b)<ui.min)return false;
   if(ui.author&&b.author!==ui.author)return false;
   if(ui.genres.length&&!gsOf(b).some(g=>ui.genres.includes(g)))return false;
@@ -646,7 +655,7 @@ function passes(b){
   }
   return true;
 }
-const filtering=()=>!!(ui.q||ui.status!=='all'||ui.min||ui.author||ui.genres.length);
+const filtering=()=>!!(ui.q||!allSt(ui.status)||ui.min||ui.author||ui.genres.length);
 const isOpen=(id,hasReading)=>ui.q?true:(ui.open[id]!=null?ui.open[id]:(CFG.autoOpen||(!!hasReading&&CFG.expandReading)));
 
 /* ---------- render ---------- */
@@ -663,14 +672,15 @@ function bookRow(b,inSaga,parentAuthor,inUni){
   const rt=rr>0?stars(rr)+`<div>${fmt(rr)}</div>`:(fin(b)?`<span class="add">${t('rate')}</span>`:'');
   const pill=(sx==='reading'||sx==='dropped')?`<span class="pill ${sx}">${t('st_'+sx)}</span>`:'';
   const gtags=((!inSaga&&!inUni)||CFG.innerGen)?(()=>{const g=gsAlpha(gsOf(b));return g.slice(0,3).map(tag).join('')+(g.length>3?`<span class="tag" style="--gh:270;opacity:.75" data-a="edit-book" data-id="${b.id}">+${g.length-3}</span>`:'')})():'';
+  const rdate=(((!inSaga&&!inUni)||CFG.innerDate)&&b.readAt)?`<div class="rdate">${fmtDate(b.readAt)}</div>`:'';
   return `<div class="row ${sx} ${sx==='read'?'read':''} ${inUni?'urow':''}" ${dragAttr(b,inSaga,inUni)}>
     ${inSaga?`<span class="ord">${b.sagaOrder!=null&&b.sagaOrder!==''?b.sagaOrder:'·'}</span>`:''}
     <button class="seal" data-a="status-book" data-id="${b.id}" aria-label="${t('statusT')}: ${t('st_'+sx)}"><svg class="ico ck"><use href="#${sx==='dropped'?'i-x':'i-check'}"/></svg></button>
     <span class="cov">${cov}</span>
     <span class="bt"><div class="btitle">${esc(b.title)}</div>${parentAuthor&&norm(parentAuthor)===norm(b.author)?'':`<div class="bauth">${esc(b.author)}</div>`}${(pill||gtags)?`<div class="bgen">${pill}${gtags}</div>`:''}</span>
     <span class="br" ${rt?`data-a="rate-book" data-id="${b.id}"`:''}>${rt}</span>
-    ${b.file?`<button class="pen openb" data-a="open-file" data-id="${b.id}" aria-label="${t('fileOpen')}"><svg class="ico"><use href="#i-arrow"/></svg></button>`:''}
-    <button class="pen" data-a="edit-book" data-id="${b.id}" aria-label="${t('editBook')}"><svg class="ico"><use href="#i-pen"/></svg></button>
+    <span class="bacts">${rdate}<span class="bbtns">${b.file?`<button class="pen openb" data-a="open-file" data-id="${b.id}" aria-label="${t('fileOpen')}"><svg class="ico"><use href="#i-arrow"/></svg></button>`:''}
+    <button class="pen" data-a="edit-book" data-id="${b.id}" aria-label="${t('editBook')}"><svg class="ico"><use href="#i-pen"/></svg></button></span></span>
   </div>`;
 }
 function sagaCard(s,vis,uniAuthor,inUni){
@@ -690,9 +700,13 @@ function sagaCard(s,vis,uniAuthor,inUni){
   </section>`;
 }
 function sortItems(items){
-  const key={alpha:(a,b)=>coll.compare(a.name,b.name),recent:(a,b)=>(b.recent-a.recent)||coll.compare(a.name,b.name),rating:(a,b)=>((b.rating||0)-(a.rating||0))||coll.compare(a.name,b.name),type:(a,b)=>((a.k||0)-(b.k||0))||coll.compare(a.name,b.name)}[CFG.sort]||((a,b)=>coll.compare(a.name,b.name));
+  const alpha=(a,b)=>coll.compare(a.name,b.name),rating=(a,b)=>((b.rating||0)-(a.rating||0))||alpha(a,b),type=(a,b)=>((a.k||0)-(b.k||0))||alpha(a,b);
+  /* pendientes y en curso: solo rating, nombre o tipo (sin fecha de lectura, porque aún no tienen) */
+  const pendKey={alpha,rating,type}[CFG.sortPend]||alpha;
+  /* leídos y abandonados: además pueden ordenarse por fecha de lectura (la más reciente que tengan dentro, si es una serie o universo) */
+  const doneKey={dateDesc:(a,b)=>((b.lastRead||0)-(a.lastRead||0))||alpha(a,b),dateAsc:(a,b)=>((a.lastRead||0)-(b.lastRead||0))||alpha(a,b),alpha,rating,type}[CFG.sortDone]||alpha;
   const rank=x=>x.reading?0:(CFG.readLast&&x.done?2:1);
-  items.sort((a,b)=>(rank(a)-rank(b))||(rank(a)===0?coll.compare(a.name,b.name):key(a,b)));
+  items.sort((a,b)=>(rank(a)-rank(b))||(rank(a)===2?doneKey(a,b):pendKey(a,b)));
 }
 let rtok=0;
 function render(persist=true){
@@ -707,6 +721,7 @@ function render(persist=true){
   const sagasByUni=new Map();S.sagas.forEach(s=>{if(s.universeId)(sagasByUni.get(s.universeId)||sagasByUni.set(s.universeId,[]).get(s.universeId)).push(s)});
   const items=[];
   const recentOf=list=>{let m=-1;for(const b of list){const i=idx(b);if(i>m)m=i}return m};
+  const lastReadOf=list=>{let m=0;for(const b of list){if(b.readAt&&b.readAt>m)m=b.readAt}return m};
   S.universes.forEach(u=>{
     const usagas=sagasByUni.get(u.id)||[];
     const ss=usagas.map(s=>({s,v:visSaga.get(s.id)||[]})).filter(x=>x.v.length||!f);
@@ -721,7 +736,7 @@ function render(persist=true){
     const nsg=usagas.length;
     const cnt=[nsg?t('sagas',nsg):'',nl?t('books',nl):''].filter(Boolean).join(' · ')||t('empty');
     const uReading=all.some(b=>stOf(b)==='reading');
-    items.push({k:2,name:u.name,done,reading:uReading,rating:r,recent:recentOf(all),h:()=>{
+    items.push({k:2,name:u.name,done,reading:uReading,rating:r,recent:recentOf(all),lastRead:lastReadOf(all),h:()=>{
       const open=isOpen(u.id,uReading),body=()=>mix.map(x=>x.h()).join('')||`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`;
       if(!open)LAZY.set(u.id,body);
       return `<section class="card uni ${open?'open':''} ${done?'done':''}" data-drop="u:${u.id}">
@@ -737,15 +752,15 @@ function render(persist=true){
     const v=visSaga.get(s.id)||[];
     if(!v.length&&f)return;
     const all=booksOf(s.id);
-    items.push({k:1,name:s.name,done:all.length>0&&all.every(fin),reading:all.some(b=>stOf(b)==='reading'),rating:sagaRating(s),recent:recentOf(all),h:()=>sagaCard(s,v)});
+    items.push({k:1,name:s.name,done:all.length>0&&all.every(fin),reading:all.some(b=>stOf(b)==='reading'),rating:sagaRating(s),recent:recentOf(all),lastRead:lastReadOf(all),h:()=>sagaCard(s,v)});
   });
-  standalone.forEach(b=>items.push({k:0,name:b.title,done:fin(b),reading:stOf(b)==='reading',rating:rat(b),recent:idx(b),h:()=>bookRow(b,false)}));
+  standalone.forEach(b=>items.push({k:0,name:b.title,done:fin(b),reading:stOf(b)==='reading',rating:rat(b),recent:idx(b),lastRead:b.readAt||0,h:()=>bookRow(b,false)}));
   sortItems(items);
   const rk=x=>x.reading?0:(CFG.readLast&&x.done?2:1);
   const cnt=[0,0,0];items.forEach(i=>cnt[rk(i)]++);
   const multi=cnt.filter(Boolean).length>1;
   /* pintado por tandas: lo primero aparece enseguida y el resto se añade mientras el teléfono descansa */
-  const tok=++rtok,listEl=$('#list'),hideDone=HD&&multi&&!ui.q&&ui.status==='all';
+  const tok=++rtok,listEl=$('#list'),hideDone=HD&&multi&&!ui.q&&allSt(ui.status);
   const sy=window.scrollY,lh=listEl.offsetHeight;
   if(!items.length){listEl.style.minHeight='';listEl.innerHTML=`<div class="empty">${f?t('noMatch'):t('emptyList')}</div>`}
   else{
@@ -764,9 +779,9 @@ function render(persist=true){
   }
   const nRead=S.books.filter(b=>stOf(b)==='read').length,nPend=S.books.filter(b=>{const x=stOf(b);return x==='unread'||x==='reading'}).length;
   $('#count').innerHTML=`<span>${nPend} ${t('pending')}</span><span>${nRead} ${t('readN')}</span>`;
-  const nf=(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+0;
+  const nf=(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+(ui.status.length>1?1:0);
   $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('st_dropped')]].map(([k,x])=>
-    `<button class="chip" data-a="status" data-k="${k}" aria-pressed="${ui.status===k}">${x}</button>`).join('')+
+    `<button class="chip" data-a="status" data-k="${k}" aria-pressed="${ui.status.length===1&&ui.status[0]===k}">${x}</button>`).join('')+
     `<button class="chip filt ${nf?'on':''}" data-a="filters" aria-label="${t('filters')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${nf?`<b>${nf}</b>`:''}</button>`;
   if(persist)save();
 }
@@ -1195,20 +1210,23 @@ function uniForm(u){
 function filterForm(){
   const authors=[...new Set(S.books.map(b=>b.author))].sort(coll.compare);
   const gs=[...new Set([...S.books.flatMap(gsOf),...GENRES])].sort((a,b)=>coll.compare(gname(a),gname(b)));
-  let stt=ui.status,m=ui.min,sel=new Set(ui.genres);
+  let stt=new Set(allSt(ui.status)?[]:ui.status),m=ui.min,sel=new Set(ui.genres);
   const states=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('droppedF')]];
+  const stPressed=k=>k==='all'?stt.size===0:stt.has(k);
   openSheet(`${hero(medal(I_FILT),t('filters'),t('filtSub'))}
-    <div class="f"><span class="lbl">${t('stateL')}</span><div class="chk" id="fst">${states.map(([k,x])=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${stt===k}">${x}</button>`).join('')}</div></div>
+    <div class="f"><span class="lbl">${t('stateL')}</span><div class="chk" id="fst">${states.map(([k,x])=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${stPressed(k)}">${x}</button>`).join('')}</div><div class="hint">${t('stateHint')}</div></div>
     <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="fgen"></div></div>
     <div class="f"><span class="lbl">${t('minRating')}</span><div class="box"><div class="rate" id="frate"></div></div></div>
     <div class="f"><label for="fa">${t('author')}</label><select id="fa"><option value="">${t('all')}</option>${authors.map(a=>`<option ${ui.author===a?'selected':''} value="${esc(a)}">${esc(a)}</option>`).join('')}</select></div>
     <div class="btns"><button type="button" class="btn" id="fclr">${t('clear')}</button><button type="button" class="btn main" id="fok">${t('apply')}</button></div>`);
   rateWidget('frate',m,v=>m=v);
-  $('#fst').onclick=e=>{const x=e.target.closest('[data-k]');if(!x)return;stt=x.dataset.k;$('#fst').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.k===stt)))};
+  $('#fst').onclick=e=>{const x=e.target.closest('[data-k]');if(!x)return;const k=x.dataset.k;
+    if(k==='all')stt.clear();else{if(stt.has(k))stt.delete(k);else stt.add(k)}
+    $('#fst').querySelectorAll('[data-k]').forEach(c=>c.setAttribute('aria-pressed',String(stPressed(c.dataset.k))))};
   if($('#fgen')){const cnt=new Map();S.books.forEach(b2=>gsOf(b2).forEach(g=>cnt.set(g,(cnt.get(g)||0)+1)));const gi=g=>{const i=GENRES.indexOf(g);return i<0?99:i};const ord=gs.slice().sort((x,y)=>(sel.has(y)-sel.has(x))||(cnt.get(y)-cnt.get(x))||(gi(x)-gi(y))||coll.compare(gname(x),gname(y)));
     genPicker($('#fgen'),ord,g=>sel.has(g),g=>{if(sel.has(g))sel.delete(g);else sel.add(g)})}
-  $('#fclr').onclick=()=>{ui.min=0;ui.author='';ui.genres=[];ui.status='all';closeSheet();render(false)};
-  $('#fok').onclick=()=>{ui.min=m;ui.author=$('#fa').value;ui.genres=[...sel];ui.status=stt;closeSheet();render(false)};
+  $('#fclr').onclick=()=>{ui.min=0;ui.author='';ui.genres=[];ui.status=['all'];closeSheet();render(false)};
+  $('#fok').onclick=()=>{ui.min=m;ui.author=$('#fa').value;ui.genres=[...sel];ui.status=stt.size?[...stt]:['all'];closeSheet();render(false)};
 }
 /* ---- Sugerencia de autor (Open Library). Sin internet: no hace nada ---- */
 const OLC={};
@@ -1460,15 +1478,18 @@ function settingsForm(){
     <div class="seg" id="slang"><button type="button" data-l="es" aria-pressed="${CFG.lang==='es'}">Español</button><button type="button" data-l="en" aria-pressed="${CFG.lang==='en'}">English</button></div>
     <div class="sec">${t('list')}</div>
     <div class="group">
-      <div class="srow"><div class="stx"><div>${t('sortBy')}</div></div>
-        <select id="ssort" class="ssel"><option value="alpha">${t('sAlpha')}</option><option value="recent">${t('sRecent')}</option><option value="rating">${t('sRating')}</option><option value="type">${t('sType')}</option></select></div>
+      <div class="srow"><div class="stx"><div>${t('sortPendL')}</div></div>
+        <select id="ssortpend" class="ssel"><option value="alpha">${t('sAlpha')}</option><option value="rating">${t('sRating')}</option><option value="type">${t('sType')}</option></select></div>
+      <div class="srow"><div class="stx"><div>${t('sortDoneL')}</div></div>
+        <select id="ssortdone" class="ssel"><option value="dateDesc">${t('sDateDesc')}</option><option value="dateAsc">${t('sDateAsc')}</option><option value="rating">${t('sRating')}</option><option value="alpha">${t('sAlpha')}</option><option value="type">${t('sType')}</option></select></div>
       <label class="srow" for="sread"><div class="stx"><div>${t('readLast')}</div><small>${t('readLastD')}</small></div>${sw('sread',CFG.readLast)}</label>
-      <label class="srow" for="smagic"><div class="stx"><div>${t('magic')}</div><small>${t('magicD')}</small></div>${sw('smagic',CFG.magic)}</label>
-      <label class="srow" for="sstrike"><div class="stx"><div>${t('strike')}</div><small>${t('strikeD')}</small></div>${sw('sstrike',CFG.strike)}</label>
+      <label class="srow" for="sdate"><div class="stx"><div>${t('innerDate')}</div><small>${t('innerDateD')}</small></div>${sw('sdate',CFG.innerDate)}</label>
       <label class="srow" for="sgroup"><div class="stx"><div>${t('groupGen')}</div><small>${t('groupGenD')}</small></div>${sw('sgroup',CFG.groupGen)}</label>
       <label class="srow" for="sinner"><div class="stx"><div>${t('innerGen')}</div><small>${t('innerGenD')}</small></div>${sw('sinner',CFG.innerGen)}</label>
       <label class="srow" for="sasaga"><div class="stx"><div>${t('autoSaga')}</div><small>${t('autoSagaD')}</small></div>${sw('sasaga',CFG.autoSaga)}</label>
       <label class="srow" for="shalf"><div class="stx"><div>${t('half')}</div><small>${t('halfD')}</small></div>${sw('shalf',CFG.half)}</label>
+      <label class="srow" for="sstrike"><div class="stx"><div>${t('strike')}</div><small>${t('strikeD')}</small></div>${sw('sstrike',CFG.strike)}</label>
+      <label class="srow" for="smagic"><div class="stx"><div>${t('magic')}</div><small>${t('magicD')}</small></div>${sw('smagic',CFG.magic)}</label>
       <label class="srow" for="sopen"><div class="stx"><div>${t('autoOpen')}</div><small>${t('autoOpenD')}</small></div>${sw('sopen',CFG.autoOpen)}</label>
       <label class="srow" for="sexpr"><div class="stx"><div>${t('expandReading')}</div><small>${t('expandReadingD')}</small></div>${sw('sexpr',CFG.expandReading)}</label>
     </div>
@@ -1487,12 +1508,13 @@ function settingsForm(){
     <div class="sec">${t('about')}</div>
     <div class="group"><div class="srow"><div class="stx"><div>${t('app')} · ${t('version')} ${VERSION} <span style="color:var(--ink2)">(build ${BUILD})</span></div><small>${t('stats',S.books.length,S.sagas.length,S.universes.length)}<br>${t('storage')}</small></div></div></div>
     <div class="btns"><button type="button" class="btn main" id="sok">${t('done')}</button></div>`);
-  $('#ssort').value=CFG.sort;
+  $('#ssortpend').value=CFG.sortPend;$('#ssortdone').value=CFG.sortDone;
   const set=(k,v)=>{CFG[k]=v;saveCfg();render(false)};
   $('#slang').onclick=e=>{const x=e.target.closest('[data-l]');if(!x||x.dataset.l===CFG.lang)return;
     CFG.lang=x.dataset.l;applyCfg();const st=$('#sheet').scrollTop;settingsForm();$('#sheet').scrollTop=st};
-  $('#ssort').onchange=e=>set('sort',e.target.value);
-  [['sread','readLast'],['smagic','magic'],['sstrike','strike'],['sgroup','groupGen'],['sinner','innerGen'],['sasaga','autoSaga'],['shalf','half'],['sopen','autoOpen'],['sexpr','expandReading'],['snot','updNotify']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen'||k==='expandReading')ui.open={};set(k,v)}});
+  $('#ssortpend').onchange=e=>set('sortPend',e.target.value);
+  $('#ssortdone').onchange=e=>set('sortDone',e.target.value);
+  [['sread','readLast'],['sdate','innerDate'],['smagic','magic'],['sstrike','strike'],['sgroup','groupGen'],['sinner','innerGen'],['sasaga','autoSaga'],['shalf','half'],['sopen','autoOpen'],['sexpr','expandReading'],['snot','updNotify']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen'||k==='expandReading')ui.open={};set(k,v)}});
   updPaint();$('#supd').onclick=updClick;
   $('#sexp').onclick=exportBackup;
   $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
@@ -1767,7 +1789,7 @@ document.addEventListener('click',e=>{
   if(a==='toggle-open'){const card=x.parentElement;const op=!card.classList.contains('open');ui.open[id]=op;if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody');if(gb){gb.innerHTML=LAZY.get(id)()}LAZY.delete(id)}card.classList.toggle('open',op);return}
   if(a==='genre-tag'){const g=x.dataset.g;ui.genres=(ui.genres.length===1&&ui.genres[0]===g)?[]:[g];render(false);return}
   if(a==='tgdone'){HD=!HD;try{localStorage.setItem('por-leer-hd',HD?'1':'0')}catch(e){}render(false);const le=$('#list');if(le){le.classList.remove('swap');void le.offsetWidth;le.classList.add('swap')}return}
-  if(a==='status'){ui.status=x.dataset.k;render(false);return}
+  if(a==='status'){ui.status=[x.dataset.k];render(false);return}
   if(a==='filters')return filterForm();
   if(a==='new-book'){closeMenu();return bookForm(null)}
   if(a==='new-saga'){closeMenu();return sagaForm(null)}
