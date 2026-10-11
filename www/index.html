@@ -271,7 +271,8 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .sep{display:flex;align-items:center;gap:10px;margin:14px 2px 8px;font-size:12px;letter-spacing:.7px;text-transform:uppercase;font-weight:700;color:var(--plum2)}
 .sep::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
 .sep span{font-weight:600;color:var(--ink2);letter-spacing:0}
-.sep.s2{color:var(--ink2);margin-top:22px;padding-top:14px;border-top:2px dashed var(--line)}
+.sep.s1,.sep.s2{margin-top:22px;padding-top:14px;border-top:2px dashed var(--line)}
+.sep.s2{color:var(--ink2)}
 .sep.tg{width:100%;background:none;border:0;border-top:2px dashed var(--line);font:inherit;font-size:12px;letter-spacing:.7px;text-transform:uppercase;font-weight:700;cursor:pointer;text-align:left}.sep.tg .chv{transition:transform .2s;transform:rotate(90deg)}.sep.tg[aria-expanded=false] .chv{transform:none}
 .sep.s0{color:var(--plum)}
 .pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.6px;line-height:1.4}
@@ -417,7 +418,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.9.43',BUILD=61;
+const VERSION='0.9.44',BUILD=62;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
