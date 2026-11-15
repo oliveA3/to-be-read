@@ -243,10 +243,10 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .gchips{display:flex;gap:7px;flex-wrap:wrap}.gchips .chip{font-size:14px;padding:4px 12px}
 .gadd{display:flex;gap:8px;margin-top:10px}.gadd input{flex:1;min-width:0;padding:8px 12px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:15px;outline:0}
 .gadd input:focus{border-color:var(--plum2)}.gadd button{padding:0 14px;border-radius:10px;border:1.5px solid var(--plum2);color:var(--plum2);background:transparent;font-size:15px}
-.tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0 4px}
-.tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.tile b{display:block;font-family:var(--font-title);font-size:26px;line-height:1.1;color:var(--plum);font-weight:600}
-.tile span{font-size:11px;color:var(--ink2);letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0 4px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 3px;text-align:center;min-width:0}
+.tile b{display:block;font-family:var(--font-title);font-size:21px;line-height:1.1;color:var(--plum);font-weight:600}
+.tile span{display:block;font-size:9px;line-height:1.25;color:var(--ink2);letter-spacing:0;text-transform:uppercase;font-weight:600;overflow-wrap:anywhere}
 .bar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
 .bar .bn{flex:none;width:112px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar .bt2{flex:1;height:10px;border-radius:6px;background:var(--parch3);overflow:hidden}
@@ -262,6 +262,9 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .myear .mwrap{flex:1;min-width:0}
 .myear .months{margin-top:4px}
 .myrlabel{text-align:center;font-family:var(--font-title);font-weight:600;font-size:15px;color:var(--plum)}
+.myrhead{position:relative}
+.myrsum{position:absolute;right:0;top:0;text-align:right;font-size:10px;line-height:1.3;color:var(--ink2);pointer-events:none}
+.myrsum b{font-weight:700;color:var(--plum2)}
 .yarr{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--plum2);border:1px solid var(--line);background:#fff}
 .yarr:active{background:var(--parch3)}
 .yarr:disabled{opacity:.3;pointer-events:none}
@@ -418,7 +421,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.9.44',BUILD=62;
+const VERSION='0.10.0',BUILD=63;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -476,6 +479,13 @@ const I18N={
   noteBtn:'Nota',notePh:'Escribe una nota o comentario sobre el libro…',
   data:'Tus datos',export:'Exportar copia de seguridad',exportD:'Descarga un archivo .json con toda tu lista',importB:'Importar copia de seguridad',importD:'Reemplaza la lista actual por la del archivo',
   addJson:'Añadir libros desde un .json',addJsonD:'Suma universos, series y libros de un archivo a tu lista actual, sin borrar ni reemplazar nada',addedJson:n=>`Se ${n===1?'añadió 1 libro':'añadieron '+n+' libros'}`,
+  pagesL:'Páginas',pagesD:'De la edición impresa. Se deja vacío si no se conoce',
+  pgT:'Rellenar las páginas',pgAsk:n=>`${n===1?'Hay 1 libro':'Hay '+n+' libros'} sin número de páginas. ¿Quieres rellenarlo automáticamente con datos de Open Library (openlibrary.org)?`,
+  pgGo:'Rellenar',pgLater:'Ahora no',pgStop:'Detener',pgWork:(i,n)=>`Buscando… ${i} de ${n}`,
+  pgDone:n=>n?`Se rellenaron ${n} ${n===1?'libro':'libros'}`:'No encontré las páginas de ninguno',
+  pgRun:'Buscar páginas que faltan',pgRunD:'Consulta Open Library y rellena el número de páginas de los libros que no lo tengan',
+  pgNone:'Todos tus libros ya tienen las páginas',pgOffline:'Necesitas conexión a internet',
+  yrBooks:'libros',yrPages:'páginas',
   wipe:'Borrar todos los datos',wipeD:'Deja la lista vacía. No se puede deshacer',wipeSure:'Toca otra vez para borrar',wiped:'Lista borrada',
   exported:'Copia descargada',noExport:'No se pudo descargar la copia aquí',imported:'Copia importada',badBackup:'Ese archivo no es una copia válida',
   about:'Acerca de',version:'Versión',stats:(b,s,u)=>`${pl(b,'libro','libros')} · ${pl(s,'serie','series')} · ${pl(u,'universo','universos')}`,
@@ -522,6 +532,13 @@ const I18N={
   noteBtn:'Note',notePh:'Write a note or comment about this book…',
   data:'Your data',export:'Export backup',exportD:'Download a .json file with your whole list',importB:'Import backup',importD:'Replaces the current list with the file’s',
   addJson:'Add books from a .json',addJsonD:'Adds universes, series and books from a file to your current list, without deleting or replacing anything',addedJson:n=>`Added ${n} ${n===1?'book':'books'}`,
+  pagesL:'Pages',pagesD:'Of the printed edition. Left empty if unknown',
+  pgT:'Fill in page counts',pgAsk:n=>`${n===1?'1 book has':n+' books have'} no page count. Fill it in automatically with data from Open Library (openlibrary.org)?`,
+  pgGo:'Fill in',pgLater:'Not now',pgStop:'Stop',pgWork:(i,n)=>`Looking up… ${i} of ${n}`,
+  pgDone:n=>n?`Filled in ${n} ${n===1?'book':'books'}`:'I couldn’t find page counts for any of them',
+  pgRun:'Look up missing page counts',pgRunD:'Checks Open Library and fills in the page count of books that don’t have one',
+  pgNone:'All your books already have page counts',pgOffline:'You need an internet connection',
+  yrBooks:'books',yrPages:'pages',
   wipe:'Delete all data',wipeD:'Leaves the list empty. Can’t be undone',wipeSure:'Tap again to delete',wiped:'List deleted',
   exported:'Backup downloaded',noExport:'Couldn’t download the backup here',imported:'Backup imported',badBackup:'That file isn’t a valid backup',
   about:'About',version:'Version',stats:(b,s,u)=>`${pl(b,'book','books')} · ${pl(s,'series','series')} · ${pl(u,'universe','universes')}`,
@@ -583,6 +600,10 @@ function setStatus(b,st){const was=stOf(b);b.status=st;b.read=st==='read';b.read
 const YA_ALIASES=new Set(['young adult','youngadult','juvenile','juvenil']);
 function migrate(o){o.universes=Array.isArray(o.universes)?o.universes:[];o.sagas=Array.isArray(o.sagas)?o.sagas:[];o.books=Array.isArray(o.books)?o.books:[];
   o.books.forEach(b=>{if(!b.status)b.status=b.read?'read':'unread';b.read=b.status==='read';
+    /* páginas: campo nuevo. Los libros de versiones anteriores simplemente no lo traen y se quedan vacíos.
+       Si viene con basura (texto, 0, negativo) se borra para que cuente como "sin dato". */
+    if(b.pages!==undefined){const p=Math.round(Number(b.pages));if(p>0&&isFinite(p))b.pages=p;else delete b.pages}
+    if(b.pages)delete b.pagesNo;
     if(Array.isArray(b.genres)){
       b.genres=b.genres.filter(g=>g!=='litfic');
       /* géneros "young adult"/"juvenile" sueltos (de versiones viejas) -> clave canónica 'ya', sin duplicar */
@@ -655,6 +676,18 @@ const booksOf=id=>groups().bs.get(id)||[];
 const looseOf=id=>groups().lo.get(id)||[];
 const uniOfBook=b=>{const s=saga(b.sagaId);return uni(s?s.universeId:b.universeId)};
 const uniBooks=id=>S.sagas.filter(s=>s.universeId===id).flatMap(s=>booksOf(s.id)).concat(looseOf(id));
+/* Autores distintos que hay dentro de un universo (series y libros sueltos), separados por coma
+   y sin repetir. Se compara sin tildes ni mayúsculas, pero se guarda el nombre tal como se escribió. */
+function uniAuthorsAuto(id){
+  const seen=new Map(),add=a=>{a=(a||'').trim();if(!a||a===t('unknown'))return;const k=norm(a);if(!seen.has(k))seen.set(k,a)};
+  S.sagas.filter(s=>s.universeId===id).forEach(s=>add(s.author));
+  uniBooks(id).forEach(b=>add(b.author));
+  return [...seen.values()].join(', ');
+}
+/* Mantiene al día el autor de cada universo, salvo los que tú hayas escrito a mano (authorManual) */
+function syncUniAuthors(){
+  S.universes.forEach(u=>{if(u.authorManual)return;const a=uniAuthorsAuto(u.id);if(a&&a!==u.author)u.author=a});
+}
 function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
 function sagaAuto(s){return avg(booksOf(s.id).map(rat).filter(r=>r>0))}
 function sagaRating(s){return s.ratingOverride!=null?s.ratingOverride:sagaAuto(s)}
@@ -760,7 +793,7 @@ function sortItems(items){
 }
 let rtok=0;
 function render(persist=true){
-  ver++;LAZY.clear();document.body.classList.toggle('nostrike',!CFG.strike);document.body.classList.toggle('magic',!!CFG.magic);
+  ver++;LAZY.clear();syncUniAuthors();document.body.classList.toggle('nostrike',!CFG.strike);document.body.classList.toggle('magic',!!CFG.magic);
   const vis=S.books.filter(passes),f=filtering();
   const visSaga=new Map(),visLoose=new Map(),standalone=[];
   vis.forEach(b=>{
@@ -1030,6 +1063,7 @@ function bookForm(b,pre){
     <div class="f"><span class="lbl">${t('status')}</span><div class="seg four" id="bseg">
       ${['unread','reading','read','dropped'].map(k=>`<button type="button" data-s="${k}">${t('st_'+k)}</button>`).join('')}</div></div>
     <div class="f" id="breadatw" style="display:none"><label for="breadat">${t('readAtL')}</label><input id="breadat" type="date" value="${esc(dateInputVal(d.readAt||Date.now()))}"></div>
+    <div class="f"><label for="bpg">${t('pagesL')}</label><input id="bpg" type="number" min="1" step="1" inputmode="numeric" value="${d.pages||''}"><div class="hint">${t('pagesD')}</div></div>
     <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="bgen"></div>
 <div class="sugg" id="gsug"></div></div>
     <div class="two pair" id="bsw">
@@ -1193,11 +1227,20 @@ function bookForm(b,pre){
     }
     if(!$('#ba').value.trim()){const par=saga(sid)||uni(d.universeId);if(par&&par.author)d.author=par.author}
     const noteV=$('#bnote').value.trim();if(noteV)d.note=noteV;else delete d.note;
+    /* páginas: vacío = sin dato. Si lo escribes a mano se respeta y ya no se vuelve a buscar. */
+    const pgV=Math.round(Number($('#bpg').value));
+    if(pgV>0&&isFinite(pgV)){d.pages=pgV;delete d.pagesNo}else{delete d.pages}
     delete d.sagaName;delete d.fromFile;
     removed.forEach(r=>FS.del(r));cleanup();
     d.read=d.status==='read';d.readAt=d.status==='read'?dateFromInput($('#breadat').value):null;
-    if(b){const bk=book(b.id);Object.assign(bk,d);if(!noteV)delete bk.note;if(d.file!==origFile)BROKEN.delete(bk.id)}else{d.id=uid();S.books.push(d)}
+    /* Object.assign copia claves pero no borra las que ya no están, así que las opcionales
+       (nota, páginas) hay que quitarlas a mano del libro que ya existía */
+    if(b){const bk=book(b.id);Object.assign(bk,d);if(!noteV)delete bk.note;
+      if(!d.pages)delete bk.pages;if(!d.pagesNo)delete bk.pagesNo;
+      if(d.file!==origFile)BROKEN.delete(bk.id)}else{d.id=uid();S.books.push(d)}
     closeSheet();render();toast(b?t('saved'):t('bookAdded'));
+    /* libro nuevo sin páginas: se buscan en segundo plano, sin bloquear ni avisar */
+    if(!b&&!d.pages)fillPagesFor(d.id);
   };
 }
 /* ---- Estado del libro ---- */
@@ -1267,7 +1310,13 @@ function uniForm(u){
   if(u){$('#uaddbook').onclick=()=>bookForm(null,{universeId:u.id});$('#uaddsaga').onclick=()=>sagaForm(null,{universeId:u.id,author:u.author});}
   if(u)armDelete($('#udel'),()=>{const sids=new Set(S.sagas.filter(x=>x.universeId===u.id).map(x=>x.id));S.books.filter(b=>sids.has(b.sagaId)||b.universeId===u.id).forEach(b=>FS.del(b.file));S.books=S.books.filter(b=>!sids.has(b.sagaId)&&b.universeId!==u.id);S.sagas=S.sagas.filter(x=>!sids.has(x.id));S.universes=S.universes.filter(x=>x.id!==u.id);closeSheet();render();toast(t('uniDeleted'))},null,t('delAllSure'));
   $('#uok').onclick=()=>{const nm=$('#un').value.trim();if(!nm){toast(t('missName'));$('#un').focus();return}
-    d.name=nm;d.author=$('#ua').value.trim()||t('unknown');
+    d.name=nm;
+    /* Si lo que hay escrito coincide con los autores que se calculan solos, se deja en automático
+       y se seguirá actualizando. Si lo cambiaste, se marca como manual y ya no se sobrescribe.
+       Vaciar el campo lo devuelve a automático. */
+    const typed=$('#ua').value.trim(),auto=u?uniAuthorsAuto(u.id):'';
+    d.author=typed||auto||t('unknown');
+    d.authorManual=!!typed&&norm(typed)!==norm(auto);
     if(u){Object.assign(uni(u.id),d);closeSheet();render();toast(t('uniUpd'))}
     else{d.id=uid();S.universes.push(d);render(false);bookForm(null,{universeId:d.id,author:d.author})}
   };
@@ -1358,6 +1407,63 @@ async function lookupSeriesByTitle(title,author){
     if(!d&&!na)d=docs.find(x=>norm(x.title)===nt);
     return d?parseSeries(d.series):null;
   }catch(e){return null}finally{clearTimeout(to)}
+}
+/* ---------- páginas ---------- */
+/* Los .epub no traen el número de páginas impresas (no existe ese campo en el estándar), así que
+   se consulta Open Library. number_of_pages_median es la mediana entre todas las ediciones, que es
+   lo más cercano a "la edición impresa normal" y no depende de la edición concreta que tengas. */
+async function lookupPages(title,author){
+  if(navigator.onLine===false||!title)return null;
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
+  try{
+    const r=await fetch('https://openlibrary.org/search.json?limit=5&fields=title,author_name,number_of_pages_median&title='+encodeURIComponent(title),{signal:ctl.signal});
+    if(!r.ok)return null;
+    const j=await r.json(),docs=j.docs||[],nt=norm(title),na=norm(author||'');
+    const pg=x=>{const n=Math.round(Number(x&&x.number_of_pages_median));return n>0&&isFinite(n)?n:0};
+    /* primero el que coincide en título Y autor; si no, solo por título */
+    let d=docs.find(x=>norm(x.title)===nt&&pg(x)&&(!na||(x.author_name||[]).some(a=>norm(a)===na)));
+    if(!d)d=docs.find(x=>norm(x.title)===nt&&pg(x));
+    return d?pg(d):null;
+  }catch(e){return null}finally{clearTimeout(to)}
+}
+/* libros a los que les falta el dato y que todavía no se han intentado buscar (esto NO usa red) */
+const pagesMissing=()=>S.books.filter(b=>b.title&&!b.pages&&!b.pagesNo);
+/* busca las páginas de UN libro en segundo plano, sin bloquear nada (al guardar un libro nuevo) */
+async function fillPagesFor(id){
+  const b0=book(id);if(!b0||b0.pages||b0.pagesNo)return;
+  const n=await lookupPages(b0.title,b0.author);
+  const b=book(id);if(!b||b.pages)return;
+  if(n)b.pages=n;else b.pagesNo=true;
+  save();
+}
+/* Modal de relleno en lote.
+   El conteo de arriba es LOCAL (no gasta red): si da 0, la modal ni se crea, así que no puede
+   salir "por error" cuando ya están todos rellenados. La red solo se usa al pulsar Rellenar. */
+const I_PG='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>';
+function pagesForm(manual){
+  const miss=pagesMissing();
+  if(!miss.length){if(manual)toast(t('pgNone'));return}
+  if(navigator.onLine===false){if(manual)toast(t('pgOffline'));return}
+  openSheet(`${hero(medal(I_PG),t('pgT'),'')}
+    <p class="lead" id="pgtx">${t('pgAsk',miss.length)}</p>
+    <div class="btns"><button type="button" class="btn" id="pgno">${t('pgLater')}</button><button type="button" class="btn main" id="pgyes">${t('pgGo')}</button></div>`);
+  $('#pgno').onclick=()=>{if(!manual){CFG.pgSkip=true;saveCfg()}closeSheet()};
+  $('#pgyes').onclick=async()=>{
+    let stop=false,found=0;
+    const tx=$('#pgtx'),btns=$('#sheet').querySelector('.btns');
+    btns.innerHTML=`<button type="button" class="btn" id="pgstop">${t('pgStop')}</button>`;
+    $('#pgstop').onclick=()=>{stop=true};
+    for(let i=0;i<miss.length&&!stop;i++){
+      if(tx)tx.textContent=t('pgWork',i+1,miss.length);
+      const b=book(miss[i].id);if(!b||b.pages)continue;
+      const n=await lookupPages(b.title,b.author);
+      if(n){b.pages=n;found++}else b.pagesNo=true;
+      /* pequeña pausa para no castigar una API gratuita con 200 peticiones seguidas */
+      if(i<miss.length-1&&!stop)await new Promise(r=>setTimeout(r,120));
+    }
+    CFG.pgSkip=false;saveCfg();
+    save();closeSheet();render();toast(t('pgDone',found));
+  };
 }
 async function isbnLookup(isbn){
   if(navigator.onLine===false)return null;
@@ -1463,18 +1569,12 @@ function statsForm(){
   const I_ST='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>';
   const B=S.books,readB=B.filter(b=>stOf(b)==='read'),nReading=B.filter(b=>stOf(b)==='reading').length,nDropped=B.filter(b=>stOf(b)==='dropped').length,nUnread=B.filter(b=>stOf(b)==='unread').length;
   if(!B.length){openSheet(`${hero(medal(I_ST),t('statsT'),t('statsSub'))}<p class="lead">${t('stEmpty')}</p><div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);$('#stok').onclick=closeSheet;return}
-  const rated=B.map(rat).filter(r=>r>0),av=avg(rated);
-  const yr=new Date().getFullYear(),thisYear=readB.filter(b=>b.readAt&&new Date(b.readAt).getFullYear()===yr).length;
   /* la barra se escala por libros LEÍDOS (no por el total que tienes en la lista) */
   const bar=(name,tot,rd,max,styleVars)=>`<div class="bar" ${styleVars!=null?`style="${styleVars}"`:''}><span class="bn">${esc(name)}</span><span class="bt2"><i style="width:${Math.max(4,Math.round(rd/max*100))}%"><b style="width:100%"></b></i></span><span class="bv">${rd}/${tot}</span></div>`;
   /* géneros */
   const gm=new Map();B.forEach(b=>gsOf(b).forEach(g=>{const o=gm.get(g)||{t:0,r:0};o.t++;if(stOf(b)==='read')o.r++;gm.set(g,o)}));
   const gl=[...gm.entries()].sort((a,b)=>b[1].r-a[1].r||b[1].t-a[1].t||coll.compare(gname(a[0]),gname(b[0]))).slice(0,8);
   const gmax=gl.length?Math.max(1,...gl.map(x=>x[1].r)):1;
-  /* notas */
-  const dist=[5,4,3,2,1].map(n=>[n,B.filter(b=>rat(b)>0&&Math.round(rat(b))===n).length]);
-  const dmax=Math.max(1,...dist.map(x=>x[1]));
-  const rbar=(label,n)=>`<div class="bar"><span class="bn">${label}</span><span class="bt2"><i style="width:${n?Math.max(4,Math.round(n/dmax*100)):0}%"><b style="width:100%"></b></i></span><span class="bv">${n}</span></div>`;
   /* autores */
   const am=new Map();B.forEach(b=>{const k=b.author||t('unknown');const o=am.get(k)||{t:0,r:0};o.t++;if(stOf(b)==='read')o.r++;am.set(k,o)});
   const al=[...am.entries()].sort((a,b)=>b[1].r-a[1].r||b[1].t-a[1].t||coll.compare(a[0],b[0])).slice(0,5);
@@ -1490,32 +1590,33 @@ function statsForm(){
     readB.forEach(b=>{if(!b.readAt)return;const d=new Date(b.readAt);if(d.getFullYear()!==year)return;ms[d.getMonth()].n++});
     const mmax=Math.max(1,...ms.map(x=>x.n));
     return `<div class="months">${ms.map(x=>`<div class="${x.n?'':'z'}"><span>${x.n||''}</span><i style="height:${x.n?Math.max(8,Math.round(x.n/mmax*62)):3}px"></i><span>${esc(mn.format(new Date(year,x.m,1)))}</span></div>`).join('')}</div>`};
+  /* resumen del año: libros leídos y suma de páginas. Solo cuenta las páginas que están registradas;
+     si ningún libro leído ese año tiene el dato, la línea de páginas no se muestra. */
+  const yearSum=year=>{const bs=readB.filter(b=>b.readAt&&new Date(b.readAt).getFullYear()===year);
+    const pg=bs.reduce((s,b)=>s+(b.pages>0?b.pages:0),0);
+    return `<div>${t('yrBooks')}: <b>${bs.length}</b></div>`+(pg>0?`<div>${t('yrPages')}: <b>${pg.toLocaleString(CFG.lang)}</b></div>`:'')};
   const months=hasAnyDated?`<div class="myear">
       <button type="button" class="yarr" id="yprev" aria-label="${t('yearPrev')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
-      <div class="mwrap"><div class="myrlabel" id="myrlabel">${statsYear}</div><div id="mgrid">${monthsGrid(statsYear)}</div></div>
+      <div class="mwrap"><div class="myrhead"><div class="myrlabel" id="myrlabel">${statsYear}</div><div class="myrsum" id="myrsum">${yearSum(statsYear)}</div></div><div id="mgrid">${monthsGrid(statsYear)}</div></div>
       <button type="button" class="yarr" id="ynext" aria-label="${t('yearNext')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>`:`<p class="note">${t('stNoDates')}</p>`;
-  const unrated=B.filter(b=>fin(b)&&!(b.rating>0)).length;
   openSheet(`${hero(medal(I_ST),t('statsT'),t('statsSub'))}
     <div class="tiles">
       <div class="tile"><b>${readB.length}</b><span>${t('stRead')}</span></div>
-      <div class="tile"><b>${nReading}</b><span>${t('stReading')}</span></div>
       <div class="tile"><b>${nUnread}</b><span>${t('stPending')}</span></div>
+      <div class="tile"><b>${nReading}</b><span>${t('stReading')}</span></div>
       <div class="tile"><b>${nDropped}</b><span>${t('stDropped')}</span></div>
-      <div class="tile"><b>${av!=null?fmt(av):'–'}</b><span>${t('stAvg')}</span></div>
-      <div class="tile"><b>${thisYear}</b><span>${t('stYear')}</span></div>
     </div>
     <div class="sec">${t('stMonths')}</div>${months}
     <div class="sec">${t('stGenres')}</div>
     ${gl.length?gl.map(([g,o])=>bar(gname(g),o.t,o.r,gmax,gvars(g))).join(''):`<p class="note">${t('stNoGenres')}</p>`}
-    <div class="sec">${t('stRatings')}</div>
-    ${dist.map(([n,c])=>rbar('★'.repeat(n),c)).join('')}${unrated?rbar(t('stUnrated'),unrated):''}
     <div class="sec">${t('stAuthors')}</div>
     ${al.map(([a,o])=>bar(a,o.t,o.r,amax)).join('')}
     <div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);
   $('#stok').onclick=closeSheet;
   if(hasAnyDated){
     const paintYear=()=>{$('#myrlabel').textContent=statsYear;$('#mgrid').innerHTML=monthsGrid(statsYear);
+      $('#myrsum').innerHTML=yearSum(statsYear);
       $('#yprev').disabled=statsYear<=minYear;$('#ynext').disabled=statsYear>=maxYear};
     paintYear();
     $('#yprev').onclick=()=>{if(statsYear>minYear){statsYear--;paintYear()}};
@@ -1574,6 +1675,7 @@ function settingsForm(){
       <button type="button" class="srow" id="sexp"><div class="stx"><div>${t('export')}</div><small>${t('exportD')}</small></div><span class="sic">↑</span></button>
       <button type="button" class="srow" id="simp"><div class="stx"><div>${t('importB')}</div><small>${t('importD')}</small></div><span class="sic">↓</span></button>
       <button type="button" class="srow" id="sadd"><div class="stx"><div>${t('addJson')}</div><small>${t('addJsonD')}</small></div><span class="sic">+</span></button>
+      <button type="button" class="srow" id="spg"><div class="stx"><div>${t('pgRun')}</div><small>${t('pgRunD')}</small></div><span class="sic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span></button>
       <button type="button" class="srow danger" id="swipe"><div class="stx"><div class="wl">${t('wipe')}</div><small>${t('wipeD')}</small></div></button>
     </div>
     <div class="sec">${t('about')}</div>
@@ -1592,6 +1694,7 @@ function settingsForm(){
   $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{const j=JSON.parse(await f.text()),d=j.data||j;if(!Array.isArray(d.books)||!Array.isArray(d.sagas))throw 0;
       S=migrate({books:d.books,sagas:d.sagas,universes:d.universes});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeSheet();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
+  $('#spg').onclick=()=>pagesForm(true);
   $('#sadd').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{
       const j=JSON.parse(await f.text()),d=j.data||j;
@@ -2015,7 +2118,11 @@ if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if($('#scan').classList.co
   try{new IntersectionObserver(en=>{st.classList.toggle('on',!en[0].isIntersecting)},{threshold:0}).observe(se)}catch(e){}})();
 applyStatic();
 render(false);
-bootStore().then(()=>{setTimeout(slimCovers,4000);checkFileLinks()});
+bootStore().then(()=>{setTimeout(slimCovers,4000);checkFileLinks();
+  /* si ya dijiste "ahora no" no se vuelve a preguntar sola (queda la fila en Ajustes);
+     y si no falta ningún libro, pagesForm ni siquiera abre nada */
+  if(!CFG.pgSkip)setTimeout(()=>pagesForm(false),2500);
+});
 autoUpdateCheck();
 </script>
 </body>
