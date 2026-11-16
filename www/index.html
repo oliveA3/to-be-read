@@ -246,7 +246,7 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0 4px}
 .tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 3px;text-align:center;min-width:0}
 .tile b{display:block;font-family:var(--font-title);font-size:21px;line-height:1.1;color:var(--plum);font-weight:600}
-.tile span{display:block;font-size:9px;line-height:1.25;color:var(--ink2);letter-spacing:0;text-transform:uppercase;font-weight:600;overflow-wrap:anywhere}
+.tile span{display:block;font-size:9px;line-height:1.25;color:var(--ink2);letter-spacing:0;text-transform:uppercase;font-weight:600;white-space:nowrap;overflow:hidden}
 .bar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
 .bar .bn{flex:none;width:112px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar .bt2{flex:1;height:10px;border-radius:6px;background:var(--parch3);overflow:hidden}
@@ -260,10 +260,11 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .months div.z i{background:var(--parch3)}
 .myear{display:flex;align-items:center;gap:2px;margin-top:8px}
 .myear .mwrap{flex:1;min-width:0}
-.myear .months{margin-top:4px}
+.myear .months{margin-top:10px}
 .myrlabel{text-align:center;font-family:var(--font-title);font-weight:600;font-size:15px;color:var(--plum)}
-.myrhead{position:relative}
-.myrsum{position:absolute;right:0;top:0;text-align:right;font-size:10px;line-height:1.3;color:var(--ink2);pointer-events:none}
+/* la cabecera reserva la altura de las dos líneas del resumen, así no queda pegado a la gráfica */
+.myrhead{position:relative;min-height:32px;display:flex;align-items:center;justify-content:center}
+.myrsum{position:absolute;right:0;top:0;text-align:right;font-size:11px;line-height:1.35;color:var(--ink2);pointer-events:none}
 .myrsum b{font-weight:700;color:var(--plum2)}
 .yarr{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--plum2);border:1px solid var(--line);background:#fff}
 .yarr:active{background:var(--parch3)}
@@ -421,7 +422,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.10.0',BUILD=63;
+const VERSION='0.10.2',BUILD=65;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -1058,12 +1059,14 @@ function bookForm(b,pre){
     <div class="ffrow"><label class="fromfile" for="file"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 17v-6M9 14l3-3 3 3"/></svg></span><span><b>${t('fromFile')}</b><small>${t('fromFileD')}</small></span></label><button type="button" class="isbnb" id="bisbn" aria-label="${t('scanIsbn')}" title="${t('scanIsbn')}" ${navigator.onLine===false?'hidden':''}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 8v8M11 8v8M14 8v8M17 8v8"/></svg><span>ISBN</span></button></div>
     ${pre&&pre.fromFile?`<p class="lead">${t('detected')}</p>`:''}
     <div class="f" id="bfw" style="display:none"><span class="lbl">${t('fileL')}</span><div id="bfile"></div></div>
-    <div class="f"><label for="bt">${t('title')}</label><input id="bt" type="text" value="${esc(d.title)}"></div>
+    <div class="two pair">
+      <div class="f"><label for="bt">${t('title')}</label><input id="bt" type="text" value="${esc(d.title)}"></div>
+      <div class="f"><label for="bpg">${t('pagesL')}</label><input id="bpg" type="number" min="1" step="1" inputmode="numeric" value="${d.pages||''}" title="${t('pagesD')}"></div>
+    </div>
     <div class="f"><label for="ba">${t('author')}</label><input id="ba" type="text" value="${esc(d.author)}" autocomplete="off"><div class="sugg" id="bsug"></div></div>
     <div class="f"><span class="lbl">${t('status')}</span><div class="seg four" id="bseg">
       ${['unread','reading','read','dropped'].map(k=>`<button type="button" data-s="${k}">${t('st_'+k)}</button>`).join('')}</div></div>
     <div class="f" id="breadatw" style="display:none"><label for="breadat">${t('readAtL')}</label><input id="breadat" type="date" value="${esc(dateInputVal(d.readAt||Date.now()))}"></div>
-    <div class="f"><label for="bpg">${t('pagesL')}</label><input id="bpg" type="number" min="1" step="1" inputmode="numeric" value="${d.pages||''}"><div class="hint">${t('pagesD')}</div></div>
     <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="bgen"></div>
 <div class="sugg" id="gsug"></div></div>
     <div class="two pair" id="bsw">
@@ -1565,6 +1568,16 @@ async function openScanner(onIsbn){
 }
 
 /* ---- Estadísticas ---- */
+/* Las etiquetas de los cuadros no se parten nunca: si la más larga ("Abandonados") no cabe en el
+   ancho de la pantalla, se baja el tamaño de letra de las cuatro por igual hasta que quepa. */
+function fitTileLabels(){
+  const sps=[...document.querySelectorAll('.tiles .tile span')];
+  if(!sps.length)return;
+  let size=9;
+  const set=()=>sps.forEach(s=>s.style.fontSize=size+'px');
+  set();
+  while(size>6.5&&sps.some(s=>s.scrollWidth>s.clientWidth+.5)){size-=.5;set()}
+}
 function statsForm(){
   const I_ST='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>';
   const B=S.books,readB=B.filter(b=>stOf(b)==='read'),nReading=B.filter(b=>stOf(b)==='reading').length,nDropped=B.filter(b=>stOf(b)==='dropped').length,nUnread=B.filter(b=>stOf(b)==='unread').length;
@@ -1614,6 +1627,7 @@ function statsForm(){
     ${al.map(([a,o])=>bar(a,o.t,o.r,amax)).join('')}
     <div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);
   $('#stok').onclick=closeSheet;
+  fitTileLabels();
   if(hasAnyDated){
     const paintYear=()=>{$('#myrlabel').textContent=statsYear;$('#mgrid').innerHTML=monthsGrid(statsYear);
       $('#myrsum').innerHTML=yearSum(statsYear);
