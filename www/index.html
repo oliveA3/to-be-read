@@ -239,6 +239,14 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .gchips .chip{background:var(--tbg,hsl(var(--gh) 72% 94%));border-color:var(--tbd,hsl(var(--gh) 50% 80%));color:var(--tfg,hsl(var(--gh) 58% 28%))}
 .gchips .chip[aria-pressed="true"]{background:var(--tsolid,hsl(var(--gh) 55% 40%));border-color:var(--tsolid,hsl(var(--gh) 55% 32%));color:var(--tsolidfg,#fff)}
 .sugg{display:none;margin-top:8px;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink2)}.sugg.on{display:flex}
+/* crear un género propio: nombre + fila de tonos para elegir su color */
+.gadd{display:flex;gap:8px;margin-top:8px}
+.gadd input{flex:1;min-width:0}
+.gadd .btn{flex:none;padding-left:16px;padding-right:16px}
+.gpal{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.gpal[hidden]{display:none}
+.gpal button{width:26px;height:26px;border-radius:50%;border:2px solid transparent;background:hsl(var(--gh) 55% 45%);padding:0}
+.gpal button[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px #fff inset}
 .sugg button{padding:4px 12px;border:1px dashed var(--plum2);border-radius:999px;background:#f6effa;color:var(--plum);font-size:14px}.sugg button:active{background:var(--parch3)}
 .gchips{display:flex;gap:7px;flex-wrap:wrap}.gchips .chip{font-size:14px;padding:4px 12px}
 .gadd{display:flex;gap:8px;margin-top:10px}.gadd input{flex:1;min-width:0;padding:8px 12px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:15px;outline:0}
@@ -253,6 +261,8 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .bar .bt2 i{display:block;height:100%;border-radius:6px;background:var(--tbd,hsl(var(--gh,272) 55% 82%));overflow:hidden}
 .bar .bt2 i b{display:block;height:100%;background:var(--tsolid,hsl(var(--gh,272) 55% 40%))}
 .bar .bv{flex:none;width:44px;text-align:right;color:var(--ink2);font-size:13px}
+.bar .blong{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink2);font-size:13px}
+.bar .bn.wide{flex:1;width:auto;min-width:0}
 .note{color:var(--ink2);font-size:13.5px;margin:6px 0}
 .months{display:flex;align-items:flex-end;gap:5px;height:84px;margin-top:8px}
 .months div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--ink2);gap:3px}
@@ -422,7 +432,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.10.2',BUILD=65;
+const VERSION='0.12.0',BUILD=67;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -442,7 +452,7 @@ const initial=t=>esc((String(t||'').trim()[0]||'·').toUpperCase());
 /* ---------- ajustes ---------- */
 const DEF={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en',sortPend:'alpha',sortDone:'dateDesc',readLast:true,innerDate:false,groupSort:'alpha',autoOpen:false,expandReading:false,strike:true,magic:true,innerGen:false,updNotify:true,autoSaga:true};
 const LOWEND=(()=>{try{return (navigator.deviceMemory&&navigator.deviceMemory<=2)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2)}catch(e){return false}})();
-let CFG=(()=>{try{const sv=JSON.parse(localStorage.getItem(SKEY)||'{}');const c=Object.assign({},DEF,sv);if(sv.magic===undefined&&LOWEND)c.magic=false;
+let CFG=(()=>{try{const sv=JSON.parse(localStorage.getItem(SKEY)||'{}');const c=Object.assign({},DEF,sv);c.magic=true;
   /* migración: el viejo ajuste único "sort" se reparte en los dos nuevos si aún no se habían guardado */
   if(sv.sort!==undefined){if(sv.sortPend===undefined)c.sortPend=sv.sort==='recent'?'alpha':sv.sort;if(sv.sortDone===undefined)c.sortDone=sv.sort==='recent'?'dateDesc':sv.sort}
   return c}catch(e){return {...DEF}}})();
@@ -480,6 +490,9 @@ const I18N={
   noteBtn:'Nota',notePh:'Escribe una nota o comentario sobre el libro…',
   data:'Tus datos',export:'Exportar copia de seguridad',exportD:'Descarga un archivo .json con toda tu lista',importB:'Importar copia de seguridad',importD:'Reemplaza la lista actual por la del archivo',
   addJson:'Añadir libros desde un .json',addJsonD:'Suma universos, series y libros de un archivo a tu lista actual, sin borrar ni reemplazar nada',addedJson:n=>`Se ${n===1?'añadió 1 libro':'añadieron '+n+' libros'}`,
+  addedJsonSkip:(n,s)=>`${n===0?'No se añadió ninguno':n===1?'Se añadió 1 libro':'Se añadieron '+n+' libros'}; ${s===1?'1 repetido omitido':s+' repetidos omitidos'}`,
+  pagesMinL:'Páginas desde',pagesMaxL:'hasta',
+  stLength:'Longitud',stLongest:'El más largo',stShortest:'El más corto',stAvgPages:'Media de páginas',
   pagesL:'Páginas',pagesD:'De la edición impresa. Se deja vacío si no se conoce',
   pgT:'Rellenar las páginas',pgAsk:n=>`${n===1?'Hay 1 libro':'Hay '+n+' libros'} sin número de páginas. ¿Quieres rellenarlo automáticamente con datos de Open Library (openlibrary.org)?`,
   pgGo:'Rellenar',pgLater:'Ahora no',pgStop:'Detener',pgWork:(i,n)=>`Buscando… ${i} de ${n}`,
@@ -533,6 +546,9 @@ const I18N={
   noteBtn:'Note',notePh:'Write a note or comment about this book…',
   data:'Your data',export:'Export backup',exportD:'Download a .json file with your whole list',importB:'Import backup',importD:'Replaces the current list with the file’s',
   addJson:'Add books from a .json',addJsonD:'Adds universes, series and books from a file to your current list, without deleting or replacing anything',addedJson:n=>`Added ${n} ${n===1?'book':'books'}`,
+  addedJsonSkip:(n,s)=>`${n===0?'Nothing added':'Added '+n+' '+(n===1?'book':'books')}; ${s} duplicate${s===1?'':'s'} skipped`,
+  pagesMinL:'Pages from',pagesMaxL:'to',
+  stLength:'Length',stLongest:'Longest',stShortest:'Shortest',stAvgPages:'Average pages',
   pagesL:'Pages',pagesD:'Of the printed edition. Left empty if unknown',
   pgT:'Fill in page counts',pgAsk:n=>`${n===1?'1 book has':n+' books have'} no page count. Fill it in automatically with data from Open Library (openlibrary.org)?`,
   pgGo:'Fill in',pgLater:'Not now',pgStop:'Stop',pgWork:(i,n)=>`Looking up… ${i} of ${n}`,
@@ -564,7 +580,10 @@ function t(k,...a){const v=(I18N[CFG.lang]||I18N.es)[k];return typeof v==='funct
 const GENRES=['fantasy','scifi','romance','mystery','thriller','horror','historical','ya','classic','nonfic','bio','selfhelp','comic','poetry','adventure','dystopia','action','drama'];
 const gname=g=>{const v=(I18N[CFG.lang]||I18N.es)['g_'+g];return typeof v==='string'?v:g};
 const GHUE={fantasy:272,scifi:218,romance:335,mystery:48,thriller:176,horror:356,historical:34,ya:150,classic:85,dystopia:128,action:24,drama:195,nonfic:245,bio:110,selfhelp:310,comic:64,poetry:290,adventure:14};
-const ghue=g=>{if(GHUE[g]!=null)return GHUE[g];let h=0;for(const c of String(g))h=(h*31+c.charCodeAt(0))%360;return h};
+/* tonos que puedes elegir al crear un género propio (se guardan en S.gcolors y viajan en la copia de seguridad) */
+const GPICK=[356,24,34,48,64,110,128,150,176,195,218,245,272,290,310,335];
+const gcolorOf=g=>{try{return S&&S.gcolors&&S.gcolors[g]}catch(e){return undefined}};
+const ghue=g=>{const c=gcolorOf(g);if(c!=null)return c;if(GHUE[g]!=null)return GHUE[g];let h=0;for(const c2 of String(g))h=(h*31+c2.charCodeAt(0))%360;return h};
 /* colores propios por género (no solo un tono/hue: también varían saturación/luz, para poder tener blanco, negro, dorado, etc.) */
 const GCOLOR={
   action:{bg:'#fde2e1',fg:'#8f211d',bd:'#f2aba6',solid:'#c0291f'}, /* rojo */
@@ -599,12 +618,22 @@ const fin=b=>{const x=stOf(b);return x==='read'||x==='dropped'};
 const rat=b=>fin(b)?(b.rating||0):0;
 function setStatus(b,st){const was=stOf(b);b.status=st;b.read=st==='read';b.readAt=st==='read'?((was==='read'&&b.readAt)||Date.now()):null}
 const YA_ALIASES=new Set(['young adult','youngadult','juvenile','juvenil']);
+/* valida un ISBN-13 o ISBN-10 por su dígito de control; devuelve el ISBN limpio o null.
+   Va aquí arriba porque migrate() lo usa y migrate corre al cargar los datos. */
+const isbnOk=v=>{v=String(v).replace(/[\s-]/g,'');if(/^97[89]\d{10}$/.test(v)){let s2=0;for(let k=0;k<12;k++)s2+=(+v[k])*(k%2?3:1);return (10-s2%10)%10===+v[12]?v:null}
+  if(/^\d{9}[\dXx]$/.test(v)){let s2=0;for(let k=0;k<9;k++)s2+=(+v[k])*(10-k);s2+=/x/i.test(v[9])?10:+v[9];return s2%11===0?v.toUpperCase():null}return null};
 function migrate(o){o.universes=Array.isArray(o.universes)?o.universes:[];o.sagas=Array.isArray(o.sagas)?o.sagas:[];o.books=Array.isArray(o.books)?o.books:[];
+  /* colores de los géneros propios: solo se aceptan tonos 0-359 válidos */
+  {const src=(o.gcolors&&typeof o.gcolors==='object')?o.gcolors:{},out={};
+   Object.keys(src).forEach(k=>{const h=Math.round(Number(src[k]));if(h>=0&&h<360&&isFinite(h))out[k]=h});
+   o.gcolors=out}
   o.books.forEach(b=>{if(!b.status)b.status=b.read?'read':'unread';b.read=b.status==='read';
     /* páginas: campo nuevo. Los libros de versiones anteriores simplemente no lo traen y se quedan vacíos.
        Si viene con basura (texto, 0, negativo) se borra para que cuente como "sin dato". */
     if(b.pages!==undefined){const p=Math.round(Number(b.pages));if(p>0&&isFinite(p))b.pages=p;else delete b.pages}
     if(b.pages)delete b.pagesNo;
+    /* ISBN: se guarda sin guiones ni espacios; si no es un ISBN válido se descarta */
+    if(b.isbn!==undefined){const v=isbnOk(String(b.isbn));if(v)b.isbn=v;else delete b.isbn}
     if(Array.isArray(b.genres)){
       b.genres=b.genres.filter(g=>g!=='litfic');
       /* géneros "young adult"/"juvenile" sueltos (de versiones viejas) -> clave canónica 'ya', sin duplicar */
@@ -663,7 +692,7 @@ const libs={};function lib(src){return libs[src]||(libs[src]=new Promise((ok,ko)
 let S=load();
 let HD=false;try{HD=localStorage.getItem('por-leer-hd')==='1'}catch(e){}
 let HP=false;try{HP=localStorage.getItem('por-leer-hp')==='1'}catch(e){}
-const ui={q:'',status:['all'],min:0,author:'',genres:[],open:{},readFrom:null,readTo:null};
+const ui={q:'',status:['all'],min:0,author:'',genres:[],open:{},readFrom:null,readTo:null,pgMin:null,pgMax:null};
 const allSt=a=>a.length===1&&a[0]==='all';
 
 /* ---------- datos ---------- */
@@ -727,6 +756,12 @@ function passes(b){
   if(ui.min&&rat(b)<ui.min)return false;
   if(ui.author&&b.author!==ui.author)return false;
   if(ui.genres.length&&!gsOf(b).some(g=>ui.genres.includes(g)))return false;
+  /* filtrar por páginas deja fuera los libros que todavía no tienen el dato */
+  if(ui.pgMin!=null||ui.pgMax!=null){
+    if(!(b.pages>0))return false;
+    if(ui.pgMin!=null&&b.pages<ui.pgMin)return false;
+    if(ui.pgMax!=null&&b.pages>ui.pgMax)return false;
+  }
   if(ui.readFrom||ui.readTo){
     if(!b.readAt)return false;
     if(ui.readFrom&&b.readAt<ui.readFrom)return false;
@@ -739,7 +774,7 @@ function passes(b){
   }
   return true;
 }
-const filtering=()=>!!(ui.q||!allSt(ui.status)||ui.min||ui.author||ui.genres.length||ui.readFrom||ui.readTo);
+const filtering=()=>!!(ui.q||!allSt(ui.status)||ui.min||ui.author||ui.genres.length||ui.readFrom||ui.readTo||ui.pgMin!=null||ui.pgMax!=null);
 const isOpen=(id,hasReading)=>ui.q?true:(ui.open[id]!=null?ui.open[id]:(CFG.autoOpen||(!!hasReading&&CFG.expandReading)));
 
 /* ---------- render ---------- */
@@ -750,7 +785,7 @@ function covUrl(c){
   try{const i=c.indexOf(','),bin=atob(c.slice(i+1)),a=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)a[k]=bin.charCodeAt(k);
     u=URL.createObjectURL(new Blob([a],{type:c.slice(5,c.indexOf(';'))||'image/jpeg'}));COVC.set(c,u);return u}catch(e){return c}
 }
-function bookRow(b,inSaga,parentAuthor,inUni){
+function bookRow(b,inSaga,parentAuthor,inUni,showOrd){
   const cov=b.cover?`<img src="${covUrl(b.cover)}" alt="" decoding="async" loading="lazy">`:initial(b.title);
   const sx=stOf(b),rr=rat(b);
   const rt=rr>0?stars(rr)+`<div>${fmt(rr)}</div>`:(fin(b)?`<span class="add">${t('rate')}</span>`:'');
@@ -758,7 +793,7 @@ function bookRow(b,inSaga,parentAuthor,inUni){
   const gtags=((!inSaga&&!inUni)||CFG.innerGen)?(()=>{const g=gsAlpha(gsOf(b));return g.slice(0,3).map(tag).join('')+(g.length>3?`<span class="tag" style="--gh:270;opacity:.75" data-a="edit-book" data-id="${b.id}">+${g.length-3}</span>`:'')})():'';
   const rdate=(((!inSaga&&!inUni)||CFG.innerDate)&&b.readAt)?`<div class="rdate">${fmtDate(b.readAt)}</div>`:'';
   return `<div class="row ${sx} ${sx==='read'?'read':''} ${inUni?'urow':''}" ${dragAttr(b,inSaga,inUni)}>
-    ${inSaga?`<span class="ord">${b.sagaOrder!=null&&b.sagaOrder!==''?b.sagaOrder:'·'}</span>`:''}
+    ${inSaga&&showOrd?`<span class="ord">${b.sagaOrder!=null&&b.sagaOrder!==''?b.sagaOrder:''}</span>`:''}
     <button class="seal" data-a="status-book" data-id="${b.id}" aria-label="${t('statusT')}: ${t('st_'+sx)}"><svg class="ico ck"><use href="#${sx==='dropped'?'i-x':'i-check'}"/></svg></button>
     <span class="cov">${cov}</span>
     <span class="bt"><div class="btitle">${esc(b.title)}</div>${parentAuthor&&norm(parentAuthor)===norm(b.author)?'':`<div class="bauth">${esc(b.author)}</div>`}${(pill||gtags)?`<div class="bgen">${pill}${gtags}</div>`:''}</span>
@@ -771,7 +806,10 @@ function sagaCard(s,vis,uniAuthor,inUni){
   const all=booksOf(s.id),done=all.length>0&&all.every(fin);
   const r=sagaRating(s),readN=all.filter(b=>stOf(b)==='read').length;
   const list=vis.slice().sort(byOrder('sagaOrder',groupFallbackCmp(b=>b.title,b=>rat(b),b=>b.readAt)));
-  const open=isOpen(s.id,all.some(b=>stOf(b)==='reading')),body=()=>list.map(b=>bookRow(b,true,s.author)).join('')||`<div class="empty" style="padding:14px">${t('noBooks')}</div>`;
+  /* la columna del número solo existe si ALGÚN libro de la serie tiene orden; si ninguno lo tiene
+     se quita y todo se corre a la izquierda, y en series mixtas el hueco queda vacío para no desalinear */
+  const anyOrd=all.some(b=>b.sagaOrder!=null&&b.sagaOrder!=='');
+  const open=isOpen(s.id,all.some(b=>stOf(b)==='reading')),body=()=>list.map(b=>bookRow(b,true,s.author,false,anyOrd)).join('')||`<div class="empty" style="padding:14px">${t('noBooks')}</div>`;
   if(!open)LAZY.set(s.id,body);
   return `<section class="card ${done?'done':''} ${open?'open':''}" data-dk="s:${s.id}" data-grp="${inUni?'u:'+s.universeId:''}" data-drop="s:${s.id}">
     <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${s.id}">
@@ -794,7 +832,7 @@ function sortItems(items){
 }
 let rtok=0;
 function render(persist=true){
-  ver++;LAZY.clear();syncUniAuthors();document.body.classList.toggle('nostrike',!CFG.strike);document.body.classList.toggle('magic',!!CFG.magic);
+  ver++;LAZY.clear();syncUniAuthors();document.body.classList.toggle('nostrike',!CFG.strike);document.body.classList.add('magic');
   const vis=S.books.filter(passes),f=filtering();
   const visSaga=new Map(),visLoose=new Map(),standalone=[];
   vis.forEach(b=>{
@@ -862,7 +900,7 @@ function render(persist=true){
   }
   const nRead=S.books.filter(b=>stOf(b)==='read').length,nPend=S.books.filter(b=>{const x=stOf(b);return x==='unread'||x==='reading'}).length;
   $('#count').innerHTML=`<span>${nPend} ${t('pending')}</span><span>${nRead} ${t('readN')}</span>`;
-  const nf=(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+(ui.status.length>1?1:0)+(ui.readFrom||ui.readTo?1:0);
+  const nf=(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+(ui.status.length>1?1:0)+(ui.readFrom||ui.readTo?1:0)+(ui.pgMin!=null||ui.pgMax!=null?1:0);
   $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('st_dropped')]].map(([k,x])=>
     `<button class="chip" data-a="status" data-k="${k}" aria-pressed="${ui.status.length===1&&ui.status[0]===k}">${x}</button>`).join('')+
     `<button class="chip filt ${nf?'on':''}" data-a="filters" aria-label="${t('filters')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${nf?`<b>${nf}</b>`:''}</button>`;
@@ -1068,7 +1106,10 @@ function bookForm(b,pre){
       ${['unread','reading','read','dropped'].map(k=>`<button type="button" data-s="${k}">${t('st_'+k)}</button>`).join('')}</div></div>
     <div class="f" id="breadatw" style="display:none"><label for="breadat">${t('readAtL')}</label><input id="breadat" type="date" value="${esc(dateInputVal(d.readAt||Date.now()))}"></div>
     <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="bgen"></div>
-<div class="sugg" id="gsug"></div></div>
+<div class="sugg" id="gsug"></div>
+      <div class="gadd"><input id="bgi" type="text" autocomplete="off" placeholder="${t('genrePh')}"><button type="button" class="btn" id="bga">${t('genreAdd')}</button></div>
+      <div class="gpal" id="bgp" hidden>${GPICK.map((h,i)=>`<button type="button" data-h="${h}" style="--gh:${h}" aria-pressed="${i===0}"></button>`).join('')}</div>
+    </div>
     <div class="two pair" id="bsw">
       <div class="f"><label for="bs">${t('saga')}</label><select id="bs"><option value="">${t('noSaga')}</option>${opts}<option value="__new" ${d.sagaId==='__new'?'selected':''}>${t('newSagaOpt')}</option></select></div>
       <div class="f" id="bordw"><label for="bo">${t('sagaNo')}</label><input id="bo" type="number" step="any" inputmode="decimal" value="${d.sagaOrder!=null?d.sagaOrder:''}"></div>
@@ -1104,9 +1145,22 @@ function bookForm(b,pre){
   const gp=genPicker($('#bgen'),gorder,g=>d.genres.includes(g),g=>{const i=d.genres.indexOf(g);if(i>=0)d.genres.splice(i,1);else d.genres.push(g)});
   const addG=k=>{if(!d.genres.includes(k))d.genres.push(k);
     const ix=gorder.indexOf(k);if(ix<0)gorder.unshift(k);else if(ix>0){gorder.splice(ix,1);gorder.unshift(k)}gp.paint()};
+  /* ¿lo que está escrito es un género que ya existe, o uno nuevo? */
+  const matchGen=v=>GENRES.find(g=>norm(gname(g))===norm(v))||gorder.find(g=>norm(gname(g))===norm(v))||null;
+  const pal=$('#bgp');
+  let pickHue=GPICK[0];
+  const paintPal=()=>pal.querySelectorAll('[data-h]').forEach(b2=>b2.setAttribute('aria-pressed',String(+b2.dataset.h===pickHue)));
+  pal.onclick=e=>{const x=e.target.closest('[data-h]');if(!x)return;pickHue=+x.dataset.h;paintPal()};
+  /* la fila de colores solo se enseña cuando el nombre escrito no coincide con ningún género ya existente */
+  const syncPal=()=>{const v=$('#bgi').value.trim();pal.hidden=!v||!!matchGen(v)};
+  $('#bgi').addEventListener('input',syncPal);
   const addGen=()=>{const el=$('#bgi'),v=el.value.trim();if(!v)return;
-    const k=GENRES.find(g=>norm(gname(g))===norm(v))||gorder.find(g=>norm(gname(g))===norm(v))||v;
-    addG(k);el.value=''};
+    const k=matchGen(v)||v;
+    if(!GCOLOR[k]&&GHUE[k]==null&&!(S.gcolors&&S.gcolors[k]!=null)){if(!S.gcolors)S.gcolors={};S.gcolors[k]=pickHue}
+    addG(k);el.value='';syncPal()};
+  $('#bga').onclick=addGen;
+  $('#bgi').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addGen()}});
+  syncPal();
   /* géneros sugeridos (solo con internet) */
   let gq=0;
   const gsug=$('#gsug'),showGen=list=>{const l=(list||[]).filter(g=>!d.genres.includes(g));
@@ -1122,6 +1176,9 @@ function bookForm(b,pre){
     if(navigator.onLine===false){toast(t('needNet'));return}
     openScanner(async isbn=>{
       toast(t('isbnLook'));
+      /* el ISBN se guarda aunque la búsqueda falle: sirve para encontrar las páginas
+         por lotes y para reconocer el mismo libro al importar desde otro dispositivo */
+      d.isbn=String(isbn).replace(/[\s-]/g,'').toUpperCase();
       const r=await isbnLookup(isbn);
       if(!$('#bt'))return;
       if(!r){toast(t('isbnNone'));return}
@@ -1337,6 +1394,7 @@ function filterForm(){
     <div class="f"><span class="lbl">${t('minRating')}</span><div class="box"><div class="rate" id="frate"></div></div></div>
     <div class="f"><label for="fa">${t('author')}</label><select id="fa"><option value="">${t('all')}</option>${authors.map(a=>`<option ${ui.author===a?'selected':''} value="${esc(a)}">${esc(a)}</option>`).join('')}</select></div>
     <div class="f"><span class="lbl">${t('readBetweenL')}</span><div style="display:flex;gap:10px"><label style="flex:1;display:block"><small>${t('readFromL')}</small><input id="frfrom" type="date" value="${ui.readFrom?esc(dateInputVal(ui.readFrom)):''}" style="width:100%"></label><label style="flex:1;display:block"><small>${t('readToL')}</small><input id="frto" type="date" value="${ui.readTo?esc(dateInputVal(ui.readTo)):''}" style="width:100%"></label></div></div>
+    <div class="f"><span class="lbl">${t('pagesL')}</span><div style="display:flex;gap:10px"><label style="flex:1;display:block"><small>${t('pagesMinL')}</small><input id="fpgmin" type="number" min="1" step="1" inputmode="numeric" value="${ui.pgMin!=null?ui.pgMin:''}" style="width:100%"></label><label style="flex:1;display:block"><small>${t('pagesMaxL')}</small><input id="fpgmax" type="number" min="1" step="1" inputmode="numeric" value="${ui.pgMax!=null?ui.pgMax:''}" style="width:100%"></label></div></div>
     <div class="btns"><button type="button" class="btn" id="fclr">${t('clear')}</button><button type="button" class="btn main" id="fok">${t('apply')}</button></div>`);
   rateWidget('frate',m,v=>m=v);
   $('#fst').onclick=e=>{const x=e.target.closest('[data-k]');if(!x)return;const k=x.dataset.k;
@@ -1344,9 +1402,13 @@ function filterForm(){
     $('#fst').querySelectorAll('[data-k]').forEach(c=>c.setAttribute('aria-pressed',String(stPressed(c.dataset.k))))};
   if($('#fgen')){const cnt=new Map();S.books.forEach(b2=>gsOf(b2).forEach(g=>cnt.set(g,(cnt.get(g)||0)+1)));const gi=g=>{const i=GENRES.indexOf(g);return i<0?99:i};const ord=gs.slice().sort((x,y)=>(sel.has(y)-sel.has(x))||(cnt.get(y)-cnt.get(x))||(gi(x)-gi(y))||coll.compare(gname(x),gname(y)));
     genPicker($('#fgen'),ord,g=>sel.has(g),g=>{if(sel.has(g))sel.delete(g);else sel.add(g)})}
-  $('#fclr').onclick=()=>{ui.min=0;ui.author='';ui.genres=[];ui.status=['all'];ui.readFrom=null;ui.readTo=null;closeSheet();render(false)};
+  $('#fclr').onclick=()=>{ui.min=0;ui.author='';ui.genres=[];ui.status=['all'];ui.readFrom=null;ui.readTo=null;ui.pgMin=null;ui.pgMax=null;closeSheet();render(false)};
   $('#fok').onclick=()=>{ui.min=m;ui.author=$('#fa').value;ui.genres=[...sel];ui.status=stt.size?[...stt]:['all'];
     ui.readFrom=$('#frfrom').value?dateFromInput($('#frfrom').value):null;ui.readTo=$('#frto').value?dateFromInput($('#frto').value):null;
+    const pn=x=>{const v=Math.round(Number(x));return v>0&&isFinite(v)?v:null};
+    let a=pn($('#fpgmin').value),z=pn($('#fpgmax').value);
+    if(a!=null&&z!=null&&a>z){const w=a;a=z;z=w} /* si los pones al revés se corrigen solos */
+    ui.pgMin=a;ui.pgMax=z;
     closeSheet();render(false)};
 }
 /* ---- Sugerencia de autor (Open Library). Sin internet: no hace nada ---- */
@@ -1429,12 +1491,28 @@ async function lookupPages(title,author){
     return d?pg(d):null;
   }catch(e){return null}finally{clearTimeout(to)}
 }
+/* Varios ISBN en una sola petición: Open Library acepta una lista de bibkeys y devuelve
+   las páginas de cada edición. Devuelve un Map isbn -> páginas (solo los que trajeron dato). */
+async function lookupPagesByIsbns(isbns){
+  const list=[...new Set((isbns||[]).filter(Boolean))];
+  if(!list.length||navigator.onLine===false)return new Map();
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),15000);
+  try{
+    const r=await fetch('https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys='+list.map(x=>'ISBN:'+encodeURIComponent(x)).join(','),{signal:ctl.signal});
+    if(!r.ok)return new Map();
+    const j=await r.json(),out=new Map();
+    list.forEach(x=>{const e=j['ISBN:'+x];const n=Math.round(Number(e&&e.number_of_pages));if(n>0&&isFinite(n))out.set(x,n)});
+    return out;
+  }catch(e){return new Map()}finally{clearTimeout(to)}
+}
 /* libros a los que les falta el dato y que todavía no se han intentado buscar (esto NO usa red) */
 const pagesMissing=()=>S.books.filter(b=>b.title&&!b.pages&&!b.pagesNo);
 /* busca las páginas de UN libro en segundo plano, sin bloquear nada (al guardar un libro nuevo) */
 async function fillPagesFor(id){
   const b0=book(id);if(!b0||b0.pages||b0.pagesNo)return;
-  const n=await lookupPages(b0.title,b0.author);
+  /* si el libro trae ISBN se pregunta por él, que es más fiable que buscar por título */
+  const n=b0.isbn?((await lookupPagesByIsbns([b0.isbn])).get(b0.isbn)||await lookupPages(b0.title,b0.author))
+                 :await lookupPages(b0.title,b0.author);
   const b=book(id);if(!b||b.pages)return;
   if(n)b.pages=n;else b.pagesNo=true;
   save();
@@ -1456,30 +1534,56 @@ function pagesForm(manual){
     const tx=$('#pgtx'),btns=$('#sheet').querySelector('.btns');
     btns.innerHTML=`<button type="button" class="btn" id="pgstop">${t('pgStop')}</button>`;
     $('#pgstop').onclick=()=>{stop=true};
-    for(let i=0;i<miss.length&&!stop;i++){
-      if(tx)tx.textContent=t('pgWork',i+1,miss.length);
-      const b=book(miss[i].id);if(!b||b.pages)continue;
+    /* Los que tienen ISBN se resuelven en bloques de 50 con UNA sola petición cada bloque,
+       que es muchísimo más barato que preguntar por título libro a libro. */
+    const conIsbn=miss.filter(b=>b.isbn),sinIsbn=miss.filter(b=>!b.isbn);
+    let done=0;
+    for(let i=0;i<conIsbn.length&&!stop;i+=50){
+      const lote=conIsbn.slice(i,i+50);
+      if(tx)tx.textContent=t('pgWork',done+1,miss.length);
+      const mapa=await lookupPagesByIsbns(lote.map(b=>b.isbn));
+      lote.forEach(x=>{const b=book(x.id);if(!b||b.pages)return;
+        const n=mapa&&mapa.get(b.isbn);if(n){b.pages=n;found++}else b.pagesNo=true});
+      done+=lote.length;
+      if(i+50<conIsbn.length&&!stop)await new Promise(r=>setTimeout(r,120));
+    }
+    /* los que no tienen ISBN siguen buscándose por título, uno a uno */
+    for(let i=0;i<sinIsbn.length&&!stop;i++){
+      if(tx)tx.textContent=t('pgWork',done+1,miss.length);
+      const b=book(sinIsbn[i].id);done++;if(!b||b.pages)continue;
       const n=await lookupPages(b.title,b.author);
       if(n){b.pages=n;found++}else b.pagesNo=true;
-      /* pequeña pausa para no castigar una API gratuita con 200 peticiones seguidas */
-      if(i<miss.length-1&&!stop)await new Promise(r=>setTimeout(r,120));
+      /* pequeña pausa para no castigar una API gratuita con cientos de peticiones seguidas */
+      if(i<sinIsbn.length-1&&!stop)await new Promise(r=>setTimeout(r,120));
     }
     CFG.pgSkip=false;saveCfg();
     save();closeSheet();render();toast(t('pgDone',found));
   };
 }
+/* Un ISBN identifica una EDICIÓN concreta, y el título de la edición está en el idioma de esa edición
+   (el ISBN de un libro en español trae el título en español). La "obra", en cambio, suele estar en inglés.
+   Por eso se pregunta primero por la edición y la obra se usa solo de respaldo y para la serie/temas. */
 async function isbnLookup(isbn){
   if(navigator.onLine===false)return null;
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
+  const get=async u=>{try{const r=await fetch(u,{signal:ctl.signal});return r.ok?await r.json():null}catch(e){return null}};
   try{
-    let r=await fetch('https://openlibrary.org/search.json?limit=1&fields=title,author_name,subject,cover_i,series&q=isbn:'+encodeURIComponent(isbn),{signal:ctl.signal});
-    const j=r.ok?await r.json():{},d=(j.docs||[])[0];
-    if(d&&d.title){const sg=parseSeries(d.series);
-      return {title:d.title,author:(d.author_name||[])[0]||'',subjects:d.subject||[],cover:d.cover_i?'https://covers.openlibrary.org/b/id/'+d.cover_i+'-M.jpg':'',sagaName:sg&&sg.name,sagaOrder:sg&&sg.order!=null?sg.order:null}}
-    r=await fetch('https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:'+encodeURIComponent(isbn),{signal:ctl.signal});
-    const k=r.ok?await r.json():{},e=k['ISBN:'+isbn];
-    if(e&&e.title)return {title:e.title,author:((e.authors||[])[0]||{}).name||'',subjects:e.subjects||[],cover:(e.cover&&(e.cover.medium||e.cover.small))||''};
-    return null;
+    const [k,j]=await Promise.all([
+      get('https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:'+encodeURIComponent(isbn)),
+      get('https://openlibrary.org/search.json?limit=1&fields=title,author_name,subject,cover_i,series&q=isbn:'+encodeURIComponent(isbn))
+    ]);
+    const e=k&&k['ISBN:'+isbn],d=j&&(j.docs||[])[0];
+    if(!e&&!d)return null;
+    const sg=d?parseSeries(d.series):null;
+    return {
+      /* el título de la edición manda; si no viene, se cae al de la obra */
+      title:(e&&e.title)||(d&&d.title)||'',
+      author:(e&&((e.authors||[])[0]||{}).name)||(d&&(d.author_name||[])[0])||'',
+      /* los temas se juntan: alimentan genresFromSubjects, que devuelve claves ya traducibles */
+      subjects:[].concat((e&&e.subjects)||[],(d&&d.subject)||[]),
+      cover:(e&&e.cover&&(e.cover.medium||e.cover.small))||(d&&d.cover_i?'https://covers.openlibrary.org/b/id/'+d.cover_i+'-M.jpg':''),
+      sagaName:sg&&sg.name,sagaOrder:sg&&sg.order!=null?sg.order:null
+    };
   }catch(e){return null}finally{clearTimeout(to)}
 }
 /* ---- Lector de código de barras EAN-13 (ISBN) sin librerías ---- */
@@ -1530,8 +1634,6 @@ function eanFromImage(ctx,W,H){
   }
   return null;
 }
-const isbnOk=v=>{v=String(v).replace(/[\s-]/g,'');if(/^97[89]\d{10}$/.test(v)){let s2=0;for(let k=0;k<12;k++)s2+=(+v[k])*(k%2?3:1);return (10-s2%10)%10===+v[12]?v:null}
-  if(/^\d{9}[\dXx]$/.test(v)){let s2=0;for(let k=0;k<9;k++)s2+=(+v[k])*(10-k);s2+=/x/i.test(v[9])?10:+v[9];return s2%11===0?v.toUpperCase():null}return null};
 let scanState=null;
 function closeScanner(){const sc=$('#scan');if(scanState){scanState.stop=true;clearTimeout(scanState.t);try{scanState.stream&&scanState.stream.getTracks().forEach(x=>x.stop())}catch(e){}}scanState=null;sc.classList.remove('on');const v=$('#scv');try{v.pause();v.srcObject=null}catch(e){}}
 async function openScanner(onIsbn){
@@ -1603,6 +1705,24 @@ function statsForm(){
     readB.forEach(b=>{if(!b.readAt)return;const d=new Date(b.readAt);if(d.getFullYear()!==year)return;ms[d.getMonth()].n++});
     const mmax=Math.max(1,...ms.map(x=>x.n));
     return `<div class="months">${ms.map(x=>`<div class="${x.n?'':'z'}"><span>${x.n||''}</span><i style="height:${x.n?Math.max(8,Math.round(x.n/mmax*62)):3}px"></i><span>${esc(mn.format(new Date(year,x.m,1)))}</span></div>`).join('')}</div>`};
+  /* longitud: solo sobre los libros LEÍDOS que tengan las páginas registradas.
+     Si ninguno las tiene, la sección entera no se muestra. */
+  const conPg=readB.filter(b=>b.pages>0);
+  const lenRows=(()=>{
+    if(!conPg.length)return '';
+    const orden=conPg.slice().sort((a,b)=>a.pages-b.pages);
+    const corto=orden[0],largo=orden[orden.length-1];
+    const media=Math.round(conPg.reduce((s,b)=>s+b.pages,0)/conPg.length);
+    /* las filas con título de libro reparten el ancho; la de la media no lleva título,
+       así que su etiqueta ocupa todo el hueco y no se corta */
+    const fila=(lbl,val,sub)=>`<div class="bar">${sub
+      ?`<span class="bn">${esc(lbl)}</span><span class="blong">${esc(sub)}</span>`
+      :`<span class="bn wide">${esc(lbl)}</span>`}<span class="bv">${val.toLocaleString(CFG.lang)}</span></div>`;
+    return `<div class="sec">${t('stLength')}</div>`
+      +fila(t('stLongest'),largo.pages,largo.title)
+      +(orden.length>1?fila(t('stShortest'),corto.pages,corto.title):'')
+      +fila(t('stAvgPages'),media,'');
+  })();
   /* resumen del año: libros leídos y suma de páginas. Solo cuenta las páginas que están registradas;
      si ningún libro leído ese año tiene el dato, la línea de páginas no se muestra. */
   const yearSum=year=>{const bs=readB.filter(b=>b.readAt&&new Date(b.readAt).getFullYear()===year);
@@ -1625,6 +1745,7 @@ function statsForm(){
     ${gl.length?gl.map(([g,o])=>bar(gname(g),o.t,o.r,gmax,gvars(g))).join(''):`<p class="note">${t('stNoGenres')}</p>`}
     <div class="sec">${t('stAuthors')}</div>
     ${al.map(([a,o])=>bar(a,o.t,o.r,amax)).join('')}
+    ${lenRows}
     <div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);
   $('#stok').onclick=closeSheet;
   fitTileLabels();
@@ -1674,7 +1795,6 @@ function settingsForm(){
       <label class="srow" for="sinner"><div class="stx"><div>${t('innerGen')}</div><small>${t('innerGenD')}</small></div>${sw('sinner',CFG.innerGen)}</label>
       <label class="srow" for="sasaga"><div class="stx"><div>${t('autoSaga')}</div><small>${t('autoSagaD')}</small></div>${sw('sasaga',CFG.autoSaga)}</label>
       <label class="srow" for="sstrike"><div class="stx"><div>${t('strike')}</div><small>${t('strikeD')}</small></div>${sw('sstrike',CFG.strike)}</label>
-      <label class="srow" for="smagic"><div class="stx"><div>${t('magic')}</div><small>${t('magicD')}</small></div>${sw('smagic',CFG.magic)}</label>
       <label class="srow" for="sopen"><div class="stx"><div>${t('autoOpen')}</div><small>${t('autoOpenD')}</small></div>${sw('sopen',CFG.autoOpen)}</label>
       <label class="srow" for="sexpr"><div class="stx"><div>${t('expandReading')}</div><small>${t('expandReadingD')}</small></div>${sw('sexpr',CFG.expandReading)}</label>
     </div>
@@ -1702,26 +1822,51 @@ function settingsForm(){
   $('#ssortpend').onchange=e=>set('sortPend',e.target.value);
   $('#ssortdone').onchange=e=>set('sortDone',e.target.value);
   $('#sgsort').onchange=e=>set('groupSort',e.target.value);
-  [['sread','readLast'],['sdate','innerDate'],['smagic','magic'],['sstrike','strike'],['sinner','innerGen'],['sasaga','autoSaga'],['sopen','autoOpen'],['sexpr','expandReading'],['snot','updNotify']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen'||k==='expandReading')ui.open={};set(k,v)}});
+  [['sread','readLast'],['sdate','innerDate'],['sstrike','strike'],['sinner','innerGen'],['sasaga','autoSaga'],['sopen','autoOpen'],['sexpr','expandReading'],['snot','updNotify']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen'||k==='expandReading')ui.open={};set(k,v)}});
   updPaint();$('#supd').onclick=updClick;
   $('#sexp').onclick=exportBackup;
   $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{const j=JSON.parse(await f.text()),d=j.data||j;if(!Array.isArray(d.books)||!Array.isArray(d.sagas))throw 0;
-      S=migrate({books:d.books,sagas:d.sagas,universes:d.universes});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeSheet();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
+      S=migrate({books:d.books,sagas:d.sagas,universes:d.universes,gcolors:d.gcolors});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeSheet();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
   $('#spg').onclick=()=>pagesForm(true);
   $('#sadd').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{
       const j=JSON.parse(await f.text()),d=j.data||j;
       if(!Array.isArray(d.books))throw 0;
       const sagasIn=Array.isArray(d.sagas)?d.sagas:[],unisIn=Array.isArray(d.universes)?d.universes:[];
-      /* nuevos ids para no chocar con los que ya tienes, remapeando las referencias saga/universo */
-      const uMap=new Map(),sMap=new Map();
-      const newUnis=unisIn.map(u=>{const nid=uid();uMap.set(u.id,nid);return {...u,id:nid}});
-      const newSagas=sagasIn.map(s=>{const nid=uid();sMap.set(s.id,nid);return {...s,id:nid,universeId:s.universeId&&uMap.has(s.universeId)?uMap.get(s.universeId):''}});
-      const newBooksRaw=d.books.map(b=>({...b,id:uid(),sagaId:b.sagaId&&sMap.has(b.sagaId)?sMap.get(b.sagaId):'',universeId:b.universeId&&uMap.has(b.universeId)?uMap.get(b.universeId):''}));
-      const mig=migrate({books:newBooksRaw,sagas:[],universes:[]});
-      S.universes=S.universes.concat(newUnis);S.sagas=S.sagas.concat(newSagas);S.books=S.books.concat(mig.books);
-      ui.open={};render();closeSheet();toast(t('addedJson',mig.books.length));
+      /* Para no duplicar nada: un universo o serie que ya tengas (mismo nombre y autor) se reutiliza
+         en vez de crearse otra vez, y un libro que ya tengas (mismo ISBN, o mismo título y autor)
+         se salta. Así importar el mismo archivo dos veces no te llena la lista de repetidos. */
+      const kNom=(n,a)=>norm(n||'')+'|'+norm(a||'');
+      const kLib=b=>b.isbn?('i:'+b.isbn):('t:'+norm(b.title||'')+'|'+norm(b.author||''));
+      const uYa=new Map(S.universes.map(u=>[kNom(u.name,u.author),u.id]));
+      const sYa=new Map(S.sagas.map(s=>[kNom(s.name,s.author),s.id]));
+      const bYa=new Set(S.books.map(kLib));
+      const uMap=new Map(),sMap=new Map(),newUnis=[],newSagas=[];
+      unisIn.forEach(u=>{const k=kNom(u.name,u.author);
+        if(uYa.has(k)){uMap.set(u.id,uYa.get(k));return}
+        const nid=uid();uMap.set(u.id,nid);uYa.set(k,nid);newUnis.push({...u,id:nid})});
+      sagasIn.forEach(s=>{const k=kNom(s.name,s.author);
+        if(sYa.has(k)){sMap.set(s.id,sYa.get(k));return}
+        const nid=uid();sMap.set(s.id,nid);sYa.set(k,nid);
+        newSagas.push({...s,id:nid,universeId:s.universeId&&uMap.has(s.universeId)?uMap.get(s.universeId):''})});
+      let saltados=0;
+      const newBooksRaw=[];
+      d.books.forEach(b=>{const k=kLib(b);
+        if(bYa.has(k)){saltados++;return}
+        bYa.add(k);
+        newBooksRaw.push({...b,id:uid(),sagaId:b.sagaId&&sMap.has(b.sagaId)?sMap.get(b.sagaId):'',universeId:b.universeId&&uMap.has(b.universeId)?uMap.get(b.universeId):''})});
+      const mig=migrate({books:newBooksRaw,sagas:[],universes:[],gcolors:d.gcolors});
+      /* los colores de géneros propios del archivo se suman sin pisar los que ya tengas */
+      if(!S.gcolors)S.gcolors={};
+      Object.keys(mig.gcolors).forEach(k=>{if(S.gcolors[k]==null)S.gcolors[k]=mig.gcolors[k]});
+      /* una serie o universo que llegó pero cuyos libros se saltaron todos no aporta nada */
+      const usadaS=new Set(mig.books.map(b=>b.sagaId).filter(Boolean));
+      const usadaU=new Set(mig.books.map(b=>b.universeId).filter(Boolean).concat(newSagas.filter(s=>usadaS.has(s.id)).map(s=>s.universeId).filter(Boolean)));
+      S.universes=S.universes.concat(newUnis.filter(u=>usadaU.has(u.id)));
+      S.sagas=S.sagas.concat(newSagas.filter(s=>usadaS.has(s.id)));
+      S.books=S.books.concat(mig.books);
+      ui.open={};render();closeSheet();toast(saltados?t('addedJsonSkip',mig.books.length,saltados):t('addedJson',mig.books.length));
     }catch(err){toast(t('badBackup'))}};fi.click()};
   armDelete($('#swipe'),()=>{S.books.forEach(b=>FS.del(b.file));S={books:[],sagas:[],universes:[]};ui.open={};render();closeSheet();toast(t('wiped'))},null,t('wipeSure'));
   $('#sshare').onclick=()=>{cfgSnap=null;shareForm()};
