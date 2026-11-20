@@ -1,0 +1,234 @@
+/* Lector integrado de "To be read".
+   Vista de lectura limpia (papel y texto), con la tipografía y los colores de la app. */
+.lx{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:contain;
+  background:var(--lx-bg);color:var(--lx-fg);
+  font-family:Georgia,'Times New Roman',serif;
+  transform:translate3d(0,100%,0);visibility:hidden;will-change:transform;backface-visibility:hidden;
+  transition:transform .24s cubic-bezier(.4,0,.2,1),visibility 0s .24s}
+.lx.on{transform:translate3d(0,0,0);visibility:visible;transition:transform .24s cubic-bezier(.4,0,.2,1)}
+html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:none}
+.lx{--lx-ui:var(--font-body,'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif);--lx-ti:var(--font-title,'Fraunces',Georgia,serif)}
+.lx[data-theme=light]{--lx-bg:#f8f3f8;--lx-fg:#2a1d33;--lx-soft:#6b587a;--lx-line:#cbb8d5;--lx-bar:#ece3ef;--lx-sel:#e3d6e9;--lx-ac:#5b2a7a;--lx-on:#f8f0fb}
+.lx[data-theme=sepia]{--lx-bg:#f3e9d6;--lx-fg:#3b3222;--lx-soft:#7a6b53;--lx-line:#ddcfb4;--lx-bar:#eadcbf;--lx-sel:#e3d3ad;--lx-ac:#7a4a2a;--lx-on:#fbf3e4}
+.lx[data-theme=dark]{--lx-bg:#1d1626;--lx-fg:#e8deef;--lx-soft:#a994b8;--lx-line:#3a2d47;--lx-bar:#251c30;--lx-sel:#3a2c4a;--lx-ac:#c9a6e3;--lx-on:#1d1626}
+.lx[data-theme=amoled]{--lx-bg:#000;--lx-fg:#d6cbe0;--lx-soft:#8f7fa0;--lx-line:#2a2033;--lx-bar:#000;--lx-sel:#2a2038;--lx-ac:#c9a6e3;--lx-on:#000}
+
+/* barras */
+.lx-bar{flex:none;display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;
+  background:var(--lx-bar);border-bottom:1px solid var(--lx-line);position:relative;z-index:3}
+.lx-bar .lx-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;color:var(--lx-soft);
+  font-family:var(--lx-ui)}
+.lx-ico{flex:none;width:38px;height:38px;border-radius:50%;border:0;background:transparent;color:var(--lx-fg);
+  display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.lx-ico:active{background:var(--lx-sel)}
+.lx-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:5px 14px calc(5px + min(env(safe-area-inset-bottom,0px),24px));
+  background:var(--lx-bar);border-top:1px solid var(--lx-line);
+  font-size:11.5px;color:var(--lx-soft);font-family:var(--lx-ui)}
+
+.lx-foot{position:relative}
+.lx-trk{position:absolute;left:14px;right:14px;top:-1px;height:0;pointer-events:none}
+.lx-trk b{position:absolute;top:-3px;left:0;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
+  background:var(--lx-fg);opacity:.75;transition:left .25s ease}
+
+/* zona de texto: columnas del ancho de la pantalla, se avanza moviendo el carro */
+.lx-wrap{flex:1;position:relative;overflow:hidden;contain:strict;touch-action:pan-x}
+.lx-move{position:absolute;inset:0;backface-visibility:hidden}
+.lx-col{height:100%;box-sizing:border-box;padding:2px var(--lx-pad,22px) 0;
+  column-fill:auto;column-gap:var(--lx-gap,44px);
+  font-size:var(--lx-fs,18px);line-height:var(--lx-lh,1.55);
+  text-align:justify;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+.lx-col p{margin:0 0 .85em}
+.lx-col h1,.lx-col h2,.lx-col h3,.lx-col h4{font-size:1.18em;line-height:1.25;margin:1.1em 0 .6em;break-after:avoid}
+.lx-col img,.lx-col svg{max-width:100%;height:auto;display:block;margin:.6em auto}
+.lx-col blockquote{margin:.8em 1.2em;color:var(--lx-soft)}
+.lx-col hr{border:0;border-top:1px solid var(--lx-line);margin:1.2em 0}
+.lx-col a{color:inherit;text-decoration:none}
+.lx-col table{max-width:100%;display:block;overflow-x:auto}
+.lx-anim-slide .lx-move{transition:transform .22s cubic-bezier(.4,0,.2,1);will-change:transform}
+.lx-anim-fade .lx-move{transition:opacity .16s linear}
+.lx-anim-fade .lx-move.lx-out{opacity:0}
+@media (prefers-reduced-motion:reduce){.lx-anim-slide .lx-move,.lx-anim-fade .lx-move{transition:none}}
+
+/* zonas de toque para pasar página */
+.lx-tap{position:absolute;top:0;bottom:0;width:32%;z-index:2;pointer-events:none}
+.lx-tap.l{left:0}.lx-tap.r{right:0}
+
+/* capa de brillo (atenúa sin tocar el brillo del sistema) */
+.lx-dim{position:absolute;inset:0;z-index:4;pointer-events:none;background:#000;opacity:0}
+
+/* paneles (índice, buscador, ajustes) */
+.lx-panel{position:absolute;inset:0;z-index:5;background:var(--lx-bg);display:flex;flex-direction:column;
+  transform:translate3d(0,14px,0);opacity:0;visibility:hidden;transition:opacity .16s ease,transform .16s ease,visibility 0s .16s}
+.lx-panel.on{transform:none;opacity:1;visibility:visible;transition:opacity .16s ease,transform .16s ease}
+.lx-phead{flex:none;display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;border-bottom:1px solid var(--lx-line)}
+.lx-phead b{flex:1;min-width:0;font-size:15px;font-family:var(--lx-ui)}
+.lx-plist{flex:1;overflow:auto;overscroll-behavior:contain;padding:4px 0 18px;
+  font-family:var(--lx-ui)}
+.lx-item{display:block;width:100%;text-align:left;background:none;border:0;color:var(--lx-fg);
+  padding:11px 16px;font-size:15px;line-height:1.35;border-bottom:1px solid var(--lx-line);cursor:pointer}
+.lx-item:active{background:var(--lx-sel)}
+.lx-item.cur{color:var(--lx-fg);font-weight:700;background:var(--lx-sel)}
+.lx-item small{display:block;color:var(--lx-soft);font-size:12.5px;margin-top:3px}
+.lx-item mark{background:var(--lx-sel);color:inherit;border-radius:3px;padding:0 2px}
+
+/* buscador */
+.lx-sbox{flex:none;display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--lx-line)}
+.lx-sbox input{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--lx-line);border-radius:10px;
+  background:var(--lx-bg);color:var(--lx-fg);font:inherit;font-size:15px;
+  font-family:var(--lx-ui)}
+.lx-note{padding:14px 16px;color:var(--lx-soft);font-size:14px;
+  font-family:var(--lx-ui)}
+
+/* ajustes de lectura */
+.lx-set{padding:12px 16px 20px;font-family:var(--lx-ui);overflow:auto}
+.lx-row{margin:14px 0}
+.lx-row>span{display:block;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--lx-soft);margin-bottom:7px;font-weight:600}
+.lx-seg{display:flex;gap:6px;flex-wrap:wrap}
+.lx-seg button{flex:1;min-width:66px;padding:9px 6px;border:1px solid var(--lx-line);border-radius:10px;
+  background:transparent;color:var(--lx-fg);font:inherit;font-size:14px;cursor:pointer}
+.lx-seg button[aria-pressed=true]{background:var(--lx-sel);border-color:var(--lx-soft);font-weight:700}
+.lx-th{display:flex;gap:8px}
+.lx-th button{flex:1;height:40px;border-radius:10px;border:2px solid var(--lx-line);cursor:pointer;font-size:12px}
+.lx-th button[aria-pressed=true]{border-color:var(--lx-fg)}
+.lx-range{display:flex;align-items:center;gap:12px}
+.lx-range input{flex:1;min-width:0}
+.lx-range b{flex:none;width:44px;text-align:right;font-size:13px;color:var(--lx-soft);font-weight:600}
+
+.lx-load{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;
+  background:var(--lx-bg);color:var(--lx-soft);font-size:15px;
+  font-family:var(--lx-ui);text-align:center;padding:24px}
+.lx-load[hidden]{display:none}
+
+/* ---- barra superior con más botones ---- */
+.lx-bar .lx-ico{width:36px;height:40px}
+.lx-ico.on{color:#c0392b}
+.lx-ico.on svg{fill:currentColor}
+
+/* ---- marcador (cinta) ---- */
+.lx-rib{position:absolute;top:0;right:20px;width:14px;height:28px;z-index:3;background:#c0392b;pointer-events:none;
+  clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%)}
+.lx-rib[hidden]{display:none}
+
+/* ---- subrayados ---- */
+.lx-hl{color:inherit;border-radius:2px;padding:0}
+.lx-hl[data-c=y]{background:rgba(255,205,0,.42)}
+.lx-hl[data-c=g]{background:rgba(70,190,110,.38)}
+.lx-hl[data-c=b]{background:rgba(70,150,255,.34)}
+.lx-hl[data-c=p]{background:rgba(255,100,160,.34)}
+.lx-hl[data-n]{box-shadow:0 2px 0 var(--lx-soft)}
+.lx-spk{background:var(--lx-sel);border-radius:4px}
+
+/* ---- barra flotante (subrayar / voz) ---- */
+.lx-dock{position:absolute;left:10px;right:10px;bottom:calc(36px + min(env(safe-area-inset-bottom,0px),24px));z-index:7;
+  display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;padding:8px;border-radius:14px;
+  background:var(--lx-bar);border:1px solid var(--lx-line);box-shadow:0 6px 22px rgba(0,0,0,.22);
+  font-family:var(--lx-ui);font-size:13.5px;color:var(--lx-fg);
+  opacity:0;transform:translate3d(0,10px,0);visibility:hidden;transition:opacity .15s,transform .15s,visibility 0s .15s}
+.lx-dock.on{opacity:1;transform:none;visibility:visible;transition:opacity .15s,transform .15s}
+.lx-dlbl{flex:1 0 100%;text-align:center;color:var(--lx-soft);font-size:12px}
+.lx-dbtn{min-height:34px;padding:0 12px;border:1px solid var(--lx-line);border-radius:10px;background:transparent;color:var(--lx-fg);font:inherit;cursor:pointer}
+.lx-dbtn:active{background:var(--lx-sel)}
+.lx-dbtn.ico{width:42px;padding:0;display:flex;align-items:center;justify-content:center}
+.lx-dbtn.pri{background:var(--lx-fg);color:var(--lx-bg);border-color:var(--lx-fg)}
+.lx-dx{padding:0 8px}
+.lx-cols{display:flex;gap:8px;padding-right:4px}
+.lx-cdot{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.lx-cdot.y{background:#f2c200}.lx-cdot.g{background:#3fb76a}.lx-cdot.b{background:#3d8bf5}.lx-cdot.p{background:#f0508f}
+.lx-cdot.on{border-color:var(--lx-fg)}
+
+/* ---- notas ---- */
+.lx-nbox{padding:14px 16px;display:flex;flex-direction:column;gap:12px;font-family:var(--lx-ui)}
+.lx-nbox textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--lx-line);border-radius:10px;
+  background:var(--lx-bg);color:var(--lx-fg);font:inherit;font-size:16px;resize:none}
+.lx-nbtns{display:flex;gap:8px;justify-content:flex-end}
+
+/* ---- pestañas del panel de capítulos ---- */
+.lx-tabs{flex:none;display:flex;border-bottom:1px solid var(--lx-line);font-family:var(--lx-ui)}
+.lx-tabs button{flex:1;padding:11px 4px;background:none;border:0;border-bottom:2px solid transparent;color:var(--lx-soft);font:inherit;font-size:14px;cursor:pointer}
+.lx-tabs button[aria-pressed=true]{color:var(--lx-fg);border-bottom-color:var(--lx-fg);font-weight:700}
+.lx-tabs small{font-size:11px;opacity:.7}
+.lx-irow{display:flex;align-items:stretch;border-bottom:1px solid var(--lx-line)}
+.lx-irow .lx-item{border-bottom:0;flex:1;min-width:0}
+.lx-rm{flex:none;width:44px;background:none;border:0;color:var(--lx-soft);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lx-item em{display:block;font-style:normal;color:var(--lx-soft);font-size:14px;margin-top:4px}
+.lx-q{display:inline;padding:1px 3px;border-radius:3px}
+.lx-q.y{background:rgba(255,205,0,.42)}.lx-q.g{background:rgba(70,190,110,.38)}.lx-q.b{background:rgba(70,150,255,.34)}.lx-q.p{background:rgba(255,100,160,.34)}
+
+/* ---- menú "más" ---- */
+.lx-menu{position:absolute;top:calc(50px + env(safe-area-inset-top,0px));right:8px;z-index:8;min-width:230px;padding:6px;border-radius:12px;
+  background:var(--lx-bar);border:1px solid var(--lx-line);box-shadow:0 8px 26px rgba(0,0,0,.25);
+  font-family:var(--lx-ui);
+  opacity:0;transform:translate3d(0,-6px,0);visibility:hidden;transition:opacity .14s,transform .14s,visibility 0s .14s}
+.lx-menu.on{opacity:1;transform:none;visibility:visible;transition:opacity .14s,transform .14s}
+.lx-menu button{display:block;width:100%;text-align:left;padding:12px 12px;border:0;background:none;color:var(--lx-fg);font:inherit;font-size:15px;border-radius:8px;cursor:pointer}
+.lx-menu button:active{background:var(--lx-sel)}
+
+/* ---- botón ES/EN ---- */
+.lx-lang{position:absolute;right:14px;bottom:calc(44px + min(env(safe-area-inset-bottom,0px),24px));z-index:6;min-width:44px;height:36px;padding:0 10px;
+  border-radius:18px;border:1px solid var(--lx-line);background:var(--lx-bar);color:var(--lx-fg);font:700 13px var(--lx-ui);
+  letter-spacing:.5px;box-shadow:0 3px 12px rgba(0,0,0,.2);cursor:pointer;opacity:.92}
+.lx-lang[hidden]{display:none}
+
+/* ---- modo desplazar ---- */
+.lx-wrap.lx-scrollmode{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;contain:layout paint;touch-action:pan-y}
+.lx-scrollmode .lx-move{position:relative;inset:auto;transform:none!important;transition:none!important;will-change:auto}
+.lx-scrollmode .lx-col{height:auto;width:auto!important;column-width:auto!important;columns:auto;padding-bottom:12px}
+.lx-chnav{display:none}
+.lx-scrollmode .lx-chnav{display:flex;gap:10px;padding:8px var(--lx-pad,22px) 40px}
+.lx-chnav button{flex:1;padding:12px;border:1px solid var(--lx-line);border-radius:12px;background:transparent;color:var(--lx-fg);font:inherit;font-size:14px;cursor:pointer;
+  font-family:var(--lx-ui)}
+.lx-chnav button[hidden]{display:none}
+
+/* ---- animación "pasar hoja" ---- */
+/* hoja que se dobla: arriba la copia de la página que sale (lx-cv) y el
+   reverso del papel (lx-cf), los dos recortados por la línea del doblez */
+/* hoja que se dobla: lx-cv es la parte que todavía no se ha doblado y lx-cf el
+   reverso del papel (la misma página reflejada, tenue), los dos recortados por
+   la línea del doblez. Las copias se preparan una vez por capítulo. */
+.lx-cv,.lx-cf{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;contain:strict}
+.lx-cv{background:var(--lx-bg);clip-path:polygon(0 0,0 0,0 0)}
+.lx-cv[hidden],.lx-cf[hidden]{display:none}
+.lx-cv.lx-run,.lx-cf.lx-run .lx-cfi{will-change:clip-path}
+.lx-cf{filter:drop-shadow(-4px 3px 7px rgba(40,15,60,.34))}
+.lx-cfi{position:absolute;inset:0;transform-origin:0 0;background:var(--lx-bg);clip-path:polygon(0 0,0 0,0 0)}
+.lx-cfi>div{opacity:.18;filter:grayscale(1)}
+/* sombra junto al doblez y brillo del papel, en la dirección del pliegue */
+.lx-cfi::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(var(--lx-fold,90deg),rgba(0,0,0,.22),rgba(0,0,0,.07) 18px,rgba(255,255,255,.10) 70px,rgba(0,0,0,0) 150px)}
+
+/* ---- mismo estilo que el resto de la app: lila, Fraunces en títulos, botones tipo "chip" ---- */
+.lx-bar,.lx-foot,.lx-phead,.lx-dock,.lx-menu,.lx-tabs,.lx-set,.lx-nbox{font-family:var(--lx-ui)}
+.lx-phead b,.lx-bar .lx-t{font-family:var(--lx-ti);font-weight:600;color:var(--lx-ac)}
+.lx-phead b{font-size:19px}
+.lx-bar .lx-t{font-size:15px}
+.lx-ico{color:var(--lx-ac)}
+.lx-ico:active{background:var(--lx-sel)}
+.lx-ico.on{color:var(--lx-ac)}
+.lx-trk b{background:var(--lx-ac);opacity:1}
+.lx-rib{background:var(--lx-ac)}
+.lx-item.cur{background:var(--lx-sel);font-weight:600}
+.lx-item.cur::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lx-ac);margin-right:8px;vertical-align:middle}
+.lx-item mark{background:var(--lx-sel);color:var(--lx-ac);font-weight:600}
+.lx-sbox input,.lx-nbox textarea{border-radius:12px;border:1.5px solid var(--lx-line);background:var(--lx-bg)}
+.lx-sbox input:focus,.lx-nbox textarea:focus{outline:0;border-color:var(--lx-ac)}
+.lx-row>span{color:var(--lx-soft);letter-spacing:.3px}
+.lx-range input{accent-color:var(--lx-ac)}
+.lx-th button{border-radius:12px}
+.lx-th button[aria-pressed=true]{border-color:var(--lx-ac)}
+/* selector con el mismo aspecto que .seg de la app */
+.lx-seg{display:flex;flex-wrap:nowrap;gap:4px;padding:4px;border-radius:12px;background:var(--lx-sel)}
+.lx-seg button{flex:1;min-width:0;padding:9px 4px;border:0;border-radius:9px;background:transparent;color:var(--lx-soft);font-size:14px;white-space:nowrap;transition:background .15s,color .15s}
+.lx-seg button[aria-pressed=true]{background:var(--lx-bg);color:var(--lx-ac);font-weight:600;box-shadow:0 1px 4px rgba(60,25,85,.22)}
+/* pestañas */
+.lx-tabs button[aria-pressed=true]{color:var(--lx-ac);border-bottom-color:var(--lx-ac)}
+/* botones tipo chip */
+.lx-dbtn{border-radius:999px;border:1px solid var(--lx-line);color:var(--lx-soft);padding:0 14px}
+.lx-dbtn.pri{background:var(--lx-ac);border-color:var(--lx-ac);color:var(--lx-on)}
+.lx-dock,.lx-menu{border-radius:16px;box-shadow:0 8px 26px rgba(60,25,85,.28)}
+.lx-cdot.on{border-color:var(--lx-ac);box-shadow:0 0 0 2px var(--lx-bg) inset}
+.lx-lang{background:var(--lx-ac);border-color:var(--lx-ac);color:var(--lx-on)}
+.lx-chnav button{border-radius:999px;color:var(--lx-ac);border-color:var(--lx-line)}
+.lx-load{font-family:var(--lx-ui)}
+/* los avisos de la app salían por debajo del lector */
+.toast{z-index:90!important}

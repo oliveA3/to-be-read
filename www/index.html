@@ -78,11 +78,18 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .gside{display:flex;flex-direction:column;align-items:flex-end;gap:1px;font-size:13px;color:var(--ink2)}
 .chev{transition:transform .2s;color:var(--lilac);flex:none}
 .open>.ghead .chev{transform:rotate(90deg)}
+.openb.brk{color:#b3443f;border-color:#d9a7a3}
 .pen{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--plum2);border:1px solid var(--line);background:rgba(255,255,255,.5)}
 .pen:active{background:var(--parch3)}
-.gbody{display:none;border-top:1px dashed var(--line);padding:2px 0 6px}
-.open>.gbody{display:block}
-.card.uni>.gbody{padding-top:10px}
+/* Desplegar/cerrar un grupo: se anima grid-template-rows de 0fr a 1fr, que el navegador
+   interpola solo, sin tener que medir alturas en JS ni fijar un max-height inventado.
+   El borde y el relleno van en .gbin para que al estar cerrado no quede ninguna franja. */
+.gbody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s cubic-bezier(.4,0,.2,1)}
+.gbody>.gbin{overflow:hidden;min-height:0}
+.open>.gbody{grid-template-rows:1fr}
+.open>.gbody>.gbin{border-top:1px dashed var(--line);padding:2px 0 6px}
+.card.uni>.gbody>.gbin{padding-top:10px}
+@media (prefers-reduced-motion:reduce){.gbody{transition:none}}
 
 .row{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 14px;position:relative}
 .row+.row{border-top:1px dotted var(--line)}
@@ -139,6 +146,24 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .menu .ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;flex:none}
 
 /* Hoja inferior */
+/* Vista a pantalla completa (Ajustes, Estadísticas): entra desde abajo y ocupa todo.
+   No tiene arrastre para cerrar; se sale con la flecha, con Escape o con el botón atrás. */
+.view{position:fixed;inset:0;z-index:25;background:linear-gradient(170deg,#f8f1fd 0%,#efe2fa 55%,#e7d7f6 100%);overflow:auto;overscroll-behavior:contain;
+  padding:0 18px calc(18px + min(env(safe-area-inset-bottom,0px),24px));
+  transform:translate3d(0,100%,0);visibility:hidden;will-change:transform;backface-visibility:hidden;
+  transition:transform .24s cubic-bezier(.4,0,.2,1),visibility 0s .24s}
+.view.on{transform:translate3d(0,0,0);visibility:visible;transition:transform .24s cubic-bezier(.4,0,.2,1)}
+.view .vhero{position:sticky;top:0;z-index:2;margin:0 -18px 6px;padding:calc(10px + env(safe-area-inset-top,0px)) 18px 16px;color:#fbf4fe;overflow:hidden;
+  background:radial-gradient(circle at 85% -20%,rgba(255,255,255,.28),transparent 45%),linear-gradient(135deg,var(--plum2),var(--plum) 70%,#43195d)}
+.view .vhrow{display:flex;align-items:center;gap:12px;min-width:0}
+.vback{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fbf4fe;display:flex;align-items:center;justify-content:center;padding:0}
+.vback:active{background:rgba(255,255,255,.26)}
+.view .vhero h2{font-family:var(--font-title);font-weight:600;font-size:22px;margin:0;line-height:1.1}
+.view .vhero .hs{opacity:.85;font-size:14px;margin-top:2px;line-height:1.25;overflow-wrap:anywhere}
+.view .vhero .medal{width:44px;height:44px;border-radius:14px}
+.view .vhero{padding-bottom:12px}
+.view .f{margin:10px 0}.view .btns{margin-top:14px}.view .box{padding:8px 12px}
+@media (prefers-reduced-motion:reduce){.view{transition:visibility 0s .01s}.view.on{transition:none}}
 .back{position:fixed;inset:0;background:rgba(35,15,50,.5);z-index:30;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility 0s .22s}
 .back.on{opacity:1;visibility:visible;transition:opacity .22s ease}
 .sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:92%;overflow:auto;z-index:31;
@@ -365,7 +390,7 @@ body.magic::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:no
 body.magic .card,body.magic .list>.row{background:rgba(250,245,252,.74);border-color:rgba(255,255,255,.55);box-shadow:0 1px 3px rgba(70,30,110,.18)}
 body.magic .card.uni{background:rgba(236,224,244,.66);border-color:rgba(255,255,255,.5)}
 body.magic .gbody .row.urow{background:rgba(250,245,252,.6);border-color:rgba(255,255,255,.5)}
-body.magic .gbody{border-top-color:rgba(255,255,255,.55)}
+body.magic .open>.gbody>.gbin{border-top-color:rgba(255,255,255,.55)}
 body.magic .stick{background:rgba(240,228,248,.95)}
 body.magic .search{background:rgba(255,255,255,.72);border-color:rgba(255,255,255,.6)}
 body.magic .chip:not([aria-pressed="true"]):not(.on){background:rgba(255,255,255,.4);border-color:rgba(255,255,255,.6)}
@@ -419,6 +444,7 @@ body.magic .empty{background:rgba(250,245,252,.7);border-radius:12px;color:var(-
 <input type="file" id="file" class="vh">
 <input type="file" id="covfile" accept="image/*" class="vh">
 <input type="file" id="jsonfile" accept=".json,application/json" class="vh">
+<div class="view" id="view" role="dialog" aria-modal="true"></div>
 <div class="back" id="back"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
 <div class="toast" id="toast"></div>
@@ -432,7 +458,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.12.0',BUILD=67;
+const VERSION='0.15.3',BUILD=73;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -493,6 +519,22 @@ const I18N={
   addedJsonSkip:(n,s)=>`${n===0?'No se añadió ninguno':n===1?'Se añadió 1 libro':'Se añadieron '+n+' libros'}; ${s===1?'1 repetido omitido':s+' repetidos omitidos'}`,
   pagesMinL:'Páginas desde',pagesMaxL:'hasta',
   stLength:'Longitud',stLongest:'El más largo',stShortest:'El más corto',stAvgPages:'Media de páginas',
+  back:'Volver',
+  lxT:'Lector integrado',lxD:'Lee sin salir de la app',fileFiltL:'Archivo enlazado',fileWith:'Con archivo',fileWithout:'Sin archivo',fileBroken:'Enlace perdido',fileRelink:'No encuentro el archivo. Elígelo otra vez para volver a enlazarlo',fileRelinked:'Archivo enlazado de nuevo',lxUpdated:'Lector integrado actualizado',updWithLx:'Incluye la actualización del lector integrado',
+  lxGet:'Descargar lector integrado',lxGetD:'Se baja una sola vez (~30 KB) y queda guardado en el teléfono',
+  lxOn:'Usar el lector integrado',lxOnD:'Apagado, los libros se abren con tu app de lectura de siempre',
+  lxDel:'Eliminar lector',lxDelD:'Borra el módulo y libera el espacio',
+  lxDling:'Descargando…',lxInstalled:'Lector instalado',lxRemoved:'Lector eliminado',
+  lxErrNet:'No pude descargar el lector',lxErrOff:'Necesitas conexión a internet',
+  lxErrNative:'Esto solo funciona en el teléfono, no en la vista previa',
+  lxFail:'No pude abrir el lector integrado',lxBad:'No pude leer este epub',
+  lxLoading:'Abriendo el libro…',lxEmptyCh:'(capítulo vacío)',
+  lxToc:'Capítulos',lxFind:'Buscar en el libro',lxFindPh:'Palabra o frase',
+  lxFindHint:'Escribe al menos dos letras',lxSearching:'Buscando…',lxNoHits:'Sin resultados',
+  lxNoToc:'Este libro no trae índice',lxChapter:(a,b)=>`Capítulo ${a} de ${b}`,
+  lxAa:'Lectura',lxTheme:'Tema',lxSize:'Tamaño de letra',lxLine:'Interlineado',lxMargin:'Márgenes',
+  lxDim:'Atenuar pantalla',lxAnim:'Animación al pasar página',
+  lxAnimSlide:'Deslizar',lxAnimFade:'Fundido',lxAnimNone:'Ninguna',
   pagesL:'Páginas',pagesD:'De la edición impresa. Se deja vacío si no se conoce',
   pgT:'Rellenar las páginas',pgAsk:n=>`${n===1?'Hay 1 libro':'Hay '+n+' libros'} sin número de páginas. ¿Quieres rellenarlo automáticamente con datos de Open Library (openlibrary.org)?`,
   pgGo:'Rellenar',pgLater:'Ahora no',pgStop:'Detener',pgWork:(i,n)=>`Buscando… ${i} de ${n}`,
@@ -549,6 +591,22 @@ const I18N={
   addedJsonSkip:(n,s)=>`${n===0?'Nothing added':'Added '+n+' '+(n===1?'book':'books')}; ${s} duplicate${s===1?'':'s'} skipped`,
   pagesMinL:'Pages from',pagesMaxL:'to',
   stLength:'Length',stLongest:'Longest',stShortest:'Shortest',stAvgPages:'Average pages',
+  back:'Back',
+  lxT:'Built-in reader',lxD:'Read without leaving the app',fileFiltL:'Linked file',fileWith:'With file',fileWithout:'No file',fileBroken:'Broken link',fileRelink:'I can\u2019t find the file. Pick it again to re-link it',fileRelinked:'File linked again',lxUpdated:'Built-in reader updated',updWithLx:'Includes the built-in reader update',
+  lxGet:'Download built-in reader',lxGetD:'Downloaded once (~30 KB) and kept on your phone',
+  lxOn:'Use the built-in reader',lxOnD:'When off, books open in your usual reading app',
+  lxDel:'Remove reader',lxDelD:'Deletes the module and frees the space',
+  lxDling:'Downloading…',lxInstalled:'Reader installed',lxRemoved:'Reader removed',
+  lxErrNet:'Couldn\u2019t download the reader',lxErrOff:'You need an internet connection',
+  lxErrNative:'This only works on the phone, not in the preview',
+  lxFail:'Couldn\u2019t open the built-in reader',lxBad:'Couldn\u2019t read this epub',
+  lxLoading:'Opening the book…',lxEmptyCh:'(empty chapter)',
+  lxToc:'Chapters',lxFind:'Find in book',lxFindPh:'Word or phrase',
+  lxFindHint:'Type at least two letters',lxSearching:'Searching…',lxNoHits:'No matches',
+  lxNoToc:'This book has no table of contents',lxChapter:(a,b)=>`Chapter ${a} of ${b}`,
+  lxAa:'Reading',lxTheme:'Theme',lxSize:'Text size',lxLine:'Line spacing',lxMargin:'Margins',
+  lxDim:'Dim screen',lxAnim:'Page turn animation',
+  lxAnimSlide:'Slide',lxAnimFade:'Fade',lxAnimNone:'None',
   pagesL:'Pages',pagesD:'Of the printed edition. Left empty if unknown',
   pgT:'Fill in page counts',pgAsk:n=>`${n===1?'1 book has':n+' books have'} no page count. Fill it in automatically with data from Open Library (openlibrary.org)?`,
   pgGo:'Fill in',pgLater:'Not now',pgStop:'Stop',pgWork:(i,n)=>`Looking up… ${i} of ${n}`,
@@ -632,6 +690,18 @@ function migrate(o){o.universes=Array.isArray(o.universes)?o.universes:[];o.saga
        Si viene con basura (texto, 0, negativo) se borra para que cuente como "sin dato". */
     if(b.pages!==undefined){const p=Math.round(Number(b.pages));if(p>0&&isFinite(p))b.pages=p;else delete b.pages}
     if(b.pages)delete b.pagesNo;
+    /* posición de lectura del lector integrado */
+    if(b.pos){const i=Math.round(Number(b.pos.i)),q=Number(b.pos.p);
+      if(i>=0&&isFinite(i)){const v1=Number(b.pos.v)===1;b.pos={i,p:q>=0&&q<1&&isFinite(q)?q:0};if(v1)b.pos.v=1}else delete b.pos}
+    /* segunda versión del libro (modo bilingüe), marcadores y subrayados del lector: se validan al cargar */
+    if(b.file2&&!(typeof b.file2==='object'&&(b.file2.uri||b.file2.idb)))delete b.file2;
+    if(!b.file2&&b.pos&&b.pos.v)delete b.pos.v;
+    if(b.marks!==undefined){const okv=v=>v===1?{v:1}:{};
+      const m=(Array.isArray(b.marks)?b.marks:[]).map(x=>{const i=Math.round(Number(x&&x.i)),p=Number(x&&x.p);return i>=0&&isFinite(i)&&p>=0&&p<1?{id:String(x.id||('m'+Math.random().toString(36).slice(2,8))),i,p,tx:String(x.tx||'').slice(0,120),ts:Number(x.ts)||0,...okv(x.v)}:null}).filter(Boolean);
+      if(m.length)b.marks=m;else delete b.marks}
+    if(b.hl!==undefined){const m=(Array.isArray(b.hl)?b.hl:[]).map(x=>{const i=Math.round(Number(x&&x.i)),s0=Math.round(Number(x&&x.s)),e0=Math.round(Number(x&&x.e));
+        return i>=0&&s0>=0&&e0>s0&&isFinite(e0)?{id:String(x.id||('h'+Math.random().toString(36).slice(2,8))),i,s:s0,e:e0,q:String(x.q||'').slice(0,200),c:'ygbp'.includes(x.c)&&x.c?x.c:'y',...(x.n?{n:String(x.n).slice(0,2000)}:{}),ts:Number(x.ts)||0,...(x.v===1?{v:1}:{})}:null}).filter(Boolean);
+      if(m.length)b.hl=m;else delete b.hl}
     /* ISBN: se guarda sin guiones ni espacios; si no es un ISBN válido se descarta */
     if(b.isbn!==undefined){const v=isbnOk(String(b.isbn));if(v)b.isbn=v;else delete b.isbn}
     if(Array.isArray(b.genres)){
@@ -665,9 +735,12 @@ function flush(){
   const local=strip=>{try{localStorage.setItem(KEY,strip?JSON.stringify(S,(k,v)=>k==='cover'?undefined:v):json);localStorage.setItem(TSKEY,String(ts));return true}catch(e){return false}};
   localOk=local(stripLocal);
   if(!localOk&&!stripLocal){stripLocal=true;localOk=local(true)}
+  /* copia aparte de los enlaces a archivos: si por cualquier motivo un libro pierde su enlace, se recupera al abrir */
+  try{const refs={};S.books.forEach(b=>{if(b.file||b.file2)refs[b.id]={f:b.file||null,g:b.file2||null,p:b.pos||null}});localStorage.setItem(REFKEY,JSON.stringify(refs))}catch(e){}
   DBP.set('main',{t:ts,json}).catch(()=>{if(!localOk&&!warned){warned=true;try{toast(t('storageFull'))}catch(_){}}});
 }
 function save(){dirty=true;clearTimeout(svT);svT=setTimeout(()=>idle(flush,{timeout:1500}),400)}
+const REFKEY='por-leer-refs';
 async function bootStore(){
   try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
   try{
@@ -685,14 +758,24 @@ async function bootStore(){
       }
     }else if(S.books.length||S.sagas.length||S.universes.length){dirty=true}
   }catch(e){}
+  /* recupera enlaces a archivos que un libro haya perdido (el libro existe, pero ya no trae su archivo) */
+  try{const refs=JSON.parse(localStorage.getItem(REFKEY)||'{}');let n=0;
+    S.books.forEach(b=>{const r=refs[b.id];if(!r)return;
+      if(!b.file&&r.f){b.file=r.f;n++}
+      if(!b.file2&&r.g&&b.file){b.file2=r.g;n++}
+      if(!b.pos&&r.p)b.pos=r.p});
+    if(n){S=migrate(S);dirty=true;render(false)}}catch(e){}
   idbReady=true;if(dirty)flush();
 }
 addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
-const libs={};function lib(src){return libs[src]||(libs[src]=new Promise((ok,ko)=>{const x=document.createElement('script');x.src=src;x.onload=ok;x.onerror=()=>{delete libs[src];ko()};document.head.appendChild(x)}))}
+/* si la librería ya está en la página (vista previa con todo incrustado) no se vuelve a pedir */
+const LIBG={'lib/jszip.min.js':'JSZip'};
+const libs={};function lib(src){const g=LIBG[src];if(g&&window[g])return Promise.resolve();
+  return libs[src]||(libs[src]=new Promise((ok,ko)=>{const x=document.createElement('script');x.src=src;x.onload=ok;x.onerror=()=>{delete libs[src];ko()};document.head.appendChild(x)}))}
 let S=load();
 let HD=false;try{HD=localStorage.getItem('por-leer-hd')==='1'}catch(e){}
 let HP=false;try{HP=localStorage.getItem('por-leer-hp')==='1'}catch(e){}
-const ui={q:'',status:['all'],min:0,author:'',genres:[],open:{},readFrom:null,readTo:null,pgMin:null,pgMax:null};
+const ui={q:'',file:'',status:['all'],min:0,author:'',genres:[],open:{},readFrom:null,readTo:null,pgMin:null,pgMax:null};
 const allSt=a=>a.length===1&&a[0]==='all';
 
 /* ---------- datos ---------- */
@@ -754,6 +837,7 @@ const I_GEAR='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
 function passes(b){
   if(!allSt(ui.status)&&!ui.status.includes(stOf(b)))return false;
   if(ui.min&&rat(b)<ui.min)return false;
+  if(ui.file){const has=!!b.file;if(ui.file==='with'&&!has)return false;if(ui.file==='without'&&has)return false;if(ui.file==='broken'&&!(has&&BROKEN.has(b.id)))return false}
   if(ui.author&&b.author!==ui.author)return false;
   if(ui.genres.length&&!gsOf(b).some(g=>ui.genres.includes(g)))return false;
   /* filtrar por páginas deja fuera los libros que todavía no tienen el dato */
@@ -774,7 +858,7 @@ function passes(b){
   }
   return true;
 }
-const filtering=()=>!!(ui.q||!allSt(ui.status)||ui.min||ui.author||ui.genres.length||ui.readFrom||ui.readTo||ui.pgMin!=null||ui.pgMax!=null);
+const filtering=()=>!!(ui.q||ui.file||!allSt(ui.status)||ui.min||ui.author||ui.genres.length||ui.readFrom||ui.readTo||ui.pgMin!=null||ui.pgMax!=null);
 const isOpen=(id,hasReading)=>ui.q?true:(ui.open[id]!=null?ui.open[id]:(CFG.autoOpen||(!!hasReading&&CFG.expandReading)));
 
 /* ---------- render ---------- */
@@ -798,7 +882,7 @@ function bookRow(b,inSaga,parentAuthor,inUni,showOrd){
     <span class="cov">${cov}</span>
     <span class="bt"><div class="btitle">${esc(b.title)}</div>${parentAuthor&&norm(parentAuthor)===norm(b.author)?'':`<div class="bauth">${esc(b.author)}</div>`}${(pill||gtags)?`<div class="bgen">${pill}${gtags}</div>`:''}</span>
     <span class="br" ${rt?`data-a="rate-book" data-id="${b.id}"`:''}>${rt}</span>
-    <span class="bacts">${rdate}<span class="bbtns">${b.file&&!BROKEN.has(b.id)?`<button class="pen openb" data-a="open-file" data-id="${b.id}" aria-label="${t('fileOpen')}"><svg class="ico"><use href="#i-arrow"/></svg></button>`:''}
+    <span class="bacts">${rdate}<span class="bbtns">${b.file?`<button class="pen openb${BROKEN.has(b.id)?' brk':''}" data-a="open-file" data-id="${b.id}" aria-label="${t('fileOpen')}"><svg class="ico"><use href="#i-arrow"/></svg></button>`:''}
     <button class="pen" data-a="edit-book" data-id="${b.id}" aria-label="${t('editBook')}"><svg class="ico"><use href="#i-pen"/></svg></button></span></span>
   </div>`;
 }
@@ -818,7 +902,7 @@ function sagaCard(s,vis,uniAuthor,inUni){
       <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}${s.ratingOverride==null?` (${t('avg')})`:''}</span>`:''}<span>${t('readOf',readN,all.length)}</span></span>
       <button class="pen" data-a="edit-saga" data-id="${s.id}" aria-label="${t('editSaga')}"><svg class="ico"><use href="#i-pen"/></svg></button>
     </div>
-    <div class="gbody">${open?body():''}</div>
+    <div class="gbody"><div class="gbin">${open?body():''}</div></div>
   </section>`;
 }
 function sortItems(items){
@@ -867,7 +951,7 @@ function render(persist=true){
         <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}</span>`:''}<span>${cnt}</span></span>
         <button class="pen" data-a="edit-uni" data-id="${u.id}" aria-label="${t('editUni')}"><svg class="ico"><use href="#i-pen"/></svg></button>
       </div>
-      <div class="gbody">${open?body():''}</div></section>`}});
+      <div class="gbody"><div class="gbin">${open?body():''}</div></div></section>`}});
   });
   S.sagas.filter(s=>!uni(s.universeId)).forEach(s=>{
     const v=visSaga.get(s.id)||[];
@@ -900,7 +984,7 @@ function render(persist=true){
   }
   const nRead=S.books.filter(b=>stOf(b)==='read').length,nPend=S.books.filter(b=>{const x=stOf(b);return x==='unread'||x==='reading'}).length;
   $('#count').innerHTML=`<span>${nPend} ${t('pending')}</span><span>${nRead} ${t('readN')}</span>`;
-  const nf=(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+(ui.status.length>1?1:0)+(ui.readFrom||ui.readTo?1:0)+(ui.pgMin!=null||ui.pgMax!=null?1:0);
+  const nf=(ui.file?1:0)+(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+(ui.status.length>1?1:0)+(ui.readFrom||ui.readTo?1:0)+(ui.pgMin!=null||ui.pgMax!=null?1:0);
   $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('st_dropped')]].map(([k,x])=>
     `<button class="chip" data-a="status" data-k="${k}" aria-pressed="${ui.status.length===1&&ui.status[0]===k}">${x}</button>`).join('')+
     `<button class="chip filt ${nf?'on':''}" data-a="filters" aria-label="${t('filters')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${nf?`<b>${nf}</b>`:''}</button>`;
@@ -910,6 +994,27 @@ function render(persist=true){
 /* ---------- hoja inferior ---------- */
 function openSheet(html){ onDismiss=null; const sh=$('#sheet'); sh.innerHTML=html; sh.scrollTop=0; $('#back').classList.add('on'); requestAnimationFrame(()=>requestAnimationFrame(()=>sh.classList.add('on'))); }
 let onDismiss=null;
+/* ---------- vistas a pantalla completa (Ajustes, Estadísticas) ----------
+   Se superponen a la lista sin destruirla, así que volver atrás no vuelve a dibujarla
+   ni pierde la posición de desplazamiento. Tienen su propio onDismiss, independiente
+   del de las hojas, porque desde una vista se puede abrir una hoja encima. */
+let onViewDismiss=null;
+const I_BACK='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
+function openView(icon,title,sub,html){
+  onViewDismiss=null;
+  const v=$('#view');
+  v.innerHTML=`<div class="vhero"><div class="vhrow">`
+    +`<button type="button" class="vback" id="vback" aria-label="${t('back')}">${I_BACK}</button>`
+    +`${icon}<div style="min-width:0"><h2>${title}</h2><div class="hs">${sub||''}</div></div></div></div>`
+    +html;
+  v.scrollTop=0;
+  $('#vback').onclick=dismissView;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>v.classList.add('on')));
+}
+const viewOpen=()=>$('#view').classList.contains('on');
+function closeView(){ const v=$('#view'); v.classList.remove('on'); onViewDismiss=null; cfgSnap=null; }
+/* salir descartando (flecha, Escape, botón atrás): igual que deslizar una hoja hacia abajo */
+function dismissView(){ const f=onViewDismiss; onViewDismiss=null; if(f)f(); closeView(); }
 function closeSheet(){ const sh=$('#sheet'),bk=$('#back'); sh.classList.remove('on','drag'); sh.style.transform=''; bk.classList.remove('on','drag'); bk.style.opacity=''; onDismiss=null; cfgSnap=null; }
 /* cerrar sin guardar (deslizar, tocar fuera, Escape) */
 function dismissSheet(){ const f=onDismiss; onDismiss=null; if(f)f(); closeSheet(); }
@@ -1014,7 +1119,18 @@ const BROKEN=new Set();
 async function checkFileLinks(){
   if(!NATIVE)return;
   const granted=await FS.grantedUris();if(!granted)return;
-  const covered=uri=>granted.has(uri);
+  /* Un archivo cuenta como accesible si su enlace está guardado tal cual o si cae dentro de una carpeta
+     a la que el sistema todavía da permiso (los enlaces hechos con carpetas viejas son de este tipo). */
+  const covered=uri=>{
+    if(granted.has(uri))return true;
+    try{
+      const m=/^(content:\/\/[^/]+)\/(?:tree\/[^/]+\/)?document\/(.+)$/.exec(uri);if(!m)return false;
+      const doc=decodeURIComponent(m[2]);
+      for(const g of granted){const gm=/^(content:\/\/[^/]+)\/tree\/([^/]+)$/.exec(g);
+        if(gm&&gm[1]===m[1]){const td=decodeURIComponent(gm[2]);if(doc===td||doc.startsWith(td+'/'))return true}}
+    }catch(e){}
+    return false;
+  };
   let changed=false;
   S.books.forEach(b=>{if(b.file&&b.file.uri){const bad=!covered(b.file.uri);if(bad!==BROKEN.has(b.id)){if(bad)BROKEN.add(b.id);else BROKEN.delete(b.id);changed=true}}});
   if(changed)render(false);
@@ -1028,9 +1144,84 @@ async function pickBook(cb){
   }
   pickTarget=cb;$('#file').click();
 }
+/* ---------- lector integrado (módulo opcional) ----------
+   El módulo NO viaja en la app: se descarga aparte y se guarda en el teléfono.
+   Mientras no esté instalado y encendido, "Ir" abre el lector externo de siempre. */
+const RDR_DIR='lector',RDR_FILES=['lector.js','lector.css'];
+/* se arma al descargar, porque REPO se define más abajo en el archivo */
+const rdrUrl=()=>'https://github.com/'+REPO+'/releases/latest/download/lector.zip';
+let RDR=null; /* módulo ya cargado en memoria */
+const rdrReady=()=>!!(window.__LECTOR__||RDR);
+/* instalado = marcado en ajustes, o ya presente junto a la página (pruebas y vista previa) */
+const rdrInstalled=()=>!!CFG.rdrVer||!!window.__LECTOR__;
+const rdrActive=()=>rdrInstalled()&&CFG.rdrOn!==false;
+/* lo que el módulo necesita de la app base; es su única superficie de contacto */
+function rdrBridge(){window.TBR={FS,lib,book,save,t,esc,norm,toast,CFG,saveCfg,I18N,CAP,relink:b=>relinkBook(b),isRead:b=>stOf(b)==='read',markRead:b=>{setStatus(b,'read');save();render(false)}}}
+async function rdrLoad(){
+  if(window.__LECTOR__)return window.__LECTOR__;
+  rdrBridge();
+  if(CAP&&CAP.Filesystem&&CFG.rdrVer){
+    /* el módulo descargado vive fuera del APK: se lee y se ejecuta desde un blob */
+    const rd=async n=>(await CAP.Filesystem.readFile({path:RDR_DIR+'/'+n,directory:'DATA',encoding:'utf8'})).data;
+    const css=await rd('lector.css'),js=await rd('lector.js');
+    const st=document.createElement('style');st.id='lxCss';st.textContent=css;document.head.appendChild(st);
+    const u=URL.createObjectURL(new Blob([js],{type:'text/javascript'}));
+    try{await import(u)}finally{setTimeout(()=>URL.revokeObjectURL(u),4000)}
+  }else{
+    /* respaldo: carpeta lector/ junto a la página (para probar sin descargar) */
+    const l=document.createElement('link');l.rel='stylesheet';l.href='lector/lector.css';document.head.appendChild(l);
+    await import(new URL('lector/lector.js',document.baseURI).href);
+  }
+  return window.__LECTOR__;
+}
+/* descarga el .zip del módulo y lo descomprime en el almacenamiento de la app */
+async function rdrInstall(onProg){
+  if(navigator.onLine===false)throw new Error('offline');
+  if(!(CAP&&CAP.Filesystem))throw new Error('nonative');
+  const r=await fetch(rdrUrl(),{redirect:'follow'});
+  if(!r.ok)throw new Error('net');
+  const total=+r.headers.get('content-length')||0;
+  let buf;
+  if(r.body&&r.body.getReader){
+    const rd=r.body.getReader(),parts=[];let got=0;
+    for(;;){const {done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;
+      if(onProg)onProg(total?Math.min(99,Math.round(got/total*100)):-1)}
+    buf=new Blob(parts);
+  }else buf=await r.blob();
+  if(onProg)onProg(100);
+  await lib('lib/jszip.min.js');
+  const z=await JSZip.loadAsync(buf);
+  for(const n of RDR_FILES){
+    /* el zip puede traer los archivos sueltos o dentro de una carpeta */
+    const f=z.file(n)||z.file(RDR_DIR+'/'+n)||z.file(new RegExp('(^|/)'+n.replace('.','\\.')+'$'))[0];
+    if(!f)throw new Error('zip');
+    await CAP.Filesystem.writeFile({path:RDR_DIR+'/'+n,data:await f.async('string'),directory:'DATA',encoding:'utf8',recursive:true});
+  }
+  CFG.rdrVer=VERSION;if(CFG.rdrOn===undefined)CFG.rdrOn=true;saveCfg();
+}
+async function rdrRemove(){
+  try{if(CAP&&CAP.Filesystem)await CAP.Filesystem.rmdir({path:RDR_DIR,directory:'DATA',recursive:true})}catch(e){}
+  delete CFG.rdrVer;saveCfg();
+}
+/* ---------- un único punto de entrada para abrir un libro ---------- */
 async function openBookFile(b){
   if(!b||!b.file)return;
-  try{await FS.open(b.file)}catch(e){const m=String(e&&e.message);toast(t(m==='noapp'?'fileNoApp':m==='gone'?'fileGone':'fileFail'))}
+  const esEpub=/\.epub$/i.test(b.file.name||'')||/epub/i.test(b.file.type||'');
+  if(esEpub&&rdrActive()){
+    try{
+      const L=await rdrLoad();
+      if(L&&L.open){await L.open(b);return}
+    }catch(e){toast(t('lxFail'))}
+  }
+  try{await FS.open(b.file)}catch(e){const m=String(e&&e.message);
+    if(m==='gone'&&NATIVE){toast(t('fileRelink'));if(await relinkBook(b))return openBookFile(b);return}
+    toast(t(m==='noapp'?'fileNoApp':m==='gone'?'fileGone':'fileFail'))}
+}
+/* Si el enlace a un archivo se perdió, se vuelve a elegir el archivo y el libro queda enlazado otra vez */
+async function relinkBook(b){
+  if(!b||!NATIVE)return false;
+  try{const {ref}=await FS.pickNative();b.file=ref;BROKEN.delete(b.id);save();render(false);toast(t('fileRelinked'));return true}
+  catch(e){if(String(e&&e.message)!=='cancelled')toast(t('fileFail'));return false}
 }
 let pickTarget=null;
 
@@ -1267,7 +1458,7 @@ function bookForm(b,pre){
   const cleanup=()=>{created.forEach(r=>{if(!(d.file&&d.file===r))FS.del(r)});};
   onDismiss=()=>{created.forEach(r=>FS.del(r))};
   $('#bcan').onclick=()=>{created.forEach(r=>FS.del(r));closeSheet()};
-  if(b)armDelete($('#bdel'),()=>{FS.del(b.file);created.forEach(r=>FS.del(r));S.books=S.books.filter(x=>x.id!==b.id);closeSheet();render();toast(t('bookDeleted'))});
+  if(b)armDelete($('#bdel'),()=>{(FS.del(b.file),FS.del(b.file2));created.forEach(r=>FS.del(r));S.books=S.books.filter(x=>x.id!==b.id);closeSheet();render();toast(t('bookDeleted'))});
   $('#bok').onclick=()=>{
     const title=$('#bt').value.trim();if(!title){toast(t('missTitle'));$('#bt').focus();return}
     d.title=title;d.author=$('#ba').value.trim()||t('unknown');
@@ -1347,7 +1538,7 @@ function sagaForm(s,pre){
   const sync=()=>{const v=$('#su').value;$('#suow').style.display=v?'':'none';$('#suw').classList.toggle('solo',!v)};$('#su').onchange=sync;sync();
   $('#scan').onclick=closeSheet;
   if(s)$('#saddbook').onclick=()=>bookForm(null,{sagaId:s.id});
-  if(s)armDelete($('#sdel'),()=>{S.books.filter(b=>b.sagaId===s.id).forEach(b=>FS.del(b.file));S.books=S.books.filter(b=>b.sagaId!==s.id);S.sagas=S.sagas.filter(x=>x.id!==s.id);closeSheet();render();toast(t('sagaDeleted'))},null,t('delAllSure'));
+  if(s)armDelete($('#sdel'),()=>{S.books.filter(b=>b.sagaId===s.id).forEach(b=>(FS.del(b.file),FS.del(b.file2)));S.books=S.books.filter(b=>b.sagaId!==s.id);S.sagas=S.sagas.filter(x=>x.id!==s.id);closeSheet();render();toast(t('sagaDeleted'))},null,t('delAllSure'));
   $('#sok').onclick=()=>{
     const nm=$('#sn').value.trim();if(!nm){toast(t('missName'));$('#sn').focus();return}
     d.name=nm;d.author=$('#sa').value.trim()||t('unknown');d.universeId=$('#su').value;
@@ -1368,7 +1559,7 @@ function uniForm(u){
     <div class="btns">${u?`<button type="button" class="btn del" id="udel">${t('del')}</button>`:''}<button type="button" class="btn" id="ucan">${t('cancel')}</button><button type="button" class="btn main" id="uok">${u?t('save'):t('create')}</button></div>`);
   $('#ucan').onclick=closeSheet;
   if(u){$('#uaddbook').onclick=()=>bookForm(null,{universeId:u.id});$('#uaddsaga').onclick=()=>sagaForm(null,{universeId:u.id,author:u.author});}
-  if(u)armDelete($('#udel'),()=>{const sids=new Set(S.sagas.filter(x=>x.universeId===u.id).map(x=>x.id));S.books.filter(b=>sids.has(b.sagaId)||b.universeId===u.id).forEach(b=>FS.del(b.file));S.books=S.books.filter(b=>!sids.has(b.sagaId)&&b.universeId!==u.id);S.sagas=S.sagas.filter(x=>!sids.has(x.id));S.universes=S.universes.filter(x=>x.id!==u.id);closeSheet();render();toast(t('uniDeleted'))},null,t('delAllSure'));
+  if(u)armDelete($('#udel'),()=>{const sids=new Set(S.sagas.filter(x=>x.universeId===u.id).map(x=>x.id));S.books.filter(b=>sids.has(b.sagaId)||b.universeId===u.id).forEach(b=>(FS.del(b.file),FS.del(b.file2)));S.books=S.books.filter(b=>!sids.has(b.sagaId)&&b.universeId!==u.id);S.sagas=S.sagas.filter(x=>!sids.has(x.id));S.universes=S.universes.filter(x=>x.id!==u.id);closeSheet();render();toast(t('uniDeleted'))},null,t('delAllSure'));
   $('#uok').onclick=()=>{const nm=$('#un').value.trim();if(!nm){toast(t('missName'));$('#un').focus();return}
     d.name=nm;
     /* Si lo que hay escrito coincide con los autores que se calculan solos, se deja en automático
@@ -1385,11 +1576,12 @@ function uniForm(u){
 function filterForm(){
   const authors=[...new Set(S.books.map(b=>b.author))].sort(coll.compare);
   const gs=[...new Set([...S.books.flatMap(gsOf),...GENRES])].sort((a,b)=>coll.compare(gname(a),gname(b)));
-  let stt=new Set(allSt(ui.status)?[]:ui.status),m=ui.min,sel=new Set(ui.genres);
+  let stt=new Set(allSt(ui.status)?[]:ui.status),m=ui.min,sel=new Set(ui.genres),fl=ui.file;
   const states=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('droppedF')]];
   const stPressed=k=>k==='all'?stt.size===0:stt.has(k);
   openSheet(`${hero(medal(I_FILT),t('filters'),t('filtSub'))}
     <div class="f"><span class="lbl">${t('stateL')}</span><div class="chk" id="fst">${states.map(([k,x])=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${stPressed(k)}">${x}</button>`).join('')}</div><div class="hint">${t('stateHint')}</div></div>
+    <div class="f"><span class="lbl">${t('fileFiltL')}</span><div class="chk" id="ffile">${[['',t('all')],['with',t('fileWith')],['without',t('fileWithout')],['broken',t('fileBroken')]].map(([k,x])=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${fl===k}">${x}</button>`).join('')}</div></div>
     <div class="f"><span class="lbl">${t('genres')}</span><div class="gchips" id="fgen"></div></div>
     <div class="f"><span class="lbl">${t('minRating')}</span><div class="box"><div class="rate" id="frate"></div></div></div>
     <div class="f"><label for="fa">${t('author')}</label><select id="fa"><option value="">${t('all')}</option>${authors.map(a=>`<option ${ui.author===a?'selected':''} value="${esc(a)}">${esc(a)}</option>`).join('')}</select></div>
@@ -1397,13 +1589,14 @@ function filterForm(){
     <div class="f"><span class="lbl">${t('pagesL')}</span><div style="display:flex;gap:10px"><label style="flex:1;display:block"><small>${t('pagesMinL')}</small><input id="fpgmin" type="number" min="1" step="1" inputmode="numeric" value="${ui.pgMin!=null?ui.pgMin:''}" style="width:100%"></label><label style="flex:1;display:block"><small>${t('pagesMaxL')}</small><input id="fpgmax" type="number" min="1" step="1" inputmode="numeric" value="${ui.pgMax!=null?ui.pgMax:''}" style="width:100%"></label></div></div>
     <div class="btns"><button type="button" class="btn" id="fclr">${t('clear')}</button><button type="button" class="btn main" id="fok">${t('apply')}</button></div>`);
   rateWidget('frate',m,v=>m=v);
+  $('#ffile').onclick=e=>{const x=e.target.closest('[data-k]');if(!x)return;fl=x.dataset.k;$('#ffile').querySelectorAll('[data-k]').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.k===fl)))};
   $('#fst').onclick=e=>{const x=e.target.closest('[data-k]');if(!x)return;const k=x.dataset.k;
     if(k==='all')stt.clear();else{if(stt.has(k))stt.delete(k);else stt.add(k)}
     $('#fst').querySelectorAll('[data-k]').forEach(c=>c.setAttribute('aria-pressed',String(stPressed(c.dataset.k))))};
   if($('#fgen')){const cnt=new Map();S.books.forEach(b2=>gsOf(b2).forEach(g=>cnt.set(g,(cnt.get(g)||0)+1)));const gi=g=>{const i=GENRES.indexOf(g);return i<0?99:i};const ord=gs.slice().sort((x,y)=>(sel.has(y)-sel.has(x))||(cnt.get(y)-cnt.get(x))||(gi(x)-gi(y))||coll.compare(gname(x),gname(y)));
     genPicker($('#fgen'),ord,g=>sel.has(g),g=>{if(sel.has(g))sel.delete(g);else sel.add(g)})}
-  $('#fclr').onclick=()=>{ui.min=0;ui.author='';ui.genres=[];ui.status=['all'];ui.readFrom=null;ui.readTo=null;ui.pgMin=null;ui.pgMax=null;closeSheet();render(false)};
-  $('#fok').onclick=()=>{ui.min=m;ui.author=$('#fa').value;ui.genres=[...sel];ui.status=stt.size?[...stt]:['all'];
+  $('#fclr').onclick=()=>{ui.file='';ui.min=0;ui.author='';ui.genres=[];ui.status=['all'];ui.readFrom=null;ui.readTo=null;ui.pgMin=null;ui.pgMax=null;closeSheet();render(false)};
+  $('#fok').onclick=()=>{ui.file=fl;ui.min=m;ui.author=$('#fa').value;ui.genres=[...sel];ui.status=stt.size?[...stt]:['all'];
     ui.readFrom=$('#frfrom').value?dateFromInput($('#frfrom').value):null;ui.readTo=$('#frto').value?dateFromInput($('#frto').value):null;
     const pn=x=>{const v=Math.round(Number(x));return v>0&&isFinite(v)?v:null};
     let a=pn($('#fpgmin').value),z=pn($('#fpgmax').value);
@@ -1683,7 +1876,7 @@ function fitTileLabels(){
 function statsForm(){
   const I_ST='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>';
   const B=S.books,readB=B.filter(b=>stOf(b)==='read'),nReading=B.filter(b=>stOf(b)==='reading').length,nDropped=B.filter(b=>stOf(b)==='dropped').length,nUnread=B.filter(b=>stOf(b)==='unread').length;
-  if(!B.length){openSheet(`${hero(medal(I_ST),t('statsT'),t('statsSub'))}<p class="lead">${t('stEmpty')}</p><div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);$('#stok').onclick=closeSheet;return}
+  if(!B.length){openView(medal(I_ST),t('statsT'),t('statsSub'),`<p class="lead">${t('stEmpty')}</p>`);return}
   /* la barra se escala por libros LEÍDOS (no por el total que tienes en la lista) */
   const bar=(name,tot,rd,max,styleVars)=>`<div class="bar" ${styleVars!=null?`style="${styleVars}"`:''}><span class="bn">${esc(name)}</span><span class="bt2"><i style="width:${Math.max(4,Math.round(rd/max*100))}%"><b style="width:100%"></b></i></span><span class="bv">${rd}/${tot}</span></div>`;
   /* géneros */
@@ -1733,7 +1926,7 @@ function statsForm(){
       <div class="mwrap"><div class="myrhead"><div class="myrlabel" id="myrlabel">${statsYear}</div><div class="myrsum" id="myrsum">${yearSum(statsYear)}</div></div><div id="mgrid">${monthsGrid(statsYear)}</div></div>
       <button type="button" class="yarr" id="ynext" aria-label="${t('yearNext')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>`:`<p class="note">${t('stNoDates')}</p>`;
-  openSheet(`${hero(medal(I_ST),t('statsT'),t('statsSub'))}
+  openView(medal(I_ST),t('statsT'),t('statsSub'),`
     <div class="tiles">
       <div class="tile"><b>${readB.length}</b><span>${t('stRead')}</span></div>
       <div class="tile"><b>${nUnread}</b><span>${t('stPending')}</span></div>
@@ -1746,8 +1939,7 @@ function statsForm(){
     <div class="sec">${t('stAuthors')}</div>
     ${al.map(([a,o])=>bar(a,o.t,o.r,amax)).join('')}
     ${lenRows}
-    <div class="btns"><button type="button" class="btn main" id="stok">${t('stClose')}</button></div>`);
-  $('#stok').onclick=closeSheet;
+`);
   fitTileLabels();
   if(hasAnyDated){
     const paintYear=()=>{$('#myrlabel').textContent=statsYear;$('#mgrid').innerHTML=monthsGrid(statsYear);
@@ -1775,11 +1967,34 @@ async function exportBackup(){
 }
 /* ---- Ajustes ---- */
 function sw(id,on){return `<button type="button" class="switch" role="switch" id="${id}" aria-checked="${on}"><span></span></button>`}
+/* la sección del lector cambia según esté sin instalar, descargando o ya instalado */
+let rdrBusy=false,rdrPct=-1;
+function rdrSection(){
+  if(rdrBusy)return `<div class="srow"><div class="stx"><div>${t('lxDling')}</div><small>${rdrPct>=0?rdrPct+'%':'…'}</small></div></div>`;
+  if(!rdrInstalled())return `<button type="button" class="srow" id="srdrget"><div class="stx"><div>${t('lxGet')}</div><small>${t('lxGetD')}</small></div><span class="sic">↓</span></button>`;
+  return `<label class="srow" for="srdron"><div class="stx"><div>${t('lxOn')}</div><small>${t('lxOnD')}</small></div>${sw('srdron',rdrActive())}</label>`
+    +(CFG.rdrVer?`<button type="button" class="srow" id="srdrdel"><div class="stx"><div>${t('lxDel')}</div><small>${t('lxDelD')}</small></div><span class="sic">×</span></button>`:'');
+}
+function rdrPaint(){const e=$('#srdr');if(e)e.innerHTML=rdrSection();rdrWire()}
+function rdrWire(){
+  const g=$('#srdrget');if(g)g.onclick=async()=>{
+    if(rdrBusy)return;
+    if(navigator.onLine===false){toast(t('lxErrOff'));return}
+    if(!(CAP&&CAP.Filesystem)){toast(t('lxErrNative'));return}
+    rdrBusy=true;rdrPct=-1;rdrPaint();
+    try{await rdrInstall(p=>{rdrPct=p;const e=$('#srdr .stx small');if(e)e.textContent=p>=0?p+'%':'…'});
+      rdrBusy=false;rdrPaint();toast(t('lxInstalled'))}
+    catch(e){rdrBusy=false;rdrPaint();toast(t(String(e&&e.message)==='offline'?'lxErrOff':'lxErrNet'))}
+  };
+  const s=$('#srdron');if(s)s.onclick=e=>{e.preventDefault();const v=!rdrActive();
+    s.setAttribute('aria-checked',v);CFG.rdrOn=v;saveCfg()};
+  const d=$('#srdrdel');if(d)armDelete(d,async()=>{await rdrRemove();rdrPaint();toast(t('lxRemoved'))},null,t('lxDel'));
+}
 let cfgSnap=null;
 function applyCfg(){saveCfg();coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});applyStatic();render(false)}
 function settingsForm(){
   if(!cfgSnap)cfgSnap={...CFG};
-  openSheet(`${hero(medal(I_GEAR),t('settings'),t('setSub'))}
+  openView(medal(I_GEAR),t('settings'),t('setSub'),`
     <div class="sec">${t('language')}</div>
     <div class="seg" id="slang"><button type="button" data-l="es" aria-pressed="${CFG.lang==='es'}">Español</button><button type="button" data-l="en" aria-pressed="${CFG.lang==='en'}">English</button></div>
     <div class="sec">${t('list')}</div>
@@ -1803,6 +2018,8 @@ function settingsForm(){
       <button type="button" class="srow" id="supd"><div class="stx"><div id="supdT"></div><small id="supdD"></small></div><span class="sic" id="supdS">⟳</span></button>
       <label class="srow" for="snot"><div class="stx"><div>${t('updNotify')}</div><small>${t('updNotifyD')}</small></div>${sw('snot',CFG.updNotify)}</label>
     </div>
+    <div class="sec">${t('lxT')}</div>
+    <div class="group" id="srdr">${rdrSection()}</div>
     <div class="sec">${t('data')}</div>
     <div class="group">
       <button type="button" class="srow" id="sshare"><div class="stx"><div>${t('share')}</div><small>${t('shareD')}</small></div><span class="sic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></span></button>
@@ -1818,7 +2035,7 @@ function settingsForm(){
   $('#ssortpend').value=CFG.sortPend;$('#ssortdone').value=CFG.sortDone;$('#sgsort').value=CFG.groupSort;
   const set=(k,v)=>{CFG[k]=v;saveCfg();render(false)};
   $('#slang').onclick=e=>{const x=e.target.closest('[data-l]');if(!x||x.dataset.l===CFG.lang)return;
-    CFG.lang=x.dataset.l;applyCfg();const st=$('#sheet').scrollTop;settingsForm();$('#sheet').scrollTop=st};
+    CFG.lang=x.dataset.l;applyCfg();const st=$('#view').scrollTop;settingsForm();$('#view').scrollTop=st};
   $('#ssortpend').onchange=e=>set('sortPend',e.target.value);
   $('#ssortdone').onchange=e=>set('sortDone',e.target.value);
   $('#sgsort').onchange=e=>set('groupSort',e.target.value);
@@ -1827,7 +2044,8 @@ function settingsForm(){
   $('#sexp').onclick=exportBackup;
   $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{const j=JSON.parse(await f.text()),d=j.data||j;if(!Array.isArray(d.books)||!Array.isArray(d.sagas))throw 0;
-      S=migrate({books:d.books,sagas:d.sagas,universes:d.universes,gcolors:d.gcolors});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeSheet();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
+      S=migrate({books:d.books,sagas:d.sagas,universes:d.universes,gcolors:d.gcolors});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeView();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
+  rdrWire();
   $('#spg').onclick=()=>pagesForm(true);
   $('#sadd').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{
@@ -1866,12 +2084,12 @@ function settingsForm(){
       S.universes=S.universes.concat(newUnis.filter(u=>usadaU.has(u.id)));
       S.sagas=S.sagas.concat(newSagas.filter(s=>usadaS.has(s.id)));
       S.books=S.books.concat(mig.books);
-      ui.open={};render();closeSheet();toast(saltados?t('addedJsonSkip',mig.books.length,saltados):t('addedJson',mig.books.length));
+      ui.open={};render();closeView();toast(saltados?t('addedJsonSkip',mig.books.length,saltados):t('addedJson',mig.books.length));
     }catch(err){toast(t('badBackup'))}};fi.click()};
-  armDelete($('#swipe'),()=>{S.books.forEach(b=>FS.del(b.file));S={books:[],sagas:[],universes:[]};ui.open={};render();closeSheet();toast(t('wiped'))},null,t('wipeSure'));
+  armDelete($('#swipe'),()=>{S.books.forEach(b=>(FS.del(b.file),FS.del(b.file2)));S={books:[],sagas:[],universes:[],gcolors:{}};ui.open={};render();closeView();toast(t('wiped'))},null,t('wipeSure'));
   $('#sshare').onclick=()=>{cfgSnap=null;shareForm()};
-  $('#sok').onclick=()=>{cfgSnap=null;closeSheet()};
-  onDismiss=()=>{const snap=cfgSnap;cfgSnap=null;if(snap&&JSON.stringify(snap)!==JSON.stringify(CFG)){if(snap.autoOpen!==CFG.autoOpen||snap.expandReading!==CFG.expandReading)ui.open={};CFG=snap;applyCfg()}};
+  $('#sok').onclick=()=>{cfgSnap=null;closeView()};
+  onViewDismiss=()=>{const snap=cfgSnap;cfgSnap=null;if(snap&&JSON.stringify(snap)!==JSON.stringify(CFG)){if(snap.autoOpen!==CFG.autoOpen||snap.expandReading!==CFG.expandReading)ui.open={};CFG=snap;applyCfg()}};
 }
 
 /* ---- Actualizaciones desde GitHub Releases ---- */
@@ -1888,7 +2106,7 @@ async function checkUpdate(){
     const m=/(\d+\.\d+\.\d+)(?:-build(\d+))?/.exec(j.tag_name||'');if(!m)throw 0;
     const ver=m[1],bld=m[2]?+m[2]:0,newer=bld?bld>BUILD:cmpVer(ver,VERSION)>0;
     const a=(j.assets||[]).find(x=>/\.apk$/i.test(x.name||''));
-    UPD=newer&&a?{ver,bld,url:a.browser_download_url,page:j.html_url}:{none:true};
+    UPD=newer&&a?{ver,bld,url:a.browser_download_url,page:j.html_url,lector:!!CFG.rdrVer&&(j.assets||[]).some(x=>/^lector\.zip$/i.test(x.name||''))}:{none:true};
     try{localStorage.setItem('por-leer-upd',String(Date.now()))}catch(e){}
     updBadge();return 'ok';
   }catch(e){return 'fail'}finally{clearTimeout(to)}
@@ -1909,7 +2127,7 @@ function updPaint(msg){
   I.className='sic';
   if(msg){T.textContent=msg;D.textContent='';I.textContent='⟳';return}
   if(updPct>=0){T.textContent=t('updDl');D.textContent='';I.className='sic pill';I.textContent=updPct+'%';return}
-  if(UPD&&UPD.url){T.textContent=t('updNew',UPD.ver,UPD.bld);D.textContent='';I.className='sic pill';I.textContent=CAP?t('updGetBtn'):t('updOpenBtn');return}
+  if(UPD&&UPD.url){T.textContent=t('updNew',UPD.ver,UPD.bld);D.textContent=UPD.lector?t('updWithLx'):'';I.className='sic pill';I.textContent=CAP?t('updGetBtn'):t('updOpenBtn');return}
   T.textContent=UPD&&UPD.none?t('updNone'):t('updCheck');D.textContent=t('updInst',VERSION+' (build '+BUILD+')');I.textContent='⟳';
 }
 async function updClick(){
@@ -2121,7 +2339,7 @@ $('#statsbtn').onclick=()=>{closeMenu();statsForm()};
 $('#gear').onclick=()=>{closeMenu();settingsForm()};
 $('#sharebtn').onclick=()=>{closeMenu();shareForm()};
 let qT;$('#q').addEventListener('input',e=>{clearTimeout(qT);qT=setTimeout(()=>{ui.q=e.target.value.trim();render(false)},160)});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.ghead'))e.target.click();if(e.key==='Escape')dismissSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.ghead'))e.target.click();if(e.key==='Escape'){if(window.__LECTOR__&&window.__LECTOR__.isOpen())return;if($('#sheet').classList.contains('on'))dismissSheet();else if(viewOpen())dismissView()}});
 document.addEventListener('click',e=>{
   if(e.target.closest('#sheet'))return;
   const x=e.target.closest('[data-a]');
@@ -2134,7 +2352,7 @@ document.addEventListener('click',e=>{
   if(a==='edit-book')return bookForm(book(id));
   if(a==='edit-saga')return sagaForm(saga(id));
   if(a==='edit-uni')return uniForm(uni(id));
-  if(a==='toggle-open'){const card=x.parentElement;const op=!card.classList.contains('open');ui.open[id]=op;if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody');if(gb){gb.innerHTML=LAZY.get(id)()}LAZY.delete(id)}card.classList.toggle('open',op);return}
+  if(a==='toggle-open'){const card=x.parentElement;const op=!card.classList.contains('open');ui.open[id]=op;if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody>.gbin');if(gb){gb.innerHTML=LAZY.get(id)()}LAZY.delete(id)}card.classList.toggle('open',op);return}
   if(a==='genre-tag'){const g=x.dataset.g;ui.genres=(ui.genres.length===1&&ui.genres[0]===g)?[]:[g];render(false);return}
   if(a==='tgdone'){HD=!HD;try{localStorage.setItem('por-leer-hd',HD?'1':'0')}catch(e){}render(false);const le=$('#list');if(le){le.classList.remove('swap');void le.offsetWidth;le.classList.add('swap')}return}
   if(a==='tgpend'){HP=!HP;try{localStorage.setItem('por-leer-hp',HP?'1':'0')}catch(e){}render(false);const le=$('#list');if(le){le.classList.remove('swap');void le.offsetWidth;le.classList.add('swap')}return}
@@ -2145,7 +2363,7 @@ document.addEventListener('click',e=>{
   if(a==='new-uni'){closeMenu();return uniForm(null)}
   if(a==='import'){setTimeout(closeMenu,50)}
 });
-if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if($('#scan').classList.contains('on'))closeScanner();else if($('#sheet').classList.contains('on'))dismissSheet();else if($('#menu').classList.contains('on'))closeMenu();else CAP.App.exitApp()});
+if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if(window.__LECTOR__&&window.__LECTOR__.isOpen())window.__LECTOR__.close();else if($('#scan').classList.contains('on'))closeScanner();else if($('#sheet').classList.contains('on'))dismissSheet();else if(viewOpen())dismissView();else if($('#menu').classList.contains('on'))closeMenu();else CAP.App.exitApp()});
 
 /* ---------- mantener pulsado: reordenar o sacar de una saga/universo ---------- */
 (function(){
@@ -2275,6 +2493,9 @@ if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if($('#scan').classList.co
 })();
 (function(){const st=$('#stick'),se=$('#sent');
   try{new IntersectionObserver(en=>{st.classList.toggle('on',!en[0].isIntersecting)},{threshold:0}).observe(se)}catch(e){}})();
+/* el puente queda listo desde el principio (es solo asignar un objeto); así el módulo
+   del lector puede cargarse por cualquier vía sin depender del orden */
+rdrBridge();
 applyStatic();
 render(false);
 bootStore().then(()=>{setTimeout(slimCovers,4000);checkFileLinks();
@@ -2283,6 +2504,13 @@ bootStore().then(()=>{setTimeout(slimCovers,4000);checkFileLinks();
   if(!CFG.pgSkip)setTimeout(()=>pagesForm(false),2500);
 });
 autoUpdateCheck();
+/* Si el lector está instalado pero es de una versión anterior a la app (porque la app se actualizó),
+   se baja el lector nuevo en segundo plano. Si el lector no está instalado no se hace nada. */
+function rdrAutoUpdate(){
+  if(!CAP||!CFG.rdrVer||CFG.rdrVer===VERSION||navigator.onLine===false)return;
+  setTimeout(async()=>{try{await rdrInstall();toast(t('lxUpdated'))}catch(e){}},5000);
+}
+rdrAutoUpdate();
 </script>
 </body>
 </html>
