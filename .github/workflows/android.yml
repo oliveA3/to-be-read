@@ -87,6 +87,13 @@ jobs:
           if [ -n "$EXTRA" ]; then echo "::warning::Permisos adicionales (revisar):"; echo "$EXTRA"; fi
           echo "Comprobaciones terminadas: firmado y no depurable"
 
+      - name: Empaquetar el lector integrado (modulo opcional)
+        run: |
+          cd reader
+          zip -r ../lector.zip lector.js lector.css
+          cd ..
+          unzip -l lector.zip
+
       - name: Guardar APK (Actions)
         uses: actions/upload-artifact@v4
         with:
@@ -100,5 +107,8 @@ jobs:
           token: ${{ secrets.RELEASES_REPO_TOKEN }}
           tag_name: v${{ steps.ver.outputs.version }}-build${{ steps.ver.outputs.build }}
           name: To be read ${{ steps.ver.outputs.version }} (build ${{ steps.ver.outputs.build }})
-          files: to-be-read-*.apk
+          files: |
+            to-be-read-*.apk
+            lector.zip
           make_latest: true
+          fail_on_unmatched_files: true
