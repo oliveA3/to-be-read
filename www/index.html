@@ -84,12 +84,17 @@ button{cursor:pointer;background:none;border:0;padding:0}
 /* Desplegar/cerrar un grupo: se anima grid-template-rows de 0fr a 1fr, que el navegador
    interpola solo, sin tener que medir alturas en JS ni fijar un max-height inventado.
    El borde y el relleno van en .gbin para que al estar cerrado no quede ninguna franja. */
-.gbody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s cubic-bezier(.4,0,.2,1)}
-.gbody>.gbin{overflow:hidden;min-height:0}
-.open>.gbody{grid-template-rows:1fr}
+.rke{display:none}
+.gbody{display:none}
+.open>.gbody{display:block}
 .open>.gbody>.gbin{border-top:1px dashed var(--line);padding:2px 0 6px}
 .card.uni>.gbody>.gbin{padding-top:10px}
-@media (prefers-reduced-motion:reduce){.gbody{transition:none}}
+/* Desplegar un grupo NO anima el alto (eso obligaba a recalcular toda la lista en cada fotograma).
+   El grupo se abre de golpe y solo su contenido entra con un fundido y un pequeño desliz, que es
+   barato porque lo resuelve la tarjeta gráfica sin volver a medir nada. */
+@keyframes gIn{from{opacity:0;transform:translate3d(0,-8px,0)}to{opacity:1;transform:none}}
+.card.opening>.gbody>.gbin{animation:gIn .2s ease-out}
+@media (prefers-reduced-motion:reduce){.card.opening>.gbody>.gbin{animation:none}}
 
 .row{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 14px;position:relative}
 .row+.row{border-top:1px dotted var(--line)}
@@ -242,6 +247,17 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .sic{color:var(--plum2);font-size:18px;flex:none}
 .srow.danger .wl{color:#9c2f58}
 .srow.danger.arm{background:#9c2f58;color:#fff;justify-content:center;font-weight:600}
+.scrow{align-items:flex-start;gap:10px}
+.scrow .stx{cursor:pointer}
+.scck{flex:none;width:24px;height:24px;margin-top:1px;border-radius:7px;border:1.5px solid var(--line);background:#fff;display:grid;place-items:center;color:#fff;padding:0}
+.scck.on{background:var(--plum2);border-color:var(--plum2)}
+.scck svg{width:15px;height:15px}
+.scb{flex:none;align-self:center;padding:6px 10px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:13px;font-family:inherit;color:var(--plum2);white-space:nowrap}
+.scb.on{background:var(--plum2);border-color:var(--plum2);color:#fff}
+.scbs{display:flex;gap:5px;flex:none;align-self:center}.scb svg{display:block}.scbs .scb{min-width:34px;padding:6px 7px;display:grid;place-items:center}
+.sctag{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--line);border-radius:999px;font-size:11px;font-weight:600;color:var(--ink2);vertical-align:2px}
+.sctag.scq{color:#9c2f58;border-color:#e2b4c6}
+.scoff{opacity:.45}
 .ssel{flex:none;max-width:52%;padding:7px 10px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:15px;outline:0}
 .switch{flex:none;width:46px;height:28px;border-radius:999px;background:var(--star0);position:relative;transition:background .2s}
 .switch span{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
@@ -403,7 +419,12 @@ body.magic .empty{background:rgba(250,245,252,.7);border-radius:12px;color:var(-
 .row .br{padding-left:2px;margin-left:-6px}.gbody .row .br{margin-left:-5px}
 .row .br+.pen,.row .br+.openb{margin-left:-4px}.gbody .row .br+.pen,.gbody .row .br+.openb{margin-left:-3px}
 .sic.pill{background:var(--plum2);color:#fff;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;line-height:1.2}
-@keyframes listSwap{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}.list.swap{animation:listSwap .24s ease-out}
+/* Mostrar/ocultar Por leer o Leídos: solo se esconde con CSS (no se reconstruye la lista) y las primeras
+   tarjetas que aparecen entran con un fundido corto; animar la lista entera era lo que se trababa. */
+#list.hd>[data-rk="2"],#list.hp>[data-rk="1"]{display:none}
+@keyframes rkIn{from{opacity:0;transform:translate3d(0,-6px,0)}to{opacity:1;transform:none}}
+#list>.rkin{animation:rkIn .18s ease-out}
+@media (prefers-reduced-motion:reduce){#list>.rkin{animation:none}}
 .ghead .gside{margin-left:-4px}.card .card .ghead .gside{margin-left:-3px}
 #supdS:not(.pill){font-size:24px}
 </style>
@@ -458,7 +479,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.15.3',BUILD=73;
+const VERSION='0.15.8',BUILD=78;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -507,6 +528,27 @@ const I18N={
   sagaDeleted:'Serie y sus libros eliminados',sagaUpd:'Serie actualizada',sagaNew:'Serie creada',
   newUni:'Nuevo universo',uniSub:'Un mundo con series y libros sueltos',uniDeleted:'Universo y todo su contenido eliminados',uniUpd:'Universo actualizado',uniNew:'Universo creado',
   filtSub:'Afina lo que ves en la lista',minRating:'Valoración mínima',clear:'Limpiar',apply:'Aplicar',
+  scT:'Escanear carpeta',scD:'Busca los .epub de una carpeta y los enlaza con tus libros',
+  scSub:f=>f?'Carpeta: '+f:'Revisa antes de importar',
+  scLooking:'Buscando archivos…',scCheck:'Comparando con tus libros…',scWork:(a,b)=>`Leyendo ${a} de ${b}…`,
+  scNone:'No encontré ningún .epub en esa carpeta',
+  scNoNative:'El escaneo de carpetas solo funciona en la app del teléfono',
+  scOld:'Instala la última versión de la app para escanear carpetas',
+  scFail:'No pude leer esa carpeta',scNoSaga:'Sin serie',
+  scSum:(tot,li,nu,bi)=>`${tot} ${tot===1?'encontrado':'encontrados'} · ${li} enlazar · ${nu} ${nu===1?'nuevo':'nuevos'} · ${bi} ${bi===1?'bilingüe':'bilingües'}`,
+  scStGuess:'posible, ¿es este libro?',scLinkBtn:'Enlazar con un libro mío',scPkT:'Enlazar con un libro tuyo',
+  scPkSearch:'Buscar en tu lista',scPkNone:'Ninguno: crear como libro nuevo',scPkEmpty:'No encontré ese libro',
+  scPkHas:'ya tiene archivo',scLinked:n=>`Enlazado con «${n}»`,
+  scStLink:'enlazar',scStLinkQ:'enlazar, comprueba que sea el mismo',scStLink2:'añadir 2ª versión',
+  scStNew:'nuevo',scStHas:'ya enlazado',scStDup:'repetido',
+  scVer2:'2ª versión',scSplit:'Separar',scJoin:'Juntar con otro',scPick:'Elige el otro',
+  scPickHint:'Toca ⇄ en el otro libro para juntarlos',scMerged:'Juntados como dos versiones',
+  scMrgLang:'Los dos archivos están en el mismo idioma',
+  scMrgFull:'Un libro solo puede tener dos versiones',
+  scMrgTwo:'Esos dos ya están enlazados a libros distintos',
+  scInc:'Incluir',scExc:'Quitar',scLater:'Cancelar',scGo:'Importar',
+  scNothing:'No hay nada marcado para importar',scImp:'Importando…',
+  scDone:(li,nu,bi)=>`${li} enlazados, ${nu} creados, ${bi} bilingües`,
   pickFile:'Elige un archivo .epub o .pdf',reading:'Leyendo el archivo…',detectedT:'Datos detectados',noMeta:'No pude leer los metadatos; rellénalos a mano',noImg:'No pude leer la imagen',
   stars:n=>`${n} estrellas`,remove:'Quitar',
   setSub:'Personaliza tu biblioteca',done:'Listo',language:'Idioma',list:'Lista',sortPendL:'Ordenar pendientes y en curso',sortDoneL:'Ordenar leídos y abandonados',sAlpha:'Nombre (A–Z)',sRating:'Mejor valorados',sDateDesc:'Fecha de lectura: reciente primero',sDateAsc:'Fecha de lectura: antigua primero',innerDate:'Fecha en libros agrupados',innerDateD:'Los libros dentro de una serie o universo también muestran su fecha de lectura',
@@ -521,11 +563,11 @@ const I18N={
   stLength:'Longitud',stLongest:'El más largo',stShortest:'El más corto',stAvgPages:'Media de páginas',
   back:'Volver',
   lxT:'Lector integrado',lxD:'Lee sin salir de la app',fileFiltL:'Archivo enlazado',fileWith:'Con archivo',fileWithout:'Sin archivo',fileBroken:'Enlace perdido',fileRelink:'No encuentro el archivo. Elígelo otra vez para volver a enlazarlo',fileRelinked:'Archivo enlazado de nuevo',lxUpdated:'Lector integrado actualizado',updWithLx:'Incluye la actualización del lector integrado',
-  lxGet:'Descargar lector integrado',lxGetD:'Se baja una sola vez (~30 KB) y queda guardado en el teléfono',
+  lxGet:'Descargar lector integrado',lxGetD:'Se baja una sola vez y queda guardado en el teléfono',
   lxOn:'Usar el lector integrado',lxOnD:'Apagado, los libros se abren con tu app de lectura de siempre',
   lxDel:'Eliminar lector',lxDelD:'Borra el módulo y libera el espacio',
   lxDling:'Descargando…',lxInstalled:'Lector instalado',lxRemoved:'Lector eliminado',
-  lxErrNet:'No pude descargar el lector',lxErrOff:'Necesitas conexión a internet',
+  lxErrNet:'No pude descargar el lector',lxErrMissing:'El lector aún no está publicado: falta lector.zip en la última release de GitHub',lxErrOff:'Necesitas conexión a internet',
   lxErrNative:'Esto solo funciona en el teléfono, no en la vista previa',
   lxFail:'No pude abrir el lector integrado',lxBad:'No pude leer este epub',
   lxLoading:'Abriendo el libro…',lxEmptyCh:'(capítulo vacío)',
@@ -579,6 +621,27 @@ const I18N={
   sagaDeleted:'Series and its books deleted',sagaUpd:'Series updated',sagaNew:'Series created',
   newUni:'New universe',uniSub:'A world with series and standalone books',uniDeleted:'Universe and everything in it deleted',uniUpd:'Universe updated',uniNew:'Universe created',
   filtSub:'Narrow down what you see',minRating:'Minimum rating',clear:'Clear',apply:'Apply',
+  scT:'Scan a folder',scD:'Finds the .epub files in a folder and links them to your books',
+  scSub:f=>f?'Folder: '+f:'Check before importing',
+  scLooking:'Looking for files…',scCheck:'Comparing with your books…',scWork:(a,b)=>`Reading ${a} of ${b}…`,
+  scNone:'I couldn’t find any .epub in that folder',
+  scNoNative:'Folder scanning only works in the phone app',
+  scOld:'Install the latest version of the app to scan folders',
+  scFail:'I couldn’t read that folder',scNoSaga:'No series',
+  scSum:(tot,li,nu,bi)=>`${tot} found · ${li} to link · ${nu} new · ${bi} bilingual`,
+  scStGuess:'possible, is it this book?',scLinkBtn:'Link to one of my books',scPkT:'Link to one of your books',
+  scPkSearch:'Search your list',scPkNone:'None: create as a new book',scPkEmpty:'I couldn\u2019t find that book',
+  scPkHas:'already has a file',scLinked:n=>`Linked to \u201c${n}\u201d`,
+  scStLink:'link',scStLinkQ:'link, check it’s the same one',scStLink2:'add 2nd version',
+  scStNew:'new',scStHas:'already linked',scStDup:'duplicate',
+  scVer2:'2nd version',scSplit:'Split',scJoin:'Join with another',scPick:'Pick the other',
+  scPickHint:'Tap ⇄ on the other book to join them',scMerged:'Joined as two versions',
+  scMrgLang:'Both files are in the same language',
+  scMrgFull:'A book can only have two versions',
+  scMrgTwo:'Those two are already linked to different books',
+  scInc:'Include',scExc:'Remove',scLater:'Cancel',scGo:'Import',
+  scNothing:'Nothing is ticked to import',scImp:'Importing…',
+  scDone:(li,nu,bi)=>`${li} linked, ${nu} created, ${bi} bilingual`,
   pickFile:'Choose an .epub or .pdf file',reading:'Reading file…',detectedT:'Details found',noMeta:'Couldn’t read the details; fill them in by hand',noImg:'Couldn’t read the image',
   stars:n=>`${n} stars`,remove:'Remove',
   setSub:'Make the library yours',done:'Done',language:'Language',list:'List',sortPendL:'Sort unread & reading',sortDoneL:'Sort read & dropped',sAlpha:'Name (A–Z)',sRating:'Top rated',sDateDesc:'Read date: newest first',sDateAsc:'Read date: oldest first',innerDate:'Read date on grouped books',innerDateD:'Books inside a series or universe also show their read date',
@@ -593,11 +656,11 @@ const I18N={
   stLength:'Length',stLongest:'Longest',stShortest:'Shortest',stAvgPages:'Average pages',
   back:'Back',
   lxT:'Built-in reader',lxD:'Read without leaving the app',fileFiltL:'Linked file',fileWith:'With file',fileWithout:'No file',fileBroken:'Broken link',fileRelink:'I can\u2019t find the file. Pick it again to re-link it',fileRelinked:'File linked again',lxUpdated:'Built-in reader updated',updWithLx:'Includes the built-in reader update',
-  lxGet:'Download built-in reader',lxGetD:'Downloaded once (~30 KB) and kept on your phone',
+  lxGet:'Download built-in reader',lxGetD:'Downloaded once and kept on your phone',
   lxOn:'Use the built-in reader',lxOnD:'When off, books open in your usual reading app',
   lxDel:'Remove reader',lxDelD:'Deletes the module and frees the space',
   lxDling:'Downloading…',lxInstalled:'Reader installed',lxRemoved:'Reader removed',
-  lxErrNet:'Couldn\u2019t download the reader',lxErrOff:'You need an internet connection',
+  lxErrNet:'Couldn\u2019t download the reader',lxErrMissing:'The reader isn\u2019t published yet: lector.zip is missing from the latest GitHub release',lxErrOff:'You need an internet connection',
   lxErrNative:'This only works on the phone, not in the preview',
   lxFail:'Couldn\u2019t open the built-in reader',lxBad:'Couldn\u2019t read this epub',
   lxLoading:'Opening the book…',lxEmptyCh:'(empty chapter)',
@@ -893,7 +956,7 @@ function sagaCard(s,vis,uniAuthor,inUni){
   /* la columna del número solo existe si ALGÚN libro de la serie tiene orden; si ninguno lo tiene
      se quita y todo se corre a la izquierda, y en series mixtas el hueco queda vacío para no desalinear */
   const anyOrd=all.some(b=>b.sagaOrder!=null&&b.sagaOrder!=='');
-  const open=isOpen(s.id,all.some(b=>stOf(b)==='reading')),body=()=>list.map(b=>bookRow(b,true,s.author,false,anyOrd)).join('')||`<div class="empty" style="padding:14px">${t('noBooks')}</div>`;
+  const open=isOpen(s.id,all.some(b=>stOf(b)==='reading')),body=()=>{const a=list.map(b=>bookRow(b,true,s.author,false,anyOrd));return a.length?a:[`<div class="empty" style="padding:14px">${t('noBooks')}</div>`]};
   if(!open)LAZY.set(s.id,body);
   return `<section class="card ${done?'done':''} ${open?'open':''}" data-dk="s:${s.id}" data-grp="${inUni?'u:'+s.universeId:''}" data-drop="s:${s.id}">
     <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${s.id}">
@@ -902,7 +965,7 @@ function sagaCard(s,vis,uniAuthor,inUni){
       <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}${s.ratingOverride==null?` (${t('avg')})`:''}</span>`:''}<span>${t('readOf',readN,all.length)}</span></span>
       <button class="pen" data-a="edit-saga" data-id="${s.id}" aria-label="${t('editSaga')}"><svg class="ico"><use href="#i-pen"/></svg></button>
     </div>
-    <div class="gbody"><div class="gbin">${open?body():''}</div></div>
+    <div class="gbody"><div class="gbin">${open?body().join(''):''}</div></div>
   </section>`;
 }
 function sortItems(items){
@@ -915,6 +978,40 @@ function sortItems(items){
   items.sort((a,b)=>(rank(a)-rank(b))||(rank(a)===2?doneKey(a,b):pendKey(a,b)));
 }
 let rtok=0;
+/* sección de cada elemento de la lista (0 leyendo, 1 pendientes, 2 leídos) y marca de fin de sección */
+const HIDL=[null,null,null];
+const rkTag=(h,r)=>h.replace(/^(\s*<\w+)/,'$1 data-rk="'+r+'"');
+const rkEnd=r=>`<i class="rke" data-e="${r}"></i>`;
+/* Mostrar u ocultar «Por leer» / «Leídos» sin rehacer la lista: ocultar es solo una clase de CSS;
+   mostrar lo que aún no se había construido lo pinta por tandas para que el teléfono no se trabe. */
+function toggleRank(r){
+  const listEl=$('#list');if(!listEl)return;
+  if(r===2)HD=!HD;else HP=!HP;
+  try{localStorage.setItem(r===2?'por-leer-hd':'por-leer-hp',(r===2?HD:HP)?'1':'0')}catch(e){}
+  const hide=(r===2?HD:HP)&&!ui.q&&allSt(ui.status),cls=r===2?'hd':'hp';
+  const btn=listEl.querySelector('.sep.tg[data-a="'+(r===2?'tgdone':'tgpend')+'"]');
+  if(btn)btn.setAttribute('aria-expanded',String(!hide));
+  if(hide){listEl.classList.add(cls);return}
+  const pend=HIDL[r],end=listEl.querySelector('.rke[data-e="'+r+'"]');
+  const pop=()=>{let n=0;for(let e=btn&&btn.nextElementSibling;e&&n<8&&!e.classList.contains('rke')&&!e.classList.contains('sep');e=e.nextElementSibling,n++){
+    e.classList.add('rkin');setTimeout(()=>e.classList.remove('rkin'),260)}};
+  if(!pend||!pend.length){listEl.classList.remove(cls);pop();return}
+  /* la lista aún se está pintando por tandas y la marca de fin no existe: lo más seguro es rehacerla */
+  if(!end){render(false);return}
+  HIDL[r]=null;listEl.classList.remove(cls);
+  const tk=rtok;let i=0;
+  const put=n=>{if(tk!==rtok)return;end.insertAdjacentHTML('beforebegin',pend.slice(i,i+n).map(f=>rkTag(f(),r)).join(''));i+=n};
+  put(14);pop();
+  const more=()=>{if(tk!==rtok||i>=pend.length)return;put(30);if(i<pend.length)idle(more,{timeout:250})};
+  if(i<pend.length)idle(more,{timeout:250});
+}
+/* abrir un grupo cerrado: las primeras tarjetas salen enseguida y el resto va llegando */
+function fillLazy(gb,parts){
+  const v0=ver,FIRST=12,STEP=24;let i=FIRST;
+  gb.innerHTML=parts.slice(0,FIRST).join('');
+  const more=()=>{if(ver!==v0||!gb.isConnected||i>=parts.length)return;gb.insertAdjacentHTML('beforeend',parts.slice(i,i+STEP).join(''));i+=STEP;if(i<parts.length)idle(more,{timeout:200})};
+  if(parts.length>FIRST)idle(more,{timeout:200});
+}
 function render(persist=true){
   ver++;LAZY.clear();syncUniAuthors();document.body.classList.toggle('nostrike',!CFG.strike);document.body.classList.add('magic');
   const vis=S.books.filter(passes),f=filtering();
@@ -942,7 +1039,7 @@ function render(persist=true){
     const cnt=[nsg?t('sagas',nsg):'',nl?t('books',nl):''].filter(Boolean).join(' · ')||t('empty');
     const uReading=all.some(b=>stOf(b)==='reading');
     items.push({k:2,name:u.name,done,reading:uReading,rating:r,recent:recentOf(all),lastRead:lastReadOf(all),h:()=>{
-      const open=isOpen(u.id,uReading),body=()=>mix.map(x=>x.h()).join('')||`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`;
+      const open=isOpen(u.id,uReading),body=()=>{const a=mix.map(x=>x.h());return a.length?a:[`<div class="empty" style="padding:14px">${t('emptyBody')}</div>`]};
       if(!open)LAZY.set(u.id,body);
       return `<section class="card uni ${open?'open':''} ${done?'done':''}" data-drop="u:${u.id}">
       <div class="ghead" role="button" tabindex="0" data-a="toggle-open" data-id="${u.id}">
@@ -951,7 +1048,7 @@ function render(persist=true){
         <span class="gside">${r>0?stars(r)+`<span>${fmt(r)}</span>`:''}<span>${cnt}</span></span>
         <button class="pen" data-a="edit-uni" data-id="${u.id}" aria-label="${t('editUni')}"><svg class="ico"><use href="#i-pen"/></svg></button>
       </div>
-      <div class="gbody"><div class="gbin">${open?body():''}</div></div></section>`}});
+      <div class="gbody"><div class="gbin">${open?body().join(''):''}</div></div></section>`}});
   });
   S.sagas.filter(s=>!uni(s.universeId)).forEach(s=>{
     const v=visSaga.get(s.id)||[];
@@ -966,14 +1063,21 @@ function render(persist=true){
   const multi=cnt.filter(Boolean).length>1;
   /* pintado por tandas: lo primero aparece enseguida y el resto se añade mientras el teléfono descansa */
   const tok=++rtok,listEl=$('#list'),hideDone=HD&&multi&&!ui.q&&allSt(ui.status),hidePend=HP&&multi&&!ui.q&&allSt(ui.status);
+  HIDL[1]=hidePend?[]:null;HIDL[2]=hideDone?[]:null;
+  listEl.classList.remove('hd','hp');
   const sy=window.scrollY,lh=listEl.offsetHeight;
   if(!items.length){listEl.style.minHeight='';listEl.innerHTML=`<div class="empty">${f?t('noMatch'):t('emptyList')}</div>`}
   else{
     let i=0,lastR=-1;
     const build=n=>{let h='';const end=Math.min(items.length,i+n);
       for(;i<end;i++){const it=items[i],r=rk(it);
+        if(r!==lastR&&lastR>=0)h+=rkEnd(lastR);
         if(multi&&r!==lastR)h+=r===2?`<button type="button" class="sep s2 tg" data-a="tgdone" aria-expanded="${!hideDone}"><svg class="chv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>${t('secDone')}<span>${cnt[r]}</span></button>`:r===1?`<button type="button" class="sep s1 tg" data-a="tgpend" aria-expanded="${!hidePend}"><svg class="chv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>${t('secPending')}<span>${cnt[r]}</span></button>`:`<div class="sep s${r}">${t('secReading')}<span>${cnt[r]}</span></div>`;
-        lastR=r;if(r===2&&hideDone)continue;if(r===1&&hidePend)continue;h+=it.h()}
+        lastR=r;
+        /* lo que está oculto no se construye: se guarda la receta y se pinta solo cuando lo muestras */
+        if(HIDL[r]){HIDL[r].push(it.h);continue}
+        h+=rkTag(it.h(),r)}
+      if(i>=items.length&&lastR>=0)h+=rkEnd(lastR);
       return h};
     if(lh>0&&sy>0)listEl.style.minHeight=lh+'px';
     listEl.innerHTML=build(22);
@@ -1112,7 +1216,23 @@ const FS=(()=>{
     async grantedUris(){
       const fo=FO();if(!fo)return null;
       try{const r=await fo.grantedUris();return new Set(r&&r.uris||[])}catch(e){return null}
-    }
+    },
+    /* elegir una CARPETA: el permiso queda sobre toda la carpeta, así que sirve para todos los archivos de dentro */
+    async pickTree(){
+      const fo=FO();if(!fo)throw new Error('fail');
+      let r;try{r=await fo.pickTree()}catch(e){const w=why(e);
+        throw new Error(/cancel/i.test(w)?'cancelled':/implement|not available/i.test(w)?'oldapk':'fail')}
+      return {uri:r.uri,name:r.name||''};
+    },
+    /* recorre la carpeta y las subcarpetas; devuelve {uri,name,size,path} de cada .epub */
+    async scanTree(uri){
+      const fo=FO();if(!fo)throw new Error('fail');
+      let r;try{r=await fo.scanTree({uri})}catch(e){const w=why(e);
+        throw new Error(/implement|not available/i.test(w)?'oldapk':/permission/i.test(w)?'gone':'fail')}
+      return (r&&r.files)||[];
+    },
+    /* un .epub encontrado al escanear se enlaza igual que uno elegido a mano */
+    treeRef(f){return {name:f.name||'libro',type:'application/epub+zip',uri:f.uri}}
   };
 })();
 const BROKEN=new Set();
@@ -1179,7 +1299,7 @@ async function rdrInstall(onProg){
   if(navigator.onLine===false)throw new Error('offline');
   if(!(CAP&&CAP.Filesystem))throw new Error('nonative');
   const r=await fetch(rdrUrl(),{redirect:'follow'});
-  if(!r.ok)throw new Error('net');
+  if(!r.ok)throw new Error(r.status===404?'missing':'net');
   const total=+r.headers.get('content-length')||0;
   let buf;
   if(r.body&&r.body.getReader){
@@ -1224,6 +1344,353 @@ async function relinkBook(b){
   catch(e){if(String(e&&e.message)!=='cancelled')toast(t('fileFail'));return false}
 }
 let pickTarget=null;
+
+/* ---------- escanear una carpeta llena de EPUB ----------
+   Recorre la carpeta y sus subcarpetas y lee SOLO los datos de cada .epub (nunca el archivo entero).
+   Lo que cruza con un libro que ya tienes queda enlazado a su archivo; lo que no existe se crea.
+   Dos archivos del mismo libro en distinto idioma se juntan en un libro con las dos versiones del lector. */
+const I_FOLD='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l2 2.2h7A1.5 1.5 0 0 1 19 9.7v2"/><path d="M3 7.5v10A1.5 1.5 0 0 0 4.5 19h7.6"/><circle cx="17.3" cy="16.3" r="3.2"/><path d="M19.7 18.7L22 21"/></svg>';
+/* clave de comparación: sin acentos, sin signos y sin artículos, para que «El Hobbit» y «hobbit,» coincidan */
+const skey=s=>norm(s).replace(/[^a-z0-9 ]+/g,' ').replace(/\b(el|la|los|las|lo|un|una|the|a|an)\b/g,' ').replace(/\s+/g,' ').trim();
+/* el autor se compara con sus palabras ordenadas, así «Rowling, J. K.» y «J. K. Rowling» dan lo mismo */
+const akey=s=>skey(s).split(' ').filter(Boolean).sort().join(' ');
+let SCAN=null;
+/* lee los datos de un .epub: por trozos (lo normal) y, si el proveedor no da el tamaño, leyéndolo entero */
+async function scanRead(ref,size,light){
+  if(size>0){try{return await readEpub({rf:FS.range(ref,size)},light)}catch(e){}}
+  if(size&&size>MAXMETA)return null;
+  try{const blob=await FS.get(ref);return await readEpub(new File([blob],ref.name,{type:ref.type}),light)}catch(e){}
+  return null;
+}
+/* índices de la lista actual, para cruzar cada archivo sin recorrerla una y otra vez */
+function scanIx(){
+  const byTA=new Map(),byT=new Map(),bySO=new Map(),sgK=new Map(),byA=new Map();
+  S.sagas.forEach(s=>{const k=skey(s.name);if(k&&!sgK.has(k))sgK.set(k,s)});
+  S.books.forEach(b=>{
+    const tk=skey(b.title),ak=akey(b.author);
+    if(ak){if(!byA.has(ak))byA.set(ak,[]);byA.get(ak).push(b)}
+    if(tk){const k=tk+'|'+ak;if(!byTA.has(k))byTA.set(k,b);
+      if(!byT.has(tk))byT.set(tk,[]);byT.get(tk).push(b)}
+    if(b.sagaId&&b.sagaOrder!=null){const k=b.sagaId+'#'+b.sagaOrder;if(!bySO.has(k))bySO.set(k,b)}
+  });
+  return {byTA,byT,bySO,sgK,byA};
+}
+/* busca a qué libro de la lista corresponde un archivo; fuzzy = coincide, pero conviene mirarlo */
+function scanFind(ix,tk,ak,author,sg,sorder){
+  let target=ix.byTA.get(tk+'|'+ak)||null,fuzzy=false;
+  if(!target&&tk){
+    const c=ix.byT.get(tk)||[];
+    if(c.length===1){target=c[0];fuzzy=!!(author&&akey(c[0].author)!==ak)}
+    else if(c.length>1&&sg){const inS=c.filter(b=>b.sagaId===sg.id);if(inS.length===1){target=inS[0];fuzzy=true}}
+  }
+  /* el título viene en otro idioma: la serie y su número no cambian, así que sirven para encontrarlo */
+  if(!target&&sg&&sorder!=null){
+    const b=ix.bySO.get(sg.id+'#'+sorder);
+    if(b&&(!author||!b.author||akey(b.author)===ak)){target=b;fuzzy=true}
+  }
+  return {target,fuzzy};
+}
+function scanRows(items){
+  const ix=scanIx();
+  const rows=items.map(it=>{
+    const m=it.meta||{};
+    const title=String(m.title||it.base||'').trim()||it.base;
+    const author=String(m.author||'').trim();
+    /* la serie sale de los datos del archivo y, si no trae, del nombre de la subcarpeta */
+    const folder=String(it.file.path||'').split('/').filter(Boolean).pop()||'';
+    const sname=String(m.sagaName||'').trim()||folder;
+    const sg=sname?(ix.sgK.get(skey(sname))||null):null;
+    const sorder=m.sagaOrder!=null?m.sagaOrder:null;
+    const tk=skey(title),ak=akey(author);
+    const f=scanFind(ix,tk,ak,author,sg,sorder);
+    return {id:uid(),target:f.target,fuzzy:f.fuzzy,tk,ak,sname,sorder,sg,
+      items:[{ref:it.ref,size:+it.file.size||0,name:it.file.name,path:it.file.path||'',
+        lang:m.lang||'',title,author,meta:m}]};
+  });
+  /* Sin coincidencia por título ni por serie (típico de un libro suelto con el título traducido): si el autor tiene
+     en tu lista UN solo libro que podría ser este, se propone como posible. Nunca se aplica solo: queda apagado
+     hasta que lo confirmes. Si hay duda (varios libros del autor, o varios archivos sin pareja) no se propone nada. */
+  {const claimed=new Set(rows.filter(r=>r.target).map(r=>r.target.id)),un=new Map();
+   rows.forEach(r=>{if(!r.target&&r.ak){if(!un.has(r.ak))un.set(r.ak,[]);un.get(r.ak).push(r)}});
+   un.forEach((g,ak)=>{
+     const ok=g.length===1||(g.length===2&&g[0].items[0].lang&&g[1].items[0].lang&&g[0].items[0].lang!==g[1].items[0].lang);
+     if(!ok)return;
+     const c=(ix.byA.get(ak)||[]).filter(b=>!claimed.has(b.id)&&!(b.file&&b.file2));
+     if(c.length!==1)return;
+     g.forEach(r=>{r.target=c[0];r.fuzzy=true;r.guess=true});
+   })}
+  const out=scanPair(rows);
+  scanMarkDup(out);
+  return out;
+}
+/* dos archivos que son el mismo libro y no se pudieron juntar (mismo idioma): el segundo sobra.
+   Los enlazados a mano van primero para que ganen ellos. */
+function scanMarkDup(rows){
+  const ya=new Set();
+  rows.forEach(r=>{r.dup=false});
+  rows.filter(r=>r.manual).concat(rows.filter(r=>!r.manual)).forEach(r=>{
+    const k=r.target?('b:'+r.target.id):(r.tk?'n:'+r.tk+'|'+r.ak:'');
+    if(!k)return;
+    if(ya.has(k))r.dup=true;else ya.add(k);
+  });
+}
+/* junta en una sola fila los dos archivos del mismo libro en distinto idioma */
+function scanPair(rows){
+  const out=[],used=new Set();
+  const can=(a,b)=>{
+    const la=a.items[0].lang,lb=b.items[0].lang;
+    if(!la||!lb||la===lb)return false;        /* sin idioma, o el mismo: no son dos versiones */
+    /* si los dos ya apuntan a un libro, solo se juntan si es el mismo libro */
+    if(a.target&&b.target)return a.target===b.target;
+    /* lo normal es que solo una versión esté en la lista (la del idioma de la app) y la otra no:
+       entonces deciden el autor junto con el título o con la serie y su número */
+    if(!a.ak||a.ak!==b.ak)return false;       /* distinto autor: no se arriesga */
+    if(a.tk&&a.tk===b.tk)return true;         /* mismo título, distinto idioma */
+    return !!(a.sname&&b.sname&&skey(a.sname)===skey(b.sname)&&a.sorder!=null&&a.sorder===b.sorder);
+  };
+  rows.forEach((r,i)=>{
+    if(used.has(i))return;
+    for(let j=i+1;j<rows.length;j++){
+      if(used.has(j)||r.items.length>1||rows[j].items.length>1||!can(r,rows[j]))continue;
+      used.add(j);scanJoin(r,rows[j]);break;
+    }
+    out.push(r);
+  });
+  return out;
+}
+/* el archivo en el idioma de la app es la versión principal; el otro queda como segunda versión */
+function scanJoin(a,b){
+  a.items=a.items.concat(b.items).slice(0,2);
+  a.items.sort((x,y)=>(y.lang===CFG.lang?1:0)-(x.lang===CFG.lang?1:0));
+  if(!a.target&&b.target){a.target=b.target;a.fuzzy=b.fuzzy}
+  if(!a.sname&&b.sname){a.sname=b.sname;a.sorder=b.sorder;a.sg=b.sg}
+  if(a.sorder==null&&b.sorder!=null)a.sorder=b.sorder;
+  a.tk=skey(a.items[0].title);a.ak=akey(a.items[0].author);
+}
+/* saca la segunda versión de una fila y la vuelve a cruzar con la lista por su cuenta */
+function scanSplit(r){
+  if(r.items.length<2)return;
+  const q=r.items.pop(),ix=scanIx();
+  const tk=skey(q.title),ak=akey(q.author);
+  const sname=String((q.meta&&q.meta.sagaName)||'').trim()||String(q.path||'').split('/').filter(Boolean).pop()||'';
+  const sg=sname?(ix.sgK.get(skey(sname))||null):null;
+  const sorder=(q.meta&&q.meta.sagaOrder!=null)?q.meta.sagaOrder:null;
+  const f=scanFind(ix,tk,ak,q.author,sg,sorder);
+  r.tk=skey(r.items[0].title);r.ak=akey(r.items[0].author);
+  SCAN.rows.push({id:uid(),target:f.target,fuzzy:f.fuzzy,tk,ak,sname,sorder,sg,items:[q],
+    dup:!!(f.target&&r.target===f.target)});
+}
+function scanCanJoin(a,b){
+  if(a.items.length>1||b.items.length>1)return 'scMrgFull';
+  const la=a.items[0].lang,lb=b.items[0].lang;
+  if(la&&lb&&la===lb)return 'scMrgLang';
+  if(a.target&&b.target&&a.target!==b.target)return 'scMrgTwo';
+  return '';
+}
+/* qué va a pasar con esta fila al importar */
+function scState(r){
+  if(r.dup)return 'dup';
+  const b=r.target;
+  if(!b)return 'new';
+  if(!b.file||BROKEN.has(b.id))return r.guess?'guess':(r.fuzzy?'linkq':'link');
+  if(r.items.length>1&&!b.file2)return 'link2';
+  /* el libro ya tiene su archivo y este es OTRO archivo en OTRO idioma: pasa a ser la segunda versión del lector.
+     Si el idioma es el mismo (o no se pudo saber) es una copia repetida y no se toca nada. */
+  const p=r.items[0];
+  if(r.items.length===1&&!b.file2&&r.tLang&&p.lang&&r.tLang!==p.lang&&b.file.uri!==p.ref.uri)return 'link2';
+  return 'has';
+}
+/* Para saber si un EPUB es la "otra versión" de un libro que ya tiene archivo hay que conocer el idioma de ese archivo.
+   Se lee (solo los datos, sin portada) únicamente para las filas que coinciden con un libro con archivo y de uno en uno. */
+async function scanTargetLangs(rows){
+  const cache=new Map();
+  for(const r of rows){
+    const b=r.target;
+    if(!b||!b.file||b.file2||BROKEN.has(b.id)||r.items.length>1)continue;
+    if(b.file.uri&&b.file.uri===r.items[0].ref.uri)continue;
+    if(!/epub/i.test((b.file.type||'')+(b.file.name||'')))continue;
+    if(!cache.has(b.id)){
+      let lg='';
+      try{const m=await scanRead(b.file,0,true);lg=(m&&m.lang)||''}catch(e){}
+      cache.set(b.id,lg);
+    }
+    r.tLang=cache.get(b.id);
+  }
+}
+/* por defecto se deja apagado lo que no aporta nada: ya enlazado y repetido */
+const scanOff=r=>r.off===undefined?(scState(r)==='has'||scState(r)==='dup'||!!r.guess):!!r.off;
+const SC_ST={guess:'scStGuess',link:'scStLink',linkq:'scStLinkQ',link2:'scStLink2',new:'scStNew',has:'scStHas',dup:'scStDup'};
+async function scanStart(){
+  if(!NATIVE){toast(t('scNoNative'));return}
+  let tree;
+  try{tree=await FS.pickTree()}
+  catch(e){const m=String(e&&e.message);if(m!=='cancelled')toast(t(m==='oldapk'?'scOld':'scFail'));return}
+  let stop=false;
+  openSheet(`${hero(medal(I_FOLD),t('scT'),esc(tree.name||''))}
+    <p class="lead" id="sctx">${t('scLooking')}</p>
+    <div class="btns"><button type="button" class="btn" id="scstop">${t('pgStop')}</button></div>`);
+  $('#scstop').onclick=()=>{stop=true};
+  let files;
+  try{files=await FS.scanTree(tree.uri)}
+  catch(e){closeSheet();toast(t(String(e&&e.message)==='oldapk'?'scOld':'scFail'));return}
+  if(stop){closeSheet();return}
+  if(!files.length){closeSheet();toast(t('scNone'));return}
+  const items=[];let done=0;
+  const one=async f=>{
+    const ref=FS.treeRef(f);
+    const base=String(f.name||'').replace(/\.\w+$/,'').replace(/[_]+/g,' ').trim();
+    const meta=await scanRead(ref,+f.size||0,true);
+    items.push({ref,file:f,base,meta:meta&&meta.title?meta:Object.assign({title:base},meta||{})});
+    done++;const tx=$('#sctx');if(tx)tx.textContent=t('scWork',done,files.length);
+  };
+  /* de tres en tres: aprovecha la espera del disco sin ahogar un teléfono lento */
+  for(let i=0;i<files.length&&!stop;i+=3)await Promise.all(files.slice(i,i+3).map(one));
+  if(!items.length){closeSheet();toast(t('scNone'));return}
+  const rows0=scanRows(items);
+  {const tx=$('#sctx');if(tx)tx.textContent=t('scCheck');}
+  await scanTargetLangs(rows0);
+  if(stop){closeSheet();return}
+  SCAN={folder:tree.name||'',rows:rows0,mrg:null};
+  closeSheet();scanForm();
+}
+function scanSum(){
+  let li=0,nu=0,bi=0;
+  SCAN.rows.forEach(r=>{if(scanOff(r))return;
+    const s=scState(r);if(s==='new')nu++;else if(s!=='has'&&s!=='dup')li++;
+    if(r.items.length>1||s==='link2')bi++});
+  return t('scSum',SCAN.rows.length,li,nu,bi);
+}
+function scanRow(r){
+  const off=scanOff(r),st=scState(r),p=r.items[0],q=r.items[1]||null;
+  const langs=r.items.map(x=>x.lang?x.lang.toUpperCase():'?').join('+');
+  const mrg=SCAN.mrg===r.id;
+  /* la carpeta solo se enseña si aporta algo: si es la misma que el título del grupo, sobra */
+  const verRuta=p.path&&skey(p.path)!==skey(r.sname||'');
+  /* si coincide con un libro tuyo se muestra TU título (el del archivo puede estar en otro idioma) */
+  const mio=r.target?String(r.target.title||''):'';
+  const otro=mio&&skey(mio)!==skey(p.title)?[p.title]:[];
+  const sub=[p.author||t('unknown'),t(SC_ST[st])].concat(otro,verRuta?[p.path]:[]).join(' · ');
+  return `<div class="srow scrow${off?' scoff':''}">`
+    +`<button type="button" class="scck${off?'':' on'}" data-sc="tog" data-r="${r.id}" aria-label="${t(off?'scInc':'scExc')}">${off?'':CHECK}</button>`
+    +`<div class="stx" data-sc="tog" data-r="${r.id}"><div>${esc(mio||p.title||p.name)}`
+    +`<span class="sctag">${langs}</span>${(st==='linkq'||r.guess)?'<span class="sctag scq">?</span>':''}</div>`
+    +`<small>${esc(sub)}</small>`+(q?`<small>${t('scVer2')}: ${esc(q.name)}</small>`:'')+`</div>`
+    +`<span class="scbs"><button type="button" class="scb${r.manual?' on':''}" data-sc="lnk" data-r="${r.id}" aria-label="${t('scLinkBtn')}">${I_LINK}</button>`
+    +(q?`<button type="button" class="scb" data-sc="spl" data-r="${r.id}">${t('scSplit')}</button>`
+       :`<button type="button" class="scb${mrg?' on':''}" data-sc="mrg" data-r="${r.id}" aria-label="${t('scJoin')}">${mrg?t('scPick'):'⇄'}</button>`)
+    +`</span></div>`;
+}
+function scanList(){
+  const gr=new Map();
+  SCAN.rows.forEach(r=>{const k=r.sname||'';if(!gr.has(k))gr.set(k,[]);gr.get(k).push(r)});
+  const keys=[...gr.keys()].sort((a,b)=>(a&&b)?coll.compare(a,b):(a?-1:1));
+  return keys.map(k=>{
+    const rs=gr.get(k).slice().sort((a,b)=>{
+      if(a.sorder!=null&&b.sorder!=null&&a.sorder!==b.sorder)return a.sorder-b.sorder;
+      if((a.sorder!=null)!==(b.sorder!=null))return a.sorder!=null?-1:1;
+      return coll.compare(a.items[0].title||'',b.items[0].title||'');
+    });
+    return `<div class="sec">${k?esc(k):t('scNoSaga')}</div><div class="group">`+rs.map(scanRow).join('')+'</div>';
+  }).join('');
+}
+const I_LINK='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/></svg>';
+/* Enlazar a mano una fila con un libro de tu lista (para lo que la app no pudo reconocer por sí sola) */
+function scanPicker(r,done){
+  const p=r.items[0];
+  openSheet(`${hero(medal(I_LINK.replace('width="16" height="16"','width="26" height="26"')),t('scPkT'),esc(p.title||p.name))}
+    <div class="f"><input type="text" id="scpq" placeholder="${t('scPkSearch')}" autocomplete="off"></div>
+    <div class="group" id="scpl" style="max-height:46vh;overflow:auto"></div>
+    ${r.target?`<div class="btns"><button type="button" class="btn" id="scpn">${t('scPkNone')}</button></div>`:''}`);
+  const paint=()=>{
+    const toks=skey($('#scpq').value).split(' ').filter(Boolean);
+    const bs=S.books.filter(b=>{const hay=skey(b.title+' '+b.author);return toks.every(x=>hay.includes(x))});
+    bs.sort((a,b)=>((akey(b.author)===r.ak?1:0)-(akey(a.author)===r.ak?1:0))||coll.compare(a.title,b.title));
+    $('#scpl').innerHTML=bs.length?bs.slice(0,50).map(b=>
+      `<button type="button" class="srow" data-pk="${b.id}"><div class="stx"><div>${esc(b.title)}</div><small>${esc(b.author)}${b.file?' · '+t('scPkHas'):''}</small></div>${r.target&&r.target.id===b.id?`<span class="sic">${CHECK.replace('<svg','<svg width="16" height="16"')}</span>`:''}</button>`).join('')
+      :`<div class="empty" style="padding:14px">${t('scPkEmpty')}</div>`;
+  };
+  paint();
+  let qT;$('#scpq').oninput=()=>{clearTimeout(qT);qT=setTimeout(paint,120)};
+  $('#scpl').onclick=async e=>{
+    const x=e.target.closest('[data-pk]');if(!x)return;const b=book(x.dataset.pk);if(!b)return;
+    r.target=b;r.fuzzy=false;r.guess=false;r.manual=true;r.off=false;r.tLang=undefined;
+    closeSheet();
+    await scanTargetLangs([r]);
+    /* otro archivo suelto del mismo libro en el otro idioma: se junta como segunda versión */
+    const o=SCAN.rows.find(y=>y!==r&&y.target===b&&y.items.length===1&&r.items.length===1&&y.items[0].lang&&r.items[0].lang&&y.items[0].lang!==r.items[0].lang);
+    if(o){scanJoin(r,o);SCAN.rows=SCAN.rows.filter(y=>y!==o)}
+    scanMarkDup(SCAN.rows);done();toast(t('scLinked',b.title));
+  };
+  const n=$('#scpn');
+  if(n)n.onclick=()=>{r.target=null;r.fuzzy=false;r.guess=false;r.manual=false;r.off=undefined;r.tLang=undefined;
+    scanMarkDup(SCAN.rows);closeSheet();done()};
+}
+function scanForm(){
+  openView(medal(I_FOLD),t('scT'),t('scSub',SCAN.folder),
+    `<p class="lead" id="scsum">${scanSum()}</p>`
+    +`<div id="sclist">${scanList()}</div>`
+    +`<div class="btns"><button type="button" class="btn" id="sccan">${t('scLater')}</button>`
+    +`<button type="button" class="btn main" id="scok">${t('scGo')}</button></div>`);
+  const paint=()=>{$('#sclist').innerHTML=scanList();$('#scsum').textContent=scanSum()};
+  $('#sclist').onclick=e=>{
+    const x=e.target.closest('[data-sc]');if(!x)return;
+    const r=SCAN.rows.find(y=>y.id===x.dataset.r);if(!r)return;
+    const a=x.dataset.sc;
+    if(a==='tog'){r.off=!scanOff(r);SCAN.mrg=null;paint();return}
+    if(a==='spl'){scanSplit(r);scanMarkDup(SCAN.rows);SCAN.mrg=null;paint();return}
+    if(a==='lnk'){SCAN.mrg=null;scanPicker(r,paint);return}
+    if(a!=='mrg')return;
+    if(SCAN.mrg===r.id){SCAN.mrg=null;paint();return}
+    if(!SCAN.mrg){SCAN.mrg=r.id;paint();toast(t('scPickHint'));return}
+    const o=SCAN.rows.find(y=>y.id===SCAN.mrg);SCAN.mrg=null;
+    if(!o||o===r){paint();return}
+    const bad=scanCanJoin(o,r);
+    if(bad){paint();toast(t(bad));return}
+    scanJoin(o,r);SCAN.rows=SCAN.rows.filter(y=>y!==r);scanMarkDup(SCAN.rows);paint();toast(t('scMerged'));
+  };
+  $('#sccan').onclick=()=>{SCAN=null;closeView()};
+  $('#scok').onclick=scanImport;
+}
+async function scanImport(){
+  const rows=SCAN.rows.filter(r=>!scanOff(r));
+  if(!rows.length){toast(t('scNothing'));return}
+  const btns=$('#view').querySelector('.btns');
+  if(btns)btns.innerHTML=`<div class="lead" id="scpg">${t('scImp')}</div>`;
+  const sgK=new Map();S.sagas.forEach(s=>{const k=skey(s.name);if(k&&!sgK.has(k))sgK.set(k,s)});
+  let li=0,made=0,bi=0,n=0;
+  for(const r of rows){
+    n++;const pg=$('#scpg');if(pg)pg.textContent=t('scWork',n,rows.length);
+    const p=r.items[0],q=r.items[1]||null,st=scState(r);
+    if(r.target){
+      const b=book(r.target.id);if(!b)continue;
+      if(st==='link'||st==='linkq'||st==='guess'){
+        /* el enlace viejo estaba roto o apuntaba a otro sitio: se suelta y se pone el nuevo */
+        if(b.file&&b.file.uri&&b.file.uri!==p.ref.uri)FS.del(b.file);
+        b.file=p.ref;BROKEN.delete(b.id);li++;
+        if(q&&!b.file2){b.file2=q.ref;bi++}
+      }else if(st==='link2'){b.file2=(q||p).ref;bi++;li++}
+      continue;
+    }
+    const nb={id:uid(),title:p.title||p.name,author:p.author||t('unknown'),status:'unread',read:false,readAt:null,
+      rating:0,genres:[],sagaId:'',sagaOrder:null,universeId:'',universeOrder:null,cover:null,file:p.ref};
+    if(q){nb.file2=q.ref;bi++}
+    if(r.sname){
+      const ex=sgK.get(skey(r.sname));
+      if(ex){nb.sagaId=ex.id;if(r.sorder!=null)nb.sagaOrder=r.sorder}
+      /* la serie que no existe solo se crea si el ajuste «Crear series autodetectadas» está activado */
+      else if(CFG.autoSaga){
+        const ns={id:uid(),name:r.sname,author:nb.author,universeId:'',universeOrder:null,ratingOverride:null};
+        S.sagas.push(ns);sgK.set(skey(r.sname),ns);nb.sagaId=ns.id;if(r.sorder!=null)nb.sagaOrder=r.sorder}
+    }
+    /* la portada se saca solo de los libros nuevos: es la parte lenta y los que ya tienes ya la tienen */
+    const full=await scanRead(p.ref,p.size,false);
+    if(full&&full.cover)nb.cover=full.cover;
+    S.books.push(nb);made++;
+  }
+  SCAN=null;ui.open={};save();render();closeView();
+  toast(t('scDone',li,made,bi));
+  checkFileLinks();
+}
 
 /* selector de géneros: una sola línea con los más usados y un "···" que despliega el resto */
 function genPicker(box,order,isOn,toggle){
@@ -1984,7 +2451,7 @@ function rdrWire(){
     rdrBusy=true;rdrPct=-1;rdrPaint();
     try{await rdrInstall(p=>{rdrPct=p;const e=$('#srdr .stx small');if(e)e.textContent=p>=0?p+'%':'…'});
       rdrBusy=false;rdrPaint();toast(t('lxInstalled'))}
-    catch(e){rdrBusy=false;rdrPaint();toast(t(String(e&&e.message)==='offline'?'lxErrOff':'lxErrNet'))}
+    catch(e){rdrBusy=false;rdrPaint();{const m=String(e&&e.message);toast(t(m==='offline'?'lxErrOff':m==='missing'?'lxErrMissing':'lxErrNet'))}}
   };
   const s=$('#srdron');if(s)s.onclick=e=>{e.preventDefault();const v=!rdrActive();
     s.setAttribute('aria-checked',v);CFG.rdrOn=v;saveCfg()};
@@ -2026,6 +2493,7 @@ function settingsForm(){
       <button type="button" class="srow" id="sexp"><div class="stx"><div>${t('export')}</div><small>${t('exportD')}</small></div><span class="sic">↑</span></button>
       <button type="button" class="srow" id="simp"><div class="stx"><div>${t('importB')}</div><small>${t('importD')}</small></div><span class="sic">↓</span></button>
       <button type="button" class="srow" id="sadd"><div class="stx"><div>${t('addJson')}</div><small>${t('addJsonD')}</small></div><span class="sic">+</span></button>
+      <button type="button" class="srow" id="sscan"><div class="stx"><div>${t('scT')}</div><small>${t('scD')}</small></div><span class="sic">${I_FOLD.replace('width="26" height="26"','width="18" height="18"')}</span></button>
       <button type="button" class="srow" id="spg"><div class="stx"><div>${t('pgRun')}</div><small>${t('pgRunD')}</small></div><span class="sic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span></button>
       <button type="button" class="srow danger" id="swipe"><div class="stx"><div class="wl">${t('wipe')}</div><small>${t('wipeD')}</small></div></button>
     </div>
@@ -2047,6 +2515,7 @@ function settingsForm(){
       S=migrate({books:d.books,sagas:d.sagas,universes:d.universes,gcolors:d.gcolors});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeView();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
   rdrWire();
   $('#spg').onclick=()=>pagesForm(true);
+  $('#sscan').onclick=()=>{cfgSnap=null;scanStart()};
   $('#sadd').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{
       const j=JSON.parse(await f.text()),d=j.data||j;
@@ -2237,7 +2706,8 @@ async function rangeZip(rf){
     }};
   }};
 }
-async function readEpub(file){
+/* light = solo los datos de texto (sin portada): es lo que usa el escaneo de carpeta, que lee muchos archivos */
+async function readEpub(file,light){
   await lib('lib/jszip.min.js');
   const zip=file.rf?await rangeZip(file.rf):await JSZip.loadAsync(file);
   const P=new DOMParser();
@@ -2246,6 +2716,8 @@ async function readEpub(file){
   const opf=P.parseFromString(await zip.file(opfPath).async('string'),'application/xml');
   const g=n=>{const e=opf.getElementsByTagNameNS('*',n)[0];return e?e.textContent.trim():''};
   const out={fromFile:true,title:g('title'),author:g('creator')};
+  /* idioma del archivo ('es-ES' -> 'es'): es lo que decide qué versión es la principal al emparejar dos idiomas */
+  {const lg=g('language');if(lg)out.lang=lg.trim().toLowerCase().slice(0,2)}
   let series='',ix='';
   opf.querySelectorAll('meta').forEach(m=>{
     const n=m.getAttribute('name'),p=m.getAttribute('property');
@@ -2255,6 +2727,7 @@ async function readEpub(file){
     if(p==='group-position'&&!ix)ix=m.textContent.trim();
   });
   if(series){out.sagaName=series;if(ix&&!isNaN(parseFloat(ix)))out.sagaOrder=parseFloat(ix)}
+  if(light)return out;
   try{
     const items=[...opf.getElementsByTagName('item')];
     let it=items.find(i=>(i.getAttribute('properties')||'').includes('cover-image'));
@@ -2352,10 +2825,15 @@ document.addEventListener('click',e=>{
   if(a==='edit-book')return bookForm(book(id));
   if(a==='edit-saga')return sagaForm(saga(id));
   if(a==='edit-uni')return uniForm(uni(id));
-  if(a==='toggle-open'){const card=x.parentElement;const op=!card.classList.contains('open');ui.open[id]=op;if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody>.gbin');if(gb){gb.innerHTML=LAZY.get(id)()}LAZY.delete(id)}card.classList.toggle('open',op);return}
+  if(a==='toggle-open'){const card=x.parentElement;const op=!card.classList.contains('open');ui.open[id]=op;
+    if(op&&LAZY.has(id)){const gb=card.querySelector(':scope>.gbody>.gbin');if(gb)fillLazy(gb,LAZY.get(id)());LAZY.delete(id)}
+    card.classList.toggle('open',op);
+    /* el desliz de entrada solo se pone al abrir y se quita enseguida para no dejar la capa gráfica activa */
+    if(op){card.classList.add('opening');clearTimeout(card._ot);card._ot=setTimeout(()=>card.classList.remove('opening'),260)}
+    return}
   if(a==='genre-tag'){const g=x.dataset.g;ui.genres=(ui.genres.length===1&&ui.genres[0]===g)?[]:[g];render(false);return}
-  if(a==='tgdone'){HD=!HD;try{localStorage.setItem('por-leer-hd',HD?'1':'0')}catch(e){}render(false);const le=$('#list');if(le){le.classList.remove('swap');void le.offsetWidth;le.classList.add('swap')}return}
-  if(a==='tgpend'){HP=!HP;try{localStorage.setItem('por-leer-hp',HP?'1':'0')}catch(e){}render(false);const le=$('#list');if(le){le.classList.remove('swap');void le.offsetWidth;le.classList.add('swap')}return}
+  if(a==='tgdone')return toggleRank(2);
+  if(a==='tgpend')return toggleRank(1);
   if(a==='status'){ui.status=[x.dataset.k];render(false);return}
   if(a==='filters')return filterForm();
   if(a==='new-book'){closeMenu();return bookForm(null)}
