@@ -480,7 +480,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.16.0',BUILD=83;
+const VERSION='0.16.2',BUILD=85;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -587,7 +587,7 @@ const I18N={
   pgRun:'Buscar páginas que faltan',pgRunD:'Consulta Open Library y rellena el número de páginas de los libros que no lo tengan',
   pgNone:'Todos tus libros ya tienen las páginas',pgOffline:'Necesitas conexión a internet',
   yrBooks:'libros',yrPages:'páginas',
-  wipe:'Borrar todos los datos',wipeD:'Deja la lista vacía. No se puede deshacer',wipeSure:'Toca otra vez para borrar',wiped:'Lista borrada',
+  wipe:'Borrar todos los datos',wipeD:'Deja la lista vacía. No se puede deshacer',wipeSure:'Toca otra vez para borrar',impSure:'Reemplaza todos tus datos. Toca otra vez',wiped:'Lista borrada',
   exported:'Copia descargada',noExport:'No se pudo descargar la copia aquí',imported:'Copia importada',badBackup:'Ese archivo no es una copia válida',
   about:'Acerca de',version:'Versión',stats:(b,s,u)=>`${pl(b,'libro','libros')} · ${pl(s,'serie','series')} · ${pl(u,'universo','universos')}`,
   storage:'Los datos se guardan solo en este dispositivo.',
@@ -682,7 +682,7 @@ const I18N={
   pgRun:'Look up missing page counts',pgRunD:'Checks Open Library and fills in the page count of books that don’t have one',
   pgNone:'All your books already have page counts',pgOffline:'You need an internet connection',
   yrBooks:'books',yrPages:'pages',
-  wipe:'Delete all data',wipeD:'Leaves the list empty. Can’t be undone',wipeSure:'Tap again to delete',wiped:'List deleted',
+  wipe:'Delete all data',wipeD:'Leaves the list empty. Can’t be undone',wipeSure:'Tap again to delete',impSure:'Replaces all your data. Tap again',wiped:'List deleted',
   exported:'Backup downloaded',noExport:'Couldn’t download the backup here',imported:'Backup imported',badBackup:'That file isn’t a valid backup',
   about:'About',version:'Version',stats:(b,s,u)=>`${pl(b,'book','books')} · ${pl(s,'series','series')} · ${pl(u,'universe','universes')}`,
   storage:'Your data is stored only on this device.',
@@ -2769,12 +2769,12 @@ function settingsForm(){
   [['sread','readLast'],['sdate','innerDate'],['sstrike','strike'],['sinner','innerGen'],['sasaga','autoSaga'],['sopen','autoOpen'],['sexpr','expandReading'],['snot','updNotify']].forEach(([id,k])=>{$('#'+id).onclick=e=>{e.preventDefault();const v=!CFG[k];e.currentTarget.setAttribute('aria-checked',v);if(k==='autoOpen'||k==='expandReading')ui.open={};set(k,v)}});
   updPaint();$('#supd').onclick=updClick;
   $('#sexp').onclick=exportBackup;
-  $('#simp').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  armDelete($('#simp'),()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{const j=JSON.parse(await f.text()),d=j.data||j;if(!Array.isArray(d.books)||!Array.isArray(d.sagas))throw 0;
-      S=migrate({books:d.books,sagas:d.sagas,universes:d.universes,gcolors:d.gcolors});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeView();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()};
+      S=migrate({books:d.books,sagas:d.sagas,universes:d.universes,gcolors:d.gcolors});if(j.settings&&typeof j.settings==='object'){CFG=Object.assign({},DEF,j.settings);applyCfg()}ui.open={};render();closeView();toast(t('imported'))}catch(err){toast(t('badBackup'))}};fi.click()},null,t('impSure'));
   rdrWire();
   $('#spg').onclick=()=>pagesForm(true);
-  $('#sscan').onclick=()=>{cfgSnap=null;scanStart()};
+  $('#sscan').onclick=()=>{cfgSnap=null;saveCfg();scanStart()};
   $('#sadd').onclick=()=>{const fi=$('#jsonfile');fi.onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
     try{
       const j=JSON.parse(await f.text()),d=j.data||j;
@@ -2815,9 +2815,13 @@ function settingsForm(){
       ui.open={};render();closeView();toast(saltados?t('addedJsonSkip',mig.books.length,saltados):t('addedJson',mig.books.length));
     }catch(err){toast(t('badBackup'))}};fi.click()};
   armDelete($('#swipe'),()=>{S.books.forEach(b=>(FS.del(b.file),FS.del(b.file2)));S={books:[],sagas:[],universes:[],gcolors:{}};ui.open={};render();closeView();toast(t('wiped'))},null,t('wipeSure'));
-  $('#sshare').onclick=()=>{cfgSnap=null;shareForm()};
-  $('#sok').onclick=()=>{cfgSnap=null;closeView()};
-  onViewDismiss=()=>{const snap=cfgSnap;cfgSnap=null;if(snap&&JSON.stringify(snap)!==JSON.stringify(CFG)){if(snap.autoOpen!==CFG.autoOpen||snap.expandReading!==CFG.expandReading)ui.open={};CFG=snap;applyCfg()}};
+  /* Los ajustes se guardan en cuanto los cambias: salir (Listo, flecha o atrás) no deshace nada.
+     Solo se repinta la lista si cambió algo que afecta a cómo se abren los grupos. */
+  const leave=()=>{const snap=cfgSnap;cfgSnap=null;saveCfg();
+    if(snap&&(snap.autoOpen!==CFG.autoOpen||snap.expandReading!==CFG.expandReading)){ui.open={};render(false)}};
+  $('#sshare').onclick=()=>{leave();shareForm()};
+  $('#sok').onclick=()=>{leave();closeView()};
+  onViewDismiss=leave;
 }
 
 /* ---- Actualizaciones desde GitHub Releases ---- */
