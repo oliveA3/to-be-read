@@ -480,7 +480,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.16.2',BUILD=85;
+const VERSION='0.16.3',BUILD=86;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -2758,7 +2758,7 @@ function settingsForm(){
     </div>
     <div class="sec">${t('about')}</div>
     <div class="group"><div class="srow"><div class="stx"><div>${t('app')} · ${t('version')} ${VERSION} <span style="color:var(--ink2)">(build ${BUILD})</span></div><small>${t('stats',S.books.length,S.sagas.length,S.universes.length)}<br>${t('storage')}</small></div></div></div>
-    <div class="btns"><button type="button" class="btn main" id="sok">${t('done')}</button></div>`);
+    <div style="height:8px"></div>`);
   $('#ssortpend').value=CFG.sortPend;$('#ssortdone').value=CFG.sortDone;$('#sgsort').value=CFG.groupSort;
   const set=(k,v)=>{CFG[k]=v;saveCfg();render(false)};
   $('#slang').onclick=e=>{const x=e.target.closest('[data-l]');if(!x||x.dataset.l===CFG.lang)return;
@@ -2820,7 +2820,6 @@ function settingsForm(){
   const leave=()=>{const snap=cfgSnap;cfgSnap=null;saveCfg();
     if(snap&&(snap.autoOpen!==CFG.autoOpen||snap.expandReading!==CFG.expandReading)){ui.open={};render(false)}};
   $('#sshare').onclick=()=>{leave();shareForm()};
-  $('#sok').onclick=()=>{leave();closeView()};
   onViewDismiss=leave;
 }
 
