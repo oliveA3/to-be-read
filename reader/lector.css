@@ -14,27 +14,32 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx[data-theme=amoled]{--lx-bg:#000;--lx-fg:#d6cbe0;--lx-soft:#8f7fa0;--lx-line:#2a2033;--lx-bar:#000;--lx-sel:#2a2038;--lx-ac:#c9a6e3;--lx-on:#000}
 
 /* barras */
-.lx-bar{flex:none;display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;
-  background:var(--lx-bar);border-bottom:1px solid var(--lx-line);position:relative;z-index:3}
+.lx-bar{display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;
+  background:var(--lx-bar);border-bottom:1px solid var(--lx-line);
+  /* pantalla completa: la barra superior solo sale al tocar el centro de la página */
+  position:absolute;top:0;left:0;right:0;z-index:6;box-shadow:0 4px 16px rgba(0,0,0,.16);
+  transform:translate3d(0,-105%,0);visibility:hidden;transition:transform .18s cubic-bezier(.4,0,.2,1),visibility 0s .18s}
+.lx.ui .lx-bar{transform:none;visibility:visible;transition:transform .18s cubic-bezier(.4,0,.2,1)}
 .lx-bar .lx-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;color:var(--lx-soft);
   font-family:var(--lx-ui)}
 .lx-ico{flex:none;width:38px;height:38px;border-radius:50%;border:0;background:transparent;color:var(--lx-fg);
   display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
 .lx-ico:active{background:var(--lx-sel)}
-.lx-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:5px 14px calc(5px + min(env(safe-area-inset-bottom,0px),24px));
-  background:var(--lx-bar);border-top:1px solid var(--lx-line);
-  font-size:11.5px;color:var(--lx-soft);font-family:var(--lx-ui)}
-
-.lx-foot{position:relative}
-.lx-trk{position:absolute;left:14px;right:14px;top:-1px;height:0;pointer-events:none}
+.lx-foot{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:6px 16px calc(5px + min(env(safe-area-inset-bottom,0px),24px));
+  background:transparent;border-top:1px solid transparent;pointer-events:none;
+  font-size:11.5px;color:var(--lx-soft);font-family:var(--lx-ui);transition:background .18s,border-color .18s}
+/* con las barras visibles, la de abajo se pinta; si no, queda solo el puntito del progreso, el % y el capítulo */
+.lx.ui .lx-foot{background:var(--lx-bar);border-top-color:var(--lx-line)}
+.lx-trk{position:absolute;left:16px;right:16px;top:-1px;height:0;pointer-events:none}
+.lx-trk::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:var(--lx-line);opacity:.55}
 .lx-trk b{position:absolute;top:-3px;left:0;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
-  background:var(--lx-fg);opacity:.75;transition:left .25s ease}
+  background:var(--lx-fg);opacity:.75;will-change:transform}
 
 /* zona de texto: columnas del ancho de la pantalla, se avanza moviendo el carro */
 .lx-wrap{flex:1;position:relative;overflow:hidden;contain:strict;touch-action:pan-x}
 .lx-move{position:absolute;inset:0;backface-visibility:hidden}
-.lx-col{height:100%;box-sizing:border-box;padding:2px var(--lx-pad,22px) 0;
+.lx-col{height:100%;box-sizing:border-box;padding:calc(12px + env(safe-area-inset-top,0px)) var(--lx-pad,22px) calc(32px + min(env(safe-area-inset-bottom,0px),24px));
   column-fill:auto;column-gap:var(--lx-gap,44px);
   font-size:var(--lx-fs,18px);line-height:var(--lx-lh,1.55);
   text-align:justify;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
@@ -186,13 +191,16 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 /* hoja que se dobla: lx-cv es la parte que todavía no se ha doblado y lx-cf el
    reverso del papel (la misma página reflejada, tenue), los dos recortados por
    la línea del doblez. Las copias se preparan una vez por capítulo. */
-.lx-cv,.lx-cf{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;contain:strict}
+.lx-cv,.lx-cf{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;contain:strict;visibility:hidden}
 .lx-cv{background:var(--lx-bg);clip-path:polygon(0 0,0 0,0 0)}
-.lx-cv[hidden],.lx-cf[hidden]{display:none}
+/* visibility (no display): la copia sigue maquetada y pasar página no la vuelve a calcular */
+.lx-cv.lx-run,.lx-cf.lx-run{visibility:visible}
 .lx-cv.lx-run,.lx-cf.lx-run .lx-cfi{will-change:clip-path}
-.lx-cf{filter:drop-shadow(-4px 3px 7px rgba(40,15,60,.34))}
+.lx-cp{will-change:transform;backface-visibility:hidden}
 .lx-cfi{position:absolute;inset:0;transform-origin:0 0;background:var(--lx-bg);clip-path:polygon(0 0,0 0,0 0)}
-.lx-cfi>div{opacity:.18;filter:grayscale(1)}
+/* arrastrando, el navegador no debe quedarse el gesto */
+.lx-anim-curl .lx-wrap{touch-action:none}
+.lx-row[hidden]{display:none}
 /* sombra junto al doblez y brillo del papel, en la dirección del pliegue */
 .lx-cfi::after{content:'';position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(var(--lx-fold,90deg),rgba(0,0,0,.22),rgba(0,0,0,.07) 18px,rgba(255,255,255,.10) 70px,rgba(0,0,0,0) 150px)}

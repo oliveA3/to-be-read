@@ -213,6 +213,7 @@ let el = null, bk = null, bks = [null, null], ver = 0, cur = null, si = 0, page 
 let busy = false, curling = false, searchTok = 0, chapHtml = '', selInfo = null, hlEdit = null, finAsked = false;
 /* referencias fijas: se buscan una sola vez al construir la vista, no en cada cuadro */
 let wrapEl, moveEl, colEl, dimEl, loadEl, panelEl, chEl, pctEl, dotEl, dockEl, menuEl, titleEl, bmEl, ribEl, langEl, navEl, cvEl, flapEl, flapIn;
+let trkW = 0, fadeA = null;
 
 const curBook = () => book(cur);
 const verOf = x => x.v === 1 ? 1 : 0;
@@ -237,8 +238,8 @@ function build() {
       <div class="lx-tap l" data-x="prev"></div>
       <div class="lx-tap r" data-x="next"></div>
       <div class="lx-rib" id="lxRib" hidden></div>
-      <div class="lx-cv" id="lxCv" hidden></div>
-      <div class="lx-cf" id="lxCf" hidden><div class="lx-cfi" id="lxCfi"></div></div>
+      <div class="lx-cv" id="lxCv"></div>
+      <div class="lx-cf" id="lxCf"><div class="lx-cfi" id="lxCfi"></div></div>
       <div class="lx-dim" id="lxDim"></div>
       <div class="lx-load" id="lxLoad">${esc(t('lxLoading'))}</div>
     </div>
@@ -264,17 +265,43 @@ function build() {
     if (hm && !hasSel()) { openHlEditor(hm.dataset.id); return; }
     if (hasSel()) return;
     hideDock();
-    if (P.mode === 'scroll' || e.target.closest('[data-x]')) return;
+    if (e.target.closest('[data-x]')) return;
+    /* toda la pantalla es el libro; las barras salen al tocar el centro (o en cualquier parte si es desplazar) */
+    if (P.mode === 'scroll') { toggleUi(); return; }
     const r = w.getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
-    if (x < 0.3) go(-1); else if (x > 0.7) go(1);
+    if (x < 0.3) go(-1); else if (x > 0.7) go(1); else toggleUi();
   });
-  /* deslizar para pasar página */
-  let x0 = null, y0 = null;
-  w.addEventListener('touchstart', e => { const tch = e.touches[0]; x0 = tch.clientX; y0 = tch.clientY; }, { passive: true });
+  /* deslizar para pasar página. Con "pasar hoja" la hoja sigue al dedo mientras arrastras */
+  let x0 = null, y0 = null, lx = 0, lt = 0, vx = 0, drag = false;
+  w.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) { if (drag) { drag = false; curlSettle(false); } x0 = null; return; }
+    const tch = e.touches[0]; x0 = tch.clientX; y0 = tch.clientY; lx = x0; lt = performance.now(); vx = 0; drag = false;
+  }, { passive: true });
+  w.addEventListener('touchmove', e => {
+    if (x0 == null || P.mode === 'scroll' || P.anim !== 'curl' || hasSel()) return;
+    const tch = e.touches[0], dx = tch.clientX - x0, dy = tch.clientY - y0, now = performance.now();
+    vx = (tch.clientX - lx) / Math.max(1, now - lt) * 0.6 + vx * 0.4; lx = tch.clientX; lt = now;
+    if (!drag) {
+      if (busy || Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+      const d = dx < 0 ? 1 : -1, n = page + d;
+      if (n < 0 || n >= pages) return;            /* al cambiar de capítulo se usa el gesto normal al soltar */
+      ttsStop(); hideUi();
+      if (!curlBegin(d, n)) return;
+      drag = true;
+    }
+    curlDragMove(Math.abs(dx));
+  }, { passive: true });
+  w.addEventListener('touchcancel', () => { if (drag) { drag = false; curlSettle(false); } x0 = null; }, { passive: true });
   w.addEventListener('touchend', e => {
     if (x0 == null) return;
     const tch = e.changedTouches[0], dx = tch.clientX - x0, dy = tch.clientY - y0;
     x0 = null;
+    if (drag) {
+      drag = false;
+      const g = cg;
+      if (g) curlSettle(g.u > 0.32 || (g.u > 0.05 && Math.abs(vx) > 0.45 && (vx < 0) === (g.d > 0)));
+      return;
+    }
     if (P.mode === 'scroll' || hasSel()) return;
     if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.6) { dx < 0 ? go(1) : go(-1); }
   }, { passive: true });
@@ -282,6 +309,7 @@ function build() {
   let raf = 0;
   w.addEventListener('scroll', () => {
     if (P.mode !== 'scroll' || raf) return;
+    hideUi();
     raf = requestAnimationFrame(() => { raf = 0; paint(); });
   }, { passive: true });
   /* barra de subrayar al seleccionar */
@@ -294,6 +322,10 @@ function build() {
   let rzT = 0;
   addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => relayout(true), 120); });
 }
+
+/* barras superior e inferior: ocultas mientras lees */
+const toggleUi = () => { if (el) el.classList.toggle('ui'); };
+const hideUi = () => { if (el && el.classList.contains('ui')) el.classList.remove('ui'); };
 
 const hasSel = () => { const s = getSelection(); return !!(s && !s.isCollapsed && s.toString().trim()); };
 
@@ -342,6 +374,7 @@ function relayout(keepPct) {
     paint();
     return;
   }
+  trkW = dotEl.parentElement.clientWidth;
   const w = wrap.clientWidth, gap = P.pad * 2;
   const pct = keepPct === true && pages > 1 ? page / pages : null;
   col.style.setProperty('--lx-gap', gap + 'px');
@@ -351,6 +384,7 @@ function relayout(keepPct) {
   if (pct != null) page = Math.min(pages - 1, Math.round(pct * pages));
   page = Math.min(page, pages - 1);
   paint();
+  curlWarm();
 }
 let lastCh = '', lastPct = -1, lastBm = null;
 function paint() {
@@ -360,7 +394,8 @@ function paint() {
   if (ch !== lastCh) { chEl.textContent = ch; lastCh = ch; }
   const done = Math.min(1, (si + frac()) / total), pct = Math.round(done * 100);
   if (pct !== lastPct) { pctEl.textContent = pct + '%'; lastPct = pct; }
-  dotEl.style.left = (done * 100).toFixed(2) + '%';
+  if (!trkW) trkW = dotEl.parentElement.clientWidth;
+  dotEl.style.transform = `translate3d(${(done * trkW).toFixed(1)}px,0,0)`;
   paintBm();
   savePos();
 }
@@ -452,13 +487,25 @@ async function show(i, o) {
   busy = false;
 }
 
+/* fundido real entre páginas: sale la actual, entra la nueva (antes solo se notaba al cambiar de capítulo) */
+function fadeTurn(n) {
+  if (fadeA) { fadeA.cancel(); fadeA = null; page = n; paint(); fadeA = moveEl.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 110 }); const b = fadeA; b.onfinish = () => { if (fadeA === b) fadeA = null; }; return; }
+  const a = fadeA = moveEl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, fill: 'forwards' });
+  a.onfinish = () => {
+    if (fadeA !== a) return;
+    page = n; paint(); a.cancel();
+    const b = fadeA = moveEl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 130 });
+    b.onfinish = () => { if (fadeA === b) fadeA = null; };
+  };
+}
 function go(d) {
   if (busy || P.mode === 'scroll') return;
   if (curling && curlEnd) curlEnd();
-  ttsStop();
+  ttsStop(); hideUi();
   const n = page + d;
   if (n >= 0 && n < pages) {
     if (P.anim === 'curl') return curl(d, n);
+    if (P.anim === 'fade' && !REDUCE && moveEl.animate) return fadeTurn(n);
     page = n; paint(); return;
   }
   if (d > 0 && si < bk.spine.length - 1) return show(si + 1);
@@ -496,71 +543,104 @@ function clipRect(W, H, q, n, keepNeg) {
 }
 const poly = pts => pts.length < 3 ? 'polygon(0 0,0 0,0 0)' : 'polygon(' + pts.map(p => p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px').join(',') + ')';
 
-let curlA = null, curlB = null, curlRaf = 0, curlEnd = null;
+let curlA = null, curlRaf = 0, curlEnd = null, cg = null, dragRaf = 0, warmT = 0;
 const REDUCE = (() => { try { return matchMedia('(prefers-reduced-motion:reduce)').matches; } catch (e) { return false; } })();
+const curlHide = () => { if (cvEl) { cvEl.classList.remove('lx-run'); flapEl.classList.remove('lx-run'); } };
 
 /* la copia deja de servir cuando cambia el capítulo, la letra o los subrayados */
 function curlDrop() {
   if (curlEnd) curlEnd();
-  if (curlA) curlA.remove();
-  if (curlB) curlB.remove();
-  curlA = curlB = null;
-  if (cvEl) { cvEl.hidden = true; flapEl.hidden = true; }
+  if (curlA) { curlA.remove(); curlA = null; }
+  cg = null;
+  clearTimeout(warmT);
+  curlHide();
 }
+/* UNA sola copia del capítulo (la hoja que sale). El reverso del papel no lleva texto: es solo papel con sombra,
+   así se evita duplicar otra vez todo el capítulo. La copia se queda maquetada (visibility, no display) para que
+   pasar página no vuelva a maquetarla entera cada vez. */
 function curlPrep() {
   if (curlA) return true;
-  /* en capítulos muy largos las copias costarían más que la animación: se pasa a deslizar */
+  /* en capítulos muy largos la copia costaría más que la animación: se pasa a deslizar */
   if (colEl.textContent.length > 60000) return false;
-  const mk = () => {
-    const c = moveEl.cloneNode(true);
-    c.removeAttribute('id');
-    c.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
-    const nv = c.querySelector('.lx-chnav'); if (nv) nv.remove();
-    c.style.cssText = 'position:absolute;inset:0;transition:none';
-    return c;
-  };
-  curlA = mk(); cvEl.appendChild(curlA);
-  curlB = mk(); flapIn.appendChild(curlB);
+  const c = moveEl.cloneNode(true);
+  c.removeAttribute('id');
+  c.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+  const nv = c.querySelector('.lx-chnav'); if (nv) nv.remove();
+  c.className = 'lx-cp';
+  c.style.cssText = 'position:absolute;inset:0;transition:none';
+  curlA = c; cvEl.appendChild(c);
   return true;
 }
-function curl(d, n) {
+/* se prepara en un rato libre justo tras maquetar, para que la primera hoja no tenga que esperar */
+function curlWarm() {
+  clearTimeout(warmT);
+  if (P.anim !== 'curl' || P.mode === 'scroll' || curlA) return;
+  warmT = setTimeout(() => {
+    const run = () => { if (el && el.classList.contains('on') && bk && P.anim === 'curl' && !curling) curlPrep(); };
+    (window.requestIdleCallback ? requestIdleCallback(run, { timeout: 1500 }) : run());
+  }, 250);
+}
+/* recorte de las dos mitades según el doblez (u: 0 = plana, 1 = hoja ya pasada) */
+function curlApply(g, u) {
+  const { W, H, s2, cx } = g, D = W + H;
+  const th = (46 - 36 * u) * Math.PI / 180;
+  const nx = s2 * Math.cos(th), ny = -Math.sin(th);
+  const q = [cx - nx * D * u, -ny * D * u];
+  cvEl.style.clipPath = poly(clipRect(W, H, q, [nx, ny], true));
+  /* el reverso: el trozo doblado, reflejado respecto a la línea del doblez */
+  flapIn.style.clipPath = poly(clipRect(W, H, q, [nx, ny], false));
+  const nq = nx * q[0] + ny * q[1];
+  flapIn.style.transform = `matrix(${1 - 2 * nx * nx},${-2 * nx * ny},${-2 * nx * ny},${1 - 2 * ny * ny},${2 * nx * nq},${2 * ny * nq})`;
+  flapIn.style.setProperty('--lx-fold', (Math.atan2(-ny, -nx) * 180 / Math.PI + 90).toFixed(1) + 'deg');
+}
+/* empieza una hoja (por toque o por arrastre); devuelve null si no se puede y entonces se cambia sin animar */
+function curlBegin(d, n) {
   const W = wrapEl.clientWidth, H = wrapEl.clientHeight;
-  if (REDUCE || !W || !H || !curlPrep()) { page = n; paint(); return; }
+  if (REDUCE || !W || !H || !curlPrep()) return null;
   if (curlEnd) curlEnd();
-  const tr = `translate3d(${-page * W}px,0,0)`;
-  curlA.style.transform = tr; curlB.style.transform = tr;
-  cvEl.hidden = false; flapEl.hidden = false;
+  curlA.style.transform = `translate3d(${-page * W}px,0,0)`;
+  const g = cg = { d, n, old: page, W, H, s2: d > 0 ? 1 : -1, cx: d > 0 ? W : 0, u: 0, cancel: false };
   cvEl.classList.add('lx-run'); flapEl.classList.add('lx-run');
-  page = n; paint();                    /* la página nueva ya está debajo */
+  curlApply(g, 0);                        /* el primer cuadro ya está cubierto por la hoja */
+  page = n; paint();                      /* la página nueva ya está debajo */
   curling = true;
-  const s2 = d > 0 ? 1 : -1, cx = s2 > 0 ? W : 0, D = W + H;
-  const T0 = performance.now(), DUR = window.__LXDUR || 380;
-  const ease = u => 1 - Math.pow(1 - u, 3);
   curlEnd = () => {
     if (curlRaf) cancelAnimationFrame(curlRaf);
-    curlRaf = 0; curlEnd = null; curling = false;
-    cvEl.hidden = true; flapEl.hidden = true;
-    cvEl.classList.remove('lx-run'); flapEl.classList.remove('lx-run');
+    if (dragRaf) cancelAnimationFrame(dragRaf);
+    curlRaf = dragRaf = 0; curlEnd = null; curling = false;
+    curlHide(); cg = null;
+    if (g.cancel) { page = g.old; paint(); }   /* soltaste antes de pasar la hoja: se queda donde estaba */
   };
-  const apply = u => {
-    const th = (46 - 36 * u) * Math.PI / 180;
-    const nx = s2 * Math.cos(th), ny = -Math.sin(th);
-    const q = [cx - nx * D * u, -ny * D * u];
-    cvEl.style.clipPath = poly(clipRect(W, H, q, [nx, ny], true));
-    /* el reverso: el trozo doblado, reflejado respecto a la línea del doblez */
-    flapIn.style.clipPath = poly(clipRect(W, H, q, [nx, ny], false));
-    const nq = nx * q[0] + ny * q[1];
-    flapIn.style.transform = `matrix(${1 - 2 * nx * nx},${-2 * nx * ny},${-2 * nx * ny},${1 - 2 * ny * ny},${2 * nx * nq},${2 * ny * nq})`;
-    flapIn.style.setProperty('--lx-fold', (Math.atan2(-ny, -nx) * 180 / Math.PI + 90).toFixed(1) + 'deg');
-  };
+  return g;
+}
+/* anima el doblez de u=from a u=to */
+function curlRun(from, to, dur, done) {
+  const g = cg, T0 = performance.now(), ease = u => 1 - Math.pow(1 - u, 3);
   const frame = now => {
-    const u = ease(Math.min(1, (now - T0) / DUR));
-    apply(u);
-    if (u < 1) curlRaf = requestAnimationFrame(frame);
-    else curlEnd();
+    if (cg !== g) return;
+    const k = dur > 0 ? Math.min(1, (now - T0) / dur) : 1, u = from + (to - from) * ease(k);
+    g.u = u; curlApply(g, u);
+    if (k < 1) curlRaf = requestAnimationFrame(frame); else { curlRaf = 0; done(); }
   };
-  apply(0);                              /* el primer cuadro ya sale doblado */
   curlRaf = requestAnimationFrame(frame);
+}
+function curl(d, n) {
+  if (!curlBegin(d, n)) { page = n; paint(); return; }
+  curlRun(0, 1, window.__LXDUR || 380, () => { if (curlEnd) curlEnd(); });
+}
+/* arrastre: el doblez sigue al dedo; al soltar, la hoja termina de pasar o vuelve */
+function curlDragMove(adx) {
+  const g = cg; if (!g) return;
+  g.u = Math.min(1, adx / (g.W * 0.78));
+  if (!dragRaf) dragRaf = requestAnimationFrame(() => { dragRaf = 0; if (cg === g) curlApply(g, g.u); });
+}
+function curlSettle(commit) {
+  const g = cg; if (!g) return;
+  if (dragRaf) { cancelAnimationFrame(dragRaf); dragRaf = 0; }
+  if (curlRaf) { cancelAnimationFrame(curlRaf); curlRaf = 0; }
+  g.cancel = !commit;
+  const to = commit ? 1 : 0;
+  curlRun(g.u, to, Math.max(70, Math.abs(to - g.u) * 320), () => { if (curlEnd) curlEnd(); });
 }
 
 /* ---------- marcadores ---------- */
@@ -700,7 +780,7 @@ function panel(html) {
   const p = panelEl;
   p.innerHTML = html;
   p.classList.add('on');
-  hideMenu();
+  hideMenu(); hideUi();
 }
 const closePanel = () => { const p = panelEl; p.classList.remove('on'); setTimeout(() => { if (!p.classList.contains('on')) p.innerHTML = ''; }, 200); };
 
@@ -797,7 +877,7 @@ function setPanel() {
       <div class="lx-row"><span>${esc(t('lxMargin'))}</span><div class="lx-range"><input type="range" id="lxPd" min="10" max="46" step="2" value="${P.pad}"><b id="lxPdV">${P.pad}</b></div></div>
       <div class="lx-row"><span>${esc(t('lxDim'))}</span><div class="lx-range"><input type="range" id="lxDimR" min="0" max="70" step="5" value="${P.dim||0}"><b id="lxDimV">${P.dim||0}%</b></div></div>
       <div class="lx-row"><span>${esc(T('lxMode'))}</span>${seg('mode',[['page',T('lxModePage')],['scroll',T('lxModeScroll')]],P.mode)}</div>
-      <div class="lx-row"><span>${esc(t('lxAnim'))}</span>${seg('anim',[['slide',t('lxAnimSlide')],['curl',T('lxAnimCurl')],['fade',t('lxAnimFade')],['none',t('lxAnimNone')]],P.anim)}</div>
+      <div class="lx-row" id="lxAnimRow"${P.mode === 'page' ? '' : ' hidden'}><span>${esc(t('lxAnim'))}</span>${seg('anim',[['slide',t('lxAnimSlide')],['curl',T('lxAnimCurl')],['fade',t('lxAnimFade')],['none',t('lxAnimNone')]],P.anim)}</div>
     </div>`);
   const bind = (id, out, fn) => {
     const r = $('#' + id, el); if (!r) return;
@@ -1024,7 +1104,12 @@ function onTap(e) {
     P[s.dataset.set] = s.dataset.v;
     savePrefs();
     s.parentElement.querySelectorAll('[data-set]').forEach(b2 => b2.setAttribute('aria-pressed', String(b2.dataset.v === s.dataset.v)));
-    if (s.dataset.set === 'mode') { const f = frac(); applyPrefs(); relayout(false); gotoFrac(f); } else applyPrefs();
+    if (s.dataset.set === 'mode') {
+      const f = frac(); applyPrefs();
+      const ar = $('#lxAnimRow', el); if (ar) ar.hidden = P.mode !== 'page';
+      relayout(false); gotoFrac(f);
+    } else applyPrefs();
+    if (s.dataset.set === 'anim') curlWarm();
     return;
   }
   const tb = e.target.closest('[data-tab]');

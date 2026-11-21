@@ -480,7 +480,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.16.3',BUILD=86;
+const VERSION='0.16.4',BUILD=87;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -568,7 +568,7 @@ const I18N={
   lxGet:'Descargar lector integrado',lxGetD:'Se baja una sola vez y queda guardado en el teléfono',
   lxWin:'Abrir el lector en ventana aparte',lxWinD:'Como una app suya: queda en los recientes y puedes fijarla; la lista se abre aparte',
   lxOn:'Usar el lector integrado',lxOnD:'Apagado, los libros se abren con tu app de lectura de siempre',
-  lxDel:'Eliminar lector',lxDelD:'Borra el módulo y libera el espacio',
+  lxDel:'Eliminar lector',lxDelSure:'Toca otra vez para eliminar',lxDelD:'Borra el módulo y libera el espacio',
   lxDling:'Descargando…',lxInstalled:'Lector instalado',lxRemoved:'Lector eliminado',
   lxErrNet:'No pude descargar el lector',lxErrMissing:'El lector aún no está publicado: falta lector.zip en la última release de GitHub',lxErrOff:'Necesitas conexión a internet',
   lxErrNative:'Esto solo funciona en el teléfono, no en la vista previa',lxErrOld:'Actualiza la app a la última versión para poder descargar el lector',
@@ -663,7 +663,7 @@ const I18N={
   lxGet:'Download built-in reader',lxGetD:'Downloaded once and kept on your phone',
   lxWin:'Open the reader in its own window',lxWinD:'Like its own app: it stays in recents and you can pin it; the list opens separately',
   lxOn:'Use the built-in reader',lxOnD:'When off, books open in your usual reading app',
-  lxDel:'Remove reader',lxDelD:'Deletes the module and frees the space',
+  lxDel:'Remove reader',lxDelSure:'Tap again to remove',lxDelD:'Deletes the module and frees the space',
   lxDling:'Downloading…',lxInstalled:'Reader installed',lxRemoved:'Reader removed',
   lxErrNet:'Couldn\u2019t download the reader',lxErrMissing:'The reader isn\u2019t published yet: lector.zip is missing from the latest GitHub release',lxErrOff:'You need an internet connection',
   lxErrNative:'This only works on the phone, not in the preview',lxErrOld:'Update the app to the latest version to download the reader',
@@ -1318,7 +1318,8 @@ const rdrUrl=()=>'https://github.com/'+REPO+'/releases/latest/download/lector.zi
 let RDR=null; /* módulo ya cargado en memoria */
 const rdrReady=()=>!!(window.__LECTOR__||RDR);
 /* instalado = marcado en ajustes, o ya presente junto a la página (pruebas y vista previa) */
-const rdrInstalled=()=>!!CFG.rdrVer||!!window.__LECTOR__;
+let RDR_GONE=false;
+const rdrInstalled=()=>!RDR_GONE&&(!!CFG.rdrVer||!!window.__LECTOR__);
 const rdrActive=()=>rdrInstalled()&&CFG.rdrOn!==false;
 /* lo que el módulo necesita de la app base; es su única superficie de contacto */
 function rdrBridge(){window.TBR={FS,lib,book,save,t,esc,norm,toast,CFG,saveCfg,I18N,CAP,relink:b=>relinkBook(b),isRead:b=>stOf(b)==='read',markRead:b=>{setStatus(b,'read');save();render(false)}}}
@@ -1368,11 +1369,11 @@ async function rdrInstall(onProg){
     if(!f)throw new Error('zip');
     await CAP.Filesystem.writeFile({path:RDR_DIR+'/'+n,data:await f.async('string'),directory:'DATA',encoding:'utf8',recursive:true});
   }
-  CFG.rdrVer=VERSION;if(CFG.rdrOn===undefined)CFG.rdrOn=true;saveCfg();
+  RDR_GONE=false;CFG.rdrVer=VERSION;if(CFG.rdrOn===undefined)CFG.rdrOn=true;saveCfg();
 }
 async function rdrRemove(){
   try{if(CAP&&CAP.Filesystem)await CAP.Filesystem.rmdir({path:RDR_DIR,directory:'DATA',recursive:true})}catch(e){}
-  delete CFG.rdrVer;saveCfg();
+  RDR_GONE=true;delete CFG.rdrVer;saveCfg();
 }
 /* ---------- un único punto de entrada para abrir un libro ---------- */
 async function openBookFile(b){
@@ -2714,7 +2715,7 @@ function rdrWire(){
     s.setAttribute('aria-checked',v);CFG.rdrOn=v;saveCfg();rdrPaint()};
   const w=$('#srdrwin');if(w)w.onclick=e=>{e.preventDefault();const v=CFG.rdrWin===false;
     w.setAttribute('aria-checked',v);CFG.rdrWin=v;saveCfg()};
-  const d=$('#srdrdel');if(d)armDelete(d,async()=>{await rdrRemove();rdrPaint();toast(t('lxRemoved'))},null,t('lxDel'));
+  const d=$('#srdrdel');if(d)armDelete(d,async()=>{await rdrRemove();rdrPaint();toast(t('lxRemoved'))},null,t('lxDelSure'));
 }
 let cfgSnap=null;
 function applyCfg(){saveCfg();coll=new Intl.Collator(CFG.lang,{sensitivity:'base',numeric:true});applyStatic();render(false)}
