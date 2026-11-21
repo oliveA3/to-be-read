@@ -257,6 +257,7 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .scbs{display:flex;gap:5px;flex:none;align-self:center}.scb svg{display:block}.scbs .scb{min-width:34px;padding:6px 7px;display:grid;place-items:center}
 .sctag{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--line);border-radius:999px;font-size:11px;font-weight:600;color:var(--ink2);vertical-align:2px}
 .sctag.scq{color:#9c2f58;border-color:#e2b4c6}
+.sclk{display:block;color:var(--plum2);font-weight:600}.sclk.nw{color:var(--ink2);font-weight:500}.scnet{font-size:12.5px;margin:-6px 0 8px}.scnet .scb{padding:2px 8px;margin-left:6px}
 .scoff{opacity:.45}
 .ssel{flex:none;max-width:52%;padding:7px 10px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:15px;outline:0}
 .switch{flex:none;width:46px;height:28px;border-radius:999px;background:var(--star0);position:relative;transition:background .2s}
@@ -479,7 +480,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.15.8',BUILD=78;
+const VERSION='0.16.0',BUILD=83;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -536,6 +537,7 @@ const I18N={
   scOld:'Instala la última versión de la app para escanear carpetas',
   scFail:'No pude leer esa carpeta',scNoSaga:'Sin serie',
   scSum:(tot,li,nu,bi)=>`${tot} ${tot===1?'encontrado':'encontrados'} · ${li} enlazar · ${nu} ${nu===1?'nuevo':'nuevos'} · ${bi} ${bi===1?'bilingüe':'bilingües'}`,
+  scLinksTo:'→ Tu libro:',scLinksNew:'→ Se creará como libro nuevo',scTagNet:'web',scNetRun:(n,m)=>`Buscando en internet… ${n}/${m}`,scNetSlow:'Internet va lenta: se dejó de buscar',scNetStop:'Búsqueda en internet detenida',scNetDone:n=>`Internet ayudó a enlazar ${n} libro(s)`,
   scStGuess:'posible, ¿es este libro?',scLinkBtn:'Enlazar con un libro mío',scPkT:'Enlazar con un libro tuyo',
   scPkSearch:'Buscar en tu lista',scPkNone:'Ninguno: crear como libro nuevo',scPkEmpty:'No encontré ese libro',
   scPkHas:'ya tiene archivo',scLinked:n=>`Enlazado con «${n}»`,
@@ -564,11 +566,12 @@ const I18N={
   back:'Volver',
   lxT:'Lector integrado',lxD:'Lee sin salir de la app',fileFiltL:'Archivo enlazado',fileWith:'Con archivo',fileWithout:'Sin archivo',fileBroken:'Enlace perdido',fileRelink:'No encuentro el archivo. Elígelo otra vez para volver a enlazarlo',fileRelinked:'Archivo enlazado de nuevo',lxUpdated:'Lector integrado actualizado',updWithLx:'Incluye la actualización del lector integrado',
   lxGet:'Descargar lector integrado',lxGetD:'Se baja una sola vez y queda guardado en el teléfono',
+  lxWin:'Abrir el lector en ventana aparte',lxWinD:'Como una app suya: queda en los recientes y puedes fijarla; la lista se abre aparte',
   lxOn:'Usar el lector integrado',lxOnD:'Apagado, los libros se abren con tu app de lectura de siempre',
   lxDel:'Eliminar lector',lxDelD:'Borra el módulo y libera el espacio',
   lxDling:'Descargando…',lxInstalled:'Lector instalado',lxRemoved:'Lector eliminado',
   lxErrNet:'No pude descargar el lector',lxErrMissing:'El lector aún no está publicado: falta lector.zip en la última release de GitHub',lxErrOff:'Necesitas conexión a internet',
-  lxErrNative:'Esto solo funciona en el teléfono, no en la vista previa',
+  lxErrNative:'Esto solo funciona en el teléfono, no en la vista previa',lxErrOld:'Actualiza la app a la última versión para poder descargar el lector',
   lxFail:'No pude abrir el lector integrado',lxBad:'No pude leer este epub',
   lxLoading:'Abriendo el libro…',lxEmptyCh:'(capítulo vacío)',
   lxToc:'Capítulos',lxFind:'Buscar en el libro',lxFindPh:'Palabra o frase',
@@ -629,6 +632,7 @@ const I18N={
   scOld:'Install the latest version of the app to scan folders',
   scFail:'I couldn’t read that folder',scNoSaga:'No series',
   scSum:(tot,li,nu,bi)=>`${tot} found · ${li} to link · ${nu} new · ${bi} bilingual`,
+  scLinksTo:'→ Your book:',scLinksNew:'→ Will be created as a new book',scTagNet:'web',scNetRun:(n,m)=>`Searching online… ${n}/${m}`,scNetSlow:'Connection is slow: stopped searching',scNetStop:'Online search stopped',scNetDone:n=>`The internet helped link ${n} book(s)`,
   scStGuess:'possible, is it this book?',scLinkBtn:'Link to one of my books',scPkT:'Link to one of your books',
   scPkSearch:'Search your list',scPkNone:'None: create as a new book',scPkEmpty:'I couldn\u2019t find that book',
   scPkHas:'already has a file',scLinked:n=>`Linked to \u201c${n}\u201d`,
@@ -657,11 +661,12 @@ const I18N={
   back:'Back',
   lxT:'Built-in reader',lxD:'Read without leaving the app',fileFiltL:'Linked file',fileWith:'With file',fileWithout:'No file',fileBroken:'Broken link',fileRelink:'I can\u2019t find the file. Pick it again to re-link it',fileRelinked:'File linked again',lxUpdated:'Built-in reader updated',updWithLx:'Includes the built-in reader update',
   lxGet:'Download built-in reader',lxGetD:'Downloaded once and kept on your phone',
+  lxWin:'Open the reader in its own window',lxWinD:'Like its own app: it stays in recents and you can pin it; the list opens separately',
   lxOn:'Use the built-in reader',lxOnD:'When off, books open in your usual reading app',
   lxDel:'Remove reader',lxDelD:'Deletes the module and frees the space',
   lxDling:'Downloading…',lxInstalled:'Reader installed',lxRemoved:'Reader removed',
   lxErrNet:'Couldn\u2019t download the reader',lxErrMissing:'The reader isn\u2019t published yet: lector.zip is missing from the latest GitHub release',lxErrOff:'You need an internet connection',
-  lxErrNative:'This only works on the phone, not in the preview',
+  lxErrNative:'This only works on the phone, not in the preview',lxErrOld:'Update the app to the latest version to download the reader',
   lxFail:'Couldn\u2019t open the built-in reader',lxBad:'Couldn\u2019t read this epub',
   lxLoading:'Opening the book…',lxEmptyCh:'(empty chapter)',
   lxToc:'Chapters',lxFind:'Find in book',lxFindPh:'Word or phrase',
@@ -828,9 +833,35 @@ async function bootStore(){
       if(!b.file2&&r.g&&b.file){b.file2=r.g;n++}
       if(!b.pos&&r.p)b.pos=r.p});
     if(n){S=migrate(S);dirty=true;render(false)}}catch(e){}
+  rdrPatchApply();
   idbReady=true;if(dirty)flush();
 }
-addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
+addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush();else rdrPatchApply()});
+/* ---- lo que guardó la ventana aparte del lector ----
+   Esa ventana nunca reescribe la lista (hay dos copias en memoria y se pisarían): deja los cambios
+   en una clave por libro y la app los aplica a su copia al volver. */
+const PKEY='por-leer-rdr-patch',PFIELDS=['pos','marks','hl','file','file2'];
+function rdrPatchApply(){
+  let keys=[];
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(PKEY+':')===0)keys.push(k)}}catch(e){return false}
+  if(!keys.length)return false;
+  let n=0;
+  keys.forEach(k=>{
+    let p=null;try{p=JSON.parse(localStorage.getItem(k)||'null')}catch(e){}
+    try{localStorage.removeItem(k)}catch(e){}
+    const b=p&&book(k.slice(PKEY.length+1));if(!b)return;
+    PFIELDS.forEach(f=>{
+      if(!(f in p))return;
+      if(p[f]===null||p[f]===undefined){if(b[f]!==undefined){delete b[f];n++}}
+      else if(JSON.stringify(b[f])!==JSON.stringify(p[f])){b[f]=p[f];n++}
+    });
+    if(p.read&&stOf(b)!=='read'){setStatus(b,'read');n++}
+    if(b.file)BROKEN.delete(b.id);
+  });
+  /* se guarda ya (no con retraso): la ventana del lector lee de aquí si se vuelve a abrir enseguida */
+  if(n){dirty=true;flush();render(false)}
+  return n>0;
+}
 /* si la librería ya está en la página (vista previa con todo incrustado) no se vuelve a pedir */
 const LIBG={'lib/jszip.min.js':'JSZip'};
 const libs={};function lib(src){const g=LIBG[src];if(g&&window[g])return Promise.resolve();
@@ -1231,6 +1262,20 @@ const FS=(()=>{
         throw new Error(/implement|not available/i.test(w)?'oldapk':/permission/i.test(w)?'gone':'fail')}
       return (r&&r.files)||[];
     },
+    /* descarga de un archivo pequeño desde GitHub hecha por el teléfono (la web no puede: CORS bloquea las descargas de GitHub) */
+    async download(url){
+      const fo=FO();if(!fo)throw new Error('fail');
+      let r;try{r=await fo.download({url})}catch(e){const w=why(e);
+        throw new Error(/implement|not available/i.test(w)?'oldapk':/http_404/.test(w)?'missing':'net')}
+      const bin=atob(r.data),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+      return new Blob([u]);
+    },
+    /* abre el libro en una PANTALLA aparte de Android (tarjeta propia en los recientes, una por libro) */
+    async openReader(b){
+      const fo=FO();if(!fo||!fo.openReader)throw new Error('oldapk');
+      try{await fo.openReader({id:b.id,title:b.title||''})}
+      catch(e){const w=why(e);throw new Error(/implement|not available/i.test(w)?'oldapk':'fail')}
+    },
     /* un .epub encontrado al escanear se enlaza igual que uno elegido a mano */
     treeRef(f){return {name:f.name||'libro',type:'application/epub+zip',uri:f.uri}}
   };
@@ -1298,16 +1343,22 @@ async function rdrLoad(){
 async function rdrInstall(onProg){
   if(navigator.onLine===false)throw new Error('offline');
   if(!(CAP&&CAP.Filesystem))throw new Error('nonative');
-  const r=await fetch(rdrUrl(),{redirect:'follow'});
-  if(!r.ok)throw new Error(r.status===404?'missing':'net');
-  const total=+r.headers.get('content-length')||0;
   let buf;
-  if(r.body&&r.body.getReader){
-    const rd=r.body.getReader(),parts=[];let got=0;
-    for(;;){const {done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;
-      if(onProg)onProg(total?Math.min(99,Math.round(got/total*100)):-1)}
-    buf=new Blob(parts);
-  }else buf=await r.blob();
+  if(NATIVE){
+    /* en el teléfono la descarga la hace el sistema, no la página web */
+    if(onProg)onProg(-1);
+    buf=await FS.download(rdrUrl());
+  }else{
+    let r;try{r=await fetch(rdrUrl(),{redirect:'follow'})}catch(e){throw new Error('net')}
+    if(!r.ok)throw new Error(r.status===404?'missing':'net');
+    const total=+r.headers.get('content-length')||0;
+    if(r.body&&r.body.getReader){
+      const rd=r.body.getReader(),parts=[];let got=0;
+      for(;;){const {done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;
+        if(onProg)onProg(total?Math.min(99,Math.round(got/total*100)):-1)}
+      buf=new Blob(parts);
+    }else buf=await r.blob();
+  }
   if(onProg)onProg(100);
   await lib('lib/jszip.min.js');
   const z=await JSZip.loadAsync(buf);
@@ -1328,6 +1379,10 @@ async function openBookFile(b){
   if(!b||!b.file)return;
   const esEpub=/\.epub$/i.test(b.file.name||'')||/epub/i.test(b.file.type||'');
   if(esEpub&&rdrActive()){
+    /* ventana aparte (pantalla propia de Android). Si el APK es viejo o falla, se abre dentro de la app */
+    if(NATIVE&&CFG.rdrWin!==false){
+      try{await FS.openReader(b);return}catch(e){}
+    }
     try{
       const L=await rdrLoad();
       if(L&&L.open){await L.open(b);return}
@@ -1362,50 +1417,126 @@ async function scanRead(ref,size,light){
   try{const blob=await FS.get(ref);return await readEpub(new File([blob],ref.name,{type:ref.type}),light)}catch(e){}
   return null;
 }
+/* ---- ayudas para comparar títulos y autores con tolerancia ---- */
+const isbn13=v=>{v=String(v||'').replace(/[\s-]/g,'').toUpperCase();
+  if(/^97[89]\d{10}$/.test(v))return v;
+  if(/^\d{9}[\dX]$/.test(v)){const b='978'+v.slice(0,9);let s=0;for(let i=0;i<12;i++)s+=(+b[i])*(i%2?3:1);return b+((10-s%10)%10)}
+  return ''};
+/* El mismo título puede venir escrito de varias formas: «01 - Nombre», «Nombre (Spanish Edition)», «Serie 3: Nombre»,
+   «Nombre: una novela»… Se sacan todas las variantes razonables (la primera es el título tal cual). */
+const NOISE2=/^(?:a|an|una|un)?\s*(?:novel|novela|story|historia|edition|edicion|special|illustrated|ilustrad[ao]|anniversary|aniversario|spanish|english|espanol|ingles|kindle|ebook|epub|libro|book)\b/;
+function tvars(title){
+  const out=[];
+  const add=(s,force)=>{const k=skey(s);if(k&&(force||k.length>=6||k.split(' ').length>=2)&&!out.includes(k))out.push(k)};
+  let s=String(title||'').trim(),num=null;
+  add(s,true);
+  s=s.replace(/\s*[\(\[][^\)\]]*[\)\]]\s*/g,' ').trim();
+  add(s);
+  const m=/^\s*(?:(?:libro|book|vol(?:umen|ume)?\.?|tomo|parte|part|n[ºo°]\.?|#)\s*)?(\d{1,3})\s*(?:[-–—.:)_]\s*|\s+)(?=\S)/i.exec(s);
+  if(m){num=parseFloat(m[1]);s=s.slice(m[0].length);add(s)}
+  const m2=/^(.*\S)\s*[-–—#]\s*(\d{1,3})\s*$/.exec(s);
+  if(m2){if(num==null)num=parseFloat(m2[2]);s=m2[1];add(s)}
+  const m3=/^.{2,}?\s(?:libro|book|vol(?:umen|ume)?\.?|tomo|#)?\s*\d{1,3}\s*[-–—:.]\s+(?=\S)/i.exec(s);
+  if(m3)add(s.slice(m3[0].length));
+  const sp=/^(.+?)\s*(?::|\s[-–—]\s)\s*(.+)$/.exec(s);
+  if(sp){add(sp[2]);if(NOISE2.test(norm(sp[2])))add(sp[1])}
+  return {vars:out,num};
+}
+const cleanTitle=t=>String(t||'').replace(/\s*[\(\[][^\)\]]*[\)\]]\s*/g,' ')
+  .replace(/^\s*(?:(?:libro|book|vol(?:umen|ume)?\.?|tomo|parte|part|n[ºo°]\.?|#)\s*)?\d{1,3}\s*(?:[-–—.:)_]\s*|\s+)(?=[^\d\s])/i,'')
+  .replace(/\s*[-–—#]\s*\d{1,3}\s*$/,'').replace(/\s+/g,' ').trim();
+const atoks=s=>norm(s).replace(/[^a-z0-9]+/g,' ').split(' ').filter(Boolean);
+const asplit=s=>String(s||'').split(/\s*(?:;|&|\/|\||\by\b|\band\b)\s*/i).map(atoks).filter(x=>x.length);
+function aSimT(A,B){
+  if(!A.length||!B.length)return false;
+  const sa=new Set(A),sb=new Set(B);
+  if(sa.size===sb.size&&[...sa].every(x=>sb.has(x)))return true;
+  const [s1,s2]=sa.size<=sb.size?[sa,sb]:[sb,sa];
+  let shared=0;for(const x of s1)if(s2.has(x)&&x.length>1)shared++;
+  if(!shared)return false;
+  for(const x of s1){if(s2.has(x))continue;let ok=false;for(const y of s2){if(y[0]===x[0]){ok=true;break}}if(!ok)return false}
+  return true;
+}
+const aSim=(a,b)=>{const pa=asplit(a),pb=asplit(b);return pa.some(x=>pb.some(y=>aSimT(x,y)))};
+function simil(a,b){
+  if(a===b)return 1;const n=a.length,m=b.length;if(!n||!m)return 0;
+  let prev=Array.from({length:m+1},(_,j)=>j);
+  for(let i=1;i<=n;i++){const cur=[i];for(let j=1;j<=m;j++)cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur}
+  return 1-prev[m]/Math.max(n,m);
+}
 /* índices de la lista actual, para cruzar cada archivo sin recorrerla una y otra vez */
 function scanIx(){
-  const byTA=new Map(),byT=new Map(),bySO=new Map(),sgK=new Map(),byA=new Map();
+  const byTA=new Map(),byT=new Map(),byV=new Map(),byI=new Map(),bySO=new Map(),sgK=new Map(),byA=new Map(),tokIx=new Map(),ba=new Map();
   S.sagas.forEach(s=>{const k=skey(s.name);if(k&&!sgK.has(k))sgK.set(k,s)});
   S.books.forEach(b=>{
     const tk=skey(b.title),ak=akey(b.author);
     if(ak){if(!byA.has(ak))byA.set(ak,[]);byA.get(ak).push(b)}
     if(tk){const k=tk+'|'+ak;if(!byTA.has(k))byTA.set(k,b);
       if(!byT.has(tk))byT.set(tk,[]);byT.get(tk).push(b)}
+    tvars(b.title).vars.forEach(v=>{if(!byV.has(v))byV.set(v,[]);const l=byV.get(v);if(!l.includes(b))l.push(b)});
+    const i13=isbn13(b.isbn);if(i13&&!byI.has(i13))byI.set(i13,b);
     if(b.sagaId&&b.sagaOrder!=null){const k=b.sagaId+'#'+b.sagaOrder;if(!bySO.has(k))bySO.set(k,b)}
+    const parts=asplit(b.author);ba.set(b.id,parts);
+    parts.forEach(pt=>pt.forEach(w=>{if(w.length>=3){if(!tokIx.has(w))tokIx.set(w,new Set());tokIx.get(w).add(b)}}));
   });
-  return {byTA,byT,bySO,sgK,byA};
+  const cand=author=>{
+    const pa=asplit(author),seen=new Set(),out=[];
+    pa.forEach(pt=>pt.forEach(w=>{const set=w.length>=3&&tokIx.get(w);if(set)set.forEach(b=>{
+      if(seen.has(b.id))return;seen.add(b.id);
+      if((ba.get(b.id)||[]).some(x=>pa.some(y=>aSimT(x,y))))out.push(b)})}));
+    return out;
+  };
+  return {byTA,byT,byV,byI,bySO,sgK,byA,cand};
 }
-/* busca a qué libro de la lista corresponde un archivo; fuzzy = coincide, pero conviene mirarlo */
-function scanFind(ix,tk,ak,author,sg,sorder){
-  let target=ix.byTA.get(tk+'|'+ak)||null,fuzzy=false;
-  if(!target&&tk){
-    const c=ix.byT.get(tk)||[];
-    if(c.length===1){target=c[0];fuzzy=!!(author&&akey(c[0].author)!==ak)}
-    else if(c.length>1&&sg){const inS=c.filter(b=>b.sagaId===sg.id);if(inS.length===1){target=inS[0];fuzzy=true}}
+function scanFind(ix,q){
+  const sorder=q.sorder!=null?q.sorder:(q.nhint!=null?q.nhint:null);
+  if(q.isbn){const b=ix.byI.get(isbn13(q.isbn));if(b)return {target:b,fuzzy:false,how:'isbn'}}
+  let t=ix.byTA.get(q.tk+'|'+q.ak);
+  if(t)return {target:t,fuzzy:false,how:'title'};
+  for(const v of q.vars){
+    const c=(ix.byV.get(v)||[]).filter(x=>aSim(x.author,q.author));
+    if(c.length===1)return {target:c[0],fuzzy:false,how:'title'};
   }
-  /* el título viene en otro idioma: la serie y su número no cambian, así que sirven para encontrarlo */
-  if(!target&&sg&&sorder!=null){
-    const b=ix.bySO.get(sg.id+'#'+sorder);
-    if(b&&(!author||!b.author||akey(b.author)===ak)){target=b;fuzzy=true}
+  for(const v of q.vars){
+    const c=ix.byV.get(v)||[];
+    if(c.length===1&&(!q.author||!c[0].author||v===q.tk))return {target:c[0],fuzzy:true,how:'title'};
+    if(c.length>1&&q.sg){const inS=c.filter(x=>x.sagaId===q.sg.id);if(inS.length===1)return {target:inS[0],fuzzy:true,how:'title'}}
   }
-  return {target,fuzzy};
+  if(q.sg&&sorder!=null){
+    const b=ix.bySO.get(q.sg.id+'#'+sorder);
+    if(b&&(!q.author||!b.author||aSim(b.author,q.author)))return {target:b,fuzzy:true,how:'serie'};
+  }
+  if(q.author&&q.tk.length>=8){
+    let best=null,bs=0,second=0;
+    for(const x of ix.cand(q.author)){
+      const k=skey(x.title);if(!k||Math.abs(k.length-q.tk.length)>3)continue;
+      const s=simil(k,q.tk);if(s>bs){second=bs;bs=s;best=x}else if(s>second)second=s;
+    }
+    if(best&&bs>=0.86&&bs-second>=0.06)return {target:best,fuzzy:true,how:'typo'};
+  }
+  return {target:null,fuzzy:false,how:''};
+}
+function scanMkRow(ix,item){
+  const m=item.meta||{};
+  const title=String(item.title||'').trim(),author=String(item.author||'').trim();
+  const folder=String(item.path||'').split('/').filter(Boolean).pop()||'';
+  const sname=String(m.sagaName||'').trim()||folder;
+  const sg=sname?(ix.sgK.get(skey(sname))||null):null;
+  const tv=tvars(title),fv=tvars(item.base||'');
+  let sorder=m.sagaOrder!=null?m.sagaOrder:null;
+  if(sorder==null&&!m.sagaName&&folder&&fv.num!=null)sorder=fv.num;
+  const nhint=tv.num!=null?tv.num:(fv.num!=null?fv.num:null);
+  const tk=skey(title),ak=akey(author);
+  const f=scanFind(ix,{title,author,tk,ak,vars:tv.vars,isbn:m.isbn||'',sg,sorder,nhint});
+  return {id:uid(),target:f.target,fuzzy:f.fuzzy,how:f.how,tk,ak,sname,sorder,sg,isbn:m.isbn||'',items:[item]};
 }
 function scanRows(items){
   const ix=scanIx();
   const rows=items.map(it=>{
     const m=it.meta||{};
     const title=String(m.title||it.base||'').trim()||it.base;
-    const author=String(m.author||'').trim();
-    /* la serie sale de los datos del archivo y, si no trae, del nombre de la subcarpeta */
-    const folder=String(it.file.path||'').split('/').filter(Boolean).pop()||'';
-    const sname=String(m.sagaName||'').trim()||folder;
-    const sg=sname?(ix.sgK.get(skey(sname))||null):null;
-    const sorder=m.sagaOrder!=null?m.sagaOrder:null;
-    const tk=skey(title),ak=akey(author);
-    const f=scanFind(ix,tk,ak,author,sg,sorder);
-    return {id:uid(),target:f.target,fuzzy:f.fuzzy,tk,ak,sname,sorder,sg,
-      items:[{ref:it.ref,size:+it.file.size||0,name:it.file.name,path:it.file.path||'',
-        lang:m.lang||'',title,author,meta:m}]};
+    return scanMkRow(ix,{ref:it.ref,size:+it.file.size||0,name:it.file.name,path:it.file.path||'',
+      lang:m.lang||'',title,author:String(m.author||'').trim(),meta:m,base:it.base});
   });
   /* Sin coincidencia por título ni por serie (típico de un libro suelto con el título traducido): si el autor tiene
      en tu lista UN solo libro que podría ser este, se propone como posible. Nunca se aplica solo: queda apagado
@@ -1415,9 +1546,9 @@ function scanRows(items){
    un.forEach((g,ak)=>{
      const ok=g.length===1||(g.length===2&&g[0].items[0].lang&&g[1].items[0].lang&&g[0].items[0].lang!==g[1].items[0].lang);
      if(!ok)return;
-     const c=(ix.byA.get(ak)||[]).filter(b=>!claimed.has(b.id)&&!(b.file&&b.file2));
+     const c=ix.cand(g[0].items[0].author).filter(b=>!claimed.has(b.id)&&!(b.file&&b.file2));
      if(c.length!==1)return;
-     g.forEach(r=>{r.target=c[0];r.fuzzy=true;r.guess=true});
+     g.forEach(r=>{r.target=c[0];r.fuzzy=true;r.guess=true;r.how='author'});
    })}
   const out=scanPair(rows);
   scanMarkDup(out);
@@ -1444,7 +1575,7 @@ function scanPair(rows){
     if(a.target&&b.target)return a.target===b.target;
     /* lo normal es que solo una versión esté en la lista (la del idioma de la app) y la otra no:
        entonces deciden el autor junto con el título o con la serie y su número */
-    if(!a.ak||a.ak!==b.ak)return false;       /* distinto autor: no se arriesga */
+    if(!a.ak||!(a.ak===b.ak||aSim(a.items[0].author,b.items[0].author)))return false;       /* distinto autor: no se arriesga */
     if(a.tk&&a.tk===b.tk)return true;         /* mismo título, distinto idioma */
     return !!(a.sname&&b.sname&&skey(a.sname)===skey(b.sname)&&a.sorder!=null&&a.sorder===b.sorder);
   };
@@ -1471,14 +1602,10 @@ function scanJoin(a,b){
 function scanSplit(r){
   if(r.items.length<2)return;
   const q=r.items.pop(),ix=scanIx();
-  const tk=skey(q.title),ak=akey(q.author);
-  const sname=String((q.meta&&q.meta.sagaName)||'').trim()||String(q.path||'').split('/').filter(Boolean).pop()||'';
-  const sg=sname?(ix.sgK.get(skey(sname))||null):null;
-  const sorder=(q.meta&&q.meta.sagaOrder!=null)?q.meta.sagaOrder:null;
-  const f=scanFind(ix,tk,ak,q.author,sg,sorder);
   r.tk=skey(r.items[0].title);r.ak=akey(r.items[0].author);
-  SCAN.rows.push({id:uid(),target:f.target,fuzzy:f.fuzzy,tk,ak,sname,sorder,sg,items:[q],
-    dup:!!(f.target&&r.target===f.target)});
+  const nr=scanMkRow(ix,q);
+  nr.dup=!!(nr.target&&r.target===nr.target);
+  SCAN.rows.push(nr);
 }
 function scanCanJoin(a,b){
   if(a.items.length>1||b.items.length>1)return 'scMrgFull';
@@ -1520,6 +1647,117 @@ async function scanTargetLangs(rows){
 /* por defecto se deja apagado lo que no aporta nada: ya enlazado y repetido */
 const scanOff=r=>r.off===undefined?(scState(r)==='has'||scState(r)==='dup'||!!r.guess):!!r.off;
 const SC_ST={guess:'scStGuess',link:'scStLink',linkq:'scStLinkQ',link2:'scStLink2',new:'scStNew',has:'scStHas',dup:'scStDup'};
+/* ---- ayuda de Open Library: solo con internet, pocas consultas pequeñas y con caché ---- */
+const OLQ={m:null,tm:0,
+  load(){if(!this.m){try{this.m=JSON.parse(localStorage.getItem('tbr-olc')||'{}')||{}}catch(e){this.m={}}}return this.m},
+  get(k){const e=this.load()[k];if(!e)return undefined;if(Date.now()-e.t>(e.v&&e.v.length?90:14)*864e5)return undefined;return e.v},
+  set(k,v){this.load()[k]={t:Date.now(),v};clearTimeout(this.tm);this.tm=setTimeout(()=>this.save(),700)},
+  save(){const m=this.load(),ks=Object.keys(m);
+    if(ks.length>700)ks.sort((a,b)=>m[a].t-m[b].t).slice(0,ks.length-600).forEach(k=>delete m[k]);
+    try{localStorage.setItem('tbr-olc',JSON.stringify(m))}catch(e){}}};
+async function olGet(url){
+  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),8000);
+  try{const r=await fetch(url,{signal:ac.signal});
+    if(r.status===429||r.status>=500)throw new Error('rate');
+    if(!r.ok)throw new Error('http');
+    return await r.json()}
+  finally{clearTimeout(tm)}
+}
+/* devuelve [{k,t,a}] (puede estar vacío) o null si ya no queda presupuesto de consultas */
+async function olLook(title,author,isbn,net){
+  const i13=isbn13(isbn),ct=cleanTitle(title);
+  const key=i13?'i:'+i13:'t:'+skey(ct)+'|'+akey(author);
+  const c=OLQ.get(key);if(c!==undefined)return c;
+  if(i13?false:!skey(ct))return [];
+  if(net.q>=net.max)return null;
+  net.q++;
+  const au=String(author||'').split(/;|&|\//)[0].trim();
+  const url='https://openlibrary.org/search.json?fields=key,title,author_name&'
+    +(i13?'limit=1&q=isbn:'+i13:'limit=3&title='+encodeURIComponent(ct)+(au?'&author='+encodeURIComponent(au):''));
+  const j=await olGet(url);
+  const v=(j&&j.docs||[]).slice(0,3).map(d=>({k:d.key,t:d.title||'',a:(d.author_name||[]).slice(0,3).join(';')}));
+  OLQ.set(key,v);return v;
+}
+/* ¿a cuál de tus libros (aún sin enlazar) corresponde esta fila según Open Library? */
+async function olMatch(r,net,ix,claimed){
+  const p=r.items[0];
+  let docs=[];
+  if(r.isbn){docs=await olLook(p.title,p.author,r.isbn,net);if(docs===null)return null}
+  if(!docs.length){docs=await olLook(p.title,p.author,'',net);if(docs===null)return null}
+  if(!docs.length)return null;
+  const free=b=>!claimed.has(b.id);
+  for(const d of docs){
+    for(const v of tvars(d.t).vars){
+      const c=(ix.byV.get(v)||[]).filter(b=>free(b)&&b.author&&d.a&&aSim(b.author,d.a));
+      if(c.length===1)return {b:c[0],wk:docs[0].k};
+    }
+  }
+  /* el título de OL no coincide con el tuyo: se mira cómo conoce OL a los libros del mismo autor (pocos, con caché) */
+  const cs=ix.cand(p.author||docs[0].a).filter(free).slice(0,4);
+  for(const b of cs){
+    const dd=await olLook(b.title,b.author,b.isbn,net);
+    if(dd===null)break;
+    if(dd.length&&dd[0].k===docs[0].k)return {b,wk:docs[0].k};
+  }
+  return {b:null,wk:docs[0].k};
+}
+/* dos filas sueltas (otro idioma) que apuntan al mismo libro o a la misma obra en OL pasan a ser dos versiones */
+function scanAutoJoin(){
+  const used=new Set(),out=[],keyOf=new Map();
+  const ks=r=>[r.target?'b:'+r.target.id:'',r.wk?'w:'+r.wk:''].filter(Boolean);
+  SCAN.rows.forEach(r=>ks(r).forEach(k=>{if(!keyOf.has(k))keyOf.set(k,[]);keyOf.get(k).push(r)}));
+  SCAN.rows.forEach(a=>{
+    if(used.has(a))return;
+    if(a.items.length>1||a.manual){out.push(a);return}
+    const la=a.items[0].lang;
+    let mate=null;
+    if(la)for(const k of ks(a)){
+      mate=(keyOf.get(k)||[]).find(b=>b!==a&&!used.has(b)&&!b.manual&&b.items.length===1&&b.items[0].lang&&b.items[0].lang!==la
+        &&(!a.target||!b.target||a.target===b.target)&&aSim(a.items[0].author,b.items[0].author));
+      if(mate)break;
+    }
+    if(mate){used.add(mate);scanJoin(a,mate)}
+    out.push(a);
+  });
+  SCAN.rows=out;scanMarkDup(out);
+}
+async function scanNet(){
+  const sc=SCAN;
+  if(!sc||navigator.onLine===false||typeof fetch!=='function')return;
+  const rows=sc.rows.filter(r=>!r.manual&&r.off===undefined&&(!r.target||r.guess)&&r.items[0].title);
+  if(!rows.length)return;
+  rows.sort((a,b)=>(b.isbn?1:0)-(a.isbn?1:0));
+  const net=sc.net={q:0,max:80,n:0,total:rows.length,fail:0,hits:0,stop:false,state:'run'};
+  const ix=scanIx();let i=0,tm=0;
+  const show=()=>{if(SCAN===sc&&sc.upNet)sc.upNet()};
+  const rp=()=>{if(tm)return;tm=setTimeout(()=>{tm=0;if(SCAN===sc&&sc.paint)sc.paint()},600)};
+  const worker=async()=>{
+    while(SCAN===sc&&!net.stop&&net.fail<3){
+      const r=rows[i++];if(!r)return;
+      if(r.manual||r.off!==undefined||(r.target&&!r.guess))continue;
+      try{
+        const claimed=new Set(sc.rows.filter(y=>y!==r&&y.target&&!y.guess).map(y=>y.target.id));
+        const m=await olMatch(r,net,ix,claimed);
+        net.fail=0;
+        if(m&&SCAN===sc){
+          r.wk=m.wk;
+          if(m.b&&!r.manual&&r.off===undefined){
+            r.target=m.b;r.fuzzy=false;r.guess=false;r.how='net';r.tLang=undefined;net.hits++;
+            await scanTargetLangs([r]);rp();
+          }
+        }
+      }catch(e){net.fail++;if(String(e&&e.message)==='rate')net.fail=3}
+      net.n++;show();
+      await new Promise(z=>setTimeout(z,130));
+    }
+  };
+  await Promise.all([worker(),worker()]);
+  if(SCAN!==sc)return;
+  net.state=net.stop?'stop':net.fail>=3?'slow':'done';
+  clearTimeout(tm);
+  scanAutoJoin();scanMarkDup(sc.rows);
+  if(sc.paint)sc.paint();show();
+}
 async function scanStart(){
   if(!NATIVE){toast(t('scNoNative'));return}
   let tree;
@@ -1568,14 +1806,15 @@ function scanRow(r){
   const verRuta=p.path&&skey(p.path)!==skey(r.sname||'');
   /* si coincide con un libro tuyo se muestra TU título (el del archivo puede estar en otro idioma) */
   const mio=r.target?String(r.target.title||''):'';
-  const otro=mio&&skey(mio)!==skey(p.title)?[p.title]:[];
-  const sub=[p.author||t('unknown'),t(SC_ST[st])].concat(otro,verRuta?[p.path]:[]).join(' · ');
+  const sub=[p.author||t('unknown'),t(SC_ST[st])].concat(verRuta?[p.path]:[]).join(' · ');
+  const how=r.how==='isbn'?'ISBN':r.how==='net'?t('scTagNet'):'';
+  const lk=mio?`<small class="sclk">${t('scLinksTo')} «${esc(mio)}»</small>`:(st==='new'?`<small class="sclk nw">${t('scLinksNew')}</small>`:'');
   return `<div class="srow scrow${off?' scoff':''}">`
     +`<button type="button" class="scck${off?'':' on'}" data-sc="tog" data-r="${r.id}" aria-label="${t(off?'scInc':'scExc')}">${off?'':CHECK}</button>`
-    +`<div class="stx" data-sc="tog" data-r="${r.id}"><div>${esc(mio||p.title||p.name)}`
-    +`<span class="sctag">${langs}</span>${(st==='linkq'||r.guess)?'<span class="sctag scq">?</span>':''}</div>`
-    +`<small>${esc(sub)}</small>`+(q?`<small>${t('scVer2')}: ${esc(q.name)}</small>`:'')+`</div>`
-    +`<span class="scbs"><button type="button" class="scb${r.manual?' on':''}" data-sc="lnk" data-r="${r.id}" aria-label="${t('scLinkBtn')}">${I_LINK}</button>`
+    +`<div class="stx" data-sc="tog" data-r="${r.id}"><div>${esc(p.title||p.name)}`
+    +`<span class="sctag">${langs}</span>${how?`<span class="sctag">${how}</span>`:''}${(st==='linkq'||r.guess)?'<span class="sctag scq">?</span>':''}</div>`
+    +lk+`<small>${esc(sub)}</small>`+(q?`<small>${t('scVer2')}: ${esc(q.name)}</small>`:'')+`</div>`
+    +`<span class="scbs"><button type="button" class="scb${r.target?' on':''}" data-sc="lnk" data-r="${r.id}" aria-label="${t('scLinkBtn')}">${I_LINK}</button>`
     +(q?`<button type="button" class="scb" data-sc="spl" data-r="${r.id}">${t('scSplit')}</button>`
        :`<button type="button" class="scb${mrg?' on':''}" data-sc="mrg" data-r="${r.id}" aria-label="${t('scJoin')}">${mrg?t('scPick'):'⇄'}</button>`)
     +`</span></div>`;
@@ -1627,11 +1866,19 @@ function scanPicker(r,done){
 }
 function scanForm(){
   openView(medal(I_FOLD),t('scT'),t('scSub',SCAN.folder),
-    `<p class="lead" id="scsum">${scanSum()}</p>`
+    `<p class="lead" id="scsum">${scanSum()}</p><p class="lead scnet" id="scnet" hidden></p>`
     +`<div id="sclist">${scanList()}</div>`
     +`<div class="btns"><button type="button" class="btn" id="sccan">${t('scLater')}</button>`
     +`<button type="button" class="btn main" id="scok">${t('scGo')}</button></div>`);
-  const paint=()=>{$('#sclist').innerHTML=scanList();$('#scsum').textContent=scanSum()};
+  const paint=()=>{const l=$('#sclist');if(!l)return;l.innerHTML=scanList();$('#scsum').textContent=scanSum()};
+  const upNet=()=>{
+    const el=$('#scnet'),n=SCAN&&SCAN.net;if(!el||!n)return;
+    const tx=n.state==='run'?t('scNetRun',n.n,n.total):n.state==='slow'?t('scNetSlow'):n.state==='stop'?t('scNetStop'):n.hits?t('scNetDone',n.hits):'';
+    el.hidden=!tx;
+    el.innerHTML=esc(tx)+(n.state==='run'?` <button type="button" class="scb" id="scnx">${t('pgStop')}</button>`:'');
+  };
+  SCAN.paint=paint;SCAN.upNet=upNet;
+  $('#scnet').onclick=e=>{if(e.target.closest('#scnx')&&SCAN&&SCAN.net)SCAN.net.stop=true};
   $('#sclist').onclick=e=>{
     const x=e.target.closest('[data-sc]');if(!x)return;
     const r=SCAN.rows.find(y=>y.id===x.dataset.r);if(!r)return;
@@ -1650,6 +1897,7 @@ function scanForm(){
   };
   $('#sccan').onclick=()=>{SCAN=null;closeView()};
   $('#scok').onclick=scanImport;
+  scanNet();
 }
 async function scanImport(){
   const rows=SCAN.rows.filter(r=>!scanOff(r));
@@ -1667,12 +1915,14 @@ async function scanImport(){
         /* el enlace viejo estaba roto o apuntaba a otro sitio: se suelta y se pone el nuevo */
         if(b.file&&b.file.uri&&b.file.uri!==p.ref.uri)FS.del(b.file);
         b.file=p.ref;BROKEN.delete(b.id);li++;
+        if(p.meta&&p.meta.isbn&&p.meta.isbn!==b.isbn)b.isbn=p.meta.isbn;
         if(q&&!b.file2){b.file2=q.ref;bi++}
       }else if(st==='link2'){b.file2=(q||p).ref;bi++;li++}
       continue;
     }
     const nb={id:uid(),title:p.title||p.name,author:p.author||t('unknown'),status:'unread',read:false,readAt:null,
       rating:0,genres:[],sagaId:'',sagaOrder:null,universeId:'',universeOrder:null,cover:null,file:p.ref};
+    if(p.meta&&p.meta.isbn)nb.isbn=p.meta.isbn;
     if(q){nb.file2=q.ref;bi++}
     if(r.sname){
       const ex=sgK.get(skey(r.sname));
@@ -1891,6 +2141,7 @@ function bookForm(b,pre){
     const put=(id,v,force)=>{if(v==null||v==='')return;const el=$(id);if(!force&&el.value.trim())return;el.value=v;el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled')};
     put('#bt',m.title,over);put('#ba',m.author,over);
     if(m.cover&&(over||!d.cover))d.cover=m.cover;
+    if(m.isbn&&m.isbn!==d.isbn)d.isbn=m.isbn;   /* otro archivo = otra edición: el ISBN pasa a ser el del archivo nuevo */
     sync();paintHero();
   };
   /* archivo vinculado */
@@ -2138,43 +2389,46 @@ async function lookupSeriesByTitle(title,author){
    se consulta Open Library. number_of_pages_median es la mediana entre todas las ediciones, que es
    lo más cercano a "la edición impresa normal" y no depende de la edición concreta que tengas. */
 async function lookupPages(title,author){
-  if(navigator.onLine===false||!title)return null;
+  if(navigator.onLine===false||!title)return undefined;
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
   try{
-    const r=await fetch('https://openlibrary.org/search.json?limit=5&fields=title,author_name,number_of_pages_median&title='+encodeURIComponent(title),{signal:ctl.signal});
-    if(!r.ok)return null;
+    const r=await fetch('https://openlibrary.org/search.json?limit=8&fields=title,author_name,number_of_pages_median&title='+encodeURIComponent(title)+(author?'&author='+encodeURIComponent(String(author).split(/;|&|\//)[0].trim()):''),{signal:ctl.signal});
+    if(!r.ok)return undefined;
     const j=await r.json(),docs=j.docs||[],nt=norm(title),na=norm(author||'');
-    const pg=x=>{const n=Math.round(Number(x&&x.number_of_pages_median));return n>0&&isFinite(n)?n:0};
-    /* primero el que coincide en título Y autor; si no, solo por título */
-    let d=docs.find(x=>norm(x.title)===nt&&pg(x)&&(!na||(x.author_name||[]).some(a=>norm(a)===na)));
-    if(!d)d=docs.find(x=>norm(x.title)===nt&&pg(x));
+    /* menos de 40 páginas casi siempre es un dato de muestra o de otro libro con el mismo título: mejor sin dato que uno falso */
+    const pg=x=>{const n=Math.round(Number(x&&x.number_of_pages_median));return n>=40&&isFinite(n)?n:0};
+    /* mismo título Y mismo autor. Si el libro tiene autor, NO se acepta uno con solo el título igual (puede ser otro libro) */
+    const hasA=!!na&&na!==norm(t('unknown'));
+    const d=docs.find(x=>norm(x.title)===nt&&pg(x)&&(!hasA||(x.author_name||[]).some(a=>aSim(a,author))));
     return d?pg(d):null;
-  }catch(e){return null}finally{clearTimeout(to)}
+  }catch(e){return undefined}finally{clearTimeout(to)}
 }
 /* Varios ISBN en una sola petición: Open Library acepta una lista de bibkeys y devuelve
    las páginas de cada edición. Devuelve un Map isbn -> páginas (solo los que trajeron dato). */
 async function lookupPagesByIsbns(isbns){
   const list=[...new Set((isbns||[]).filter(Boolean))];
-  if(!list.length||navigator.onLine===false)return new Map();
+  if(!list.length)return new Map();
+  if(navigator.onLine===false)return null;
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),15000);
   try{
     const r=await fetch('https://openlibrary.org/api/books?format=json&jscmd=data&bibkeys='+list.map(x=>'ISBN:'+encodeURIComponent(x)).join(','),{signal:ctl.signal});
-    if(!r.ok)return new Map();
+    if(!r.ok)return null;
     const j=await r.json(),out=new Map();
-    list.forEach(x=>{const e=j['ISBN:'+x];const n=Math.round(Number(e&&e.number_of_pages));if(n>0&&isFinite(n))out.set(x,n)});
+    list.forEach(x=>{const e=j['ISBN:'+x];const n=Math.round(Number(e&&e.number_of_pages));if(n>=40&&isFinite(n))out.set(x,n)});
     return out;
-  }catch(e){return new Map()}finally{clearTimeout(to)}
+  }catch(e){return null}finally{clearTimeout(to)}
 }
 /* libros a los que les falta el dato y que todavía no se han intentado buscar (esto NO usa red) */
-const pagesMissing=()=>S.books.filter(b=>b.title&&!b.pages&&!b.pagesNo);
+const pagesMissing=retry=>S.books.filter(b=>b.title&&!b.pages&&(retry||!b.pagesNo));
 /* busca las páginas de UN libro en segundo plano, sin bloquear nada (al guardar un libro nuevo) */
 async function fillPagesFor(id){
   const b0=book(id);if(!b0||b0.pages||b0.pagesNo)return;
   /* si el libro trae ISBN se pregunta por él, que es más fiable que buscar por título */
-  const n=b0.isbn?((await lookupPagesByIsbns([b0.isbn])).get(b0.isbn)||await lookupPages(b0.title,b0.author))
-                 :await lookupPages(b0.title,b0.author);
+  let n=b0.isbn?(await lookupPagesByIsbns([b0.isbn]))?.get(b0.isbn):0;
+  if(!n)n=await lookupPages(b0.title,b0.author);
   const b=book(id);if(!b||b.pages)return;
-  if(n)b.pages=n;else b.pagesNo=true;
+  /* sin conexión o con error de red NO se marca: se volverá a intentar más adelante */
+  if(n)b.pages=n;else if(n===null)b.pagesNo=true;
   save();
 }
 /* Modal de relleno en lote.
@@ -2182,7 +2436,8 @@ async function fillPagesFor(id){
    salir "por error" cuando ya están todos rellenados. La red solo se usa al pulsar Rellenar. */
 const I_PG='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>';
 function pagesForm(manual){
-  const miss=pagesMissing();
+  /* al pulsarlo a mano también se reintentan los que antes no dieron resultado (internet lento o sin dato) */
+  const miss=pagesMissing(!!manual);
   if(!miss.length){if(manual)toast(t('pgNone'));return}
   if(navigator.onLine===false){if(manual)toast(t('pgOffline'));return}
   openSheet(`${hero(medal(I_PG),t('pgT'),'')}
@@ -2200,19 +2455,20 @@ function pagesForm(manual){
     let done=0;
     for(let i=0;i<conIsbn.length&&!stop;i+=50){
       const lote=conIsbn.slice(i,i+50);
-      if(tx)tx.textContent=t('pgWork',done+1,miss.length);
+      if(tx)tx.textContent=t('pgWork',Math.min(done+1,miss.length),miss.length);
       const mapa=await lookupPagesByIsbns(lote.map(b=>b.isbn));
       lote.forEach(x=>{const b=book(x.id);if(!b||b.pages)return;
-        const n=mapa&&mapa.get(b.isbn);if(n){b.pages=n;found++}else b.pagesNo=true});
+        const n=mapa&&mapa.get(b.isbn);
+        if(n){b.pages=n;found++}else sinIsbn.push(b)});   /* esa edición no trae páginas (o falló la red): se prueba por título */
       done+=lote.length;
       if(i+50<conIsbn.length&&!stop)await new Promise(r=>setTimeout(r,120));
     }
     /* los que no tienen ISBN siguen buscándose por título, uno a uno */
     for(let i=0;i<sinIsbn.length&&!stop;i++){
-      if(tx)tx.textContent=t('pgWork',done+1,miss.length);
+      if(tx)tx.textContent=t('pgWork',Math.min(done+1,miss.length),miss.length);
       const b=book(sinIsbn[i].id);done++;if(!b||b.pages)continue;
       const n=await lookupPages(b.title,b.author);
-      if(n){b.pages=n;found++}else b.pagesNo=true;
+      if(n){b.pages=n;found++}else if(n===null)b.pagesNo=true;   /* undefined = fallo de red: no se marca */
       /* pequeña pausa para no castigar una API gratuita con cientos de peticiones seguidas */
       if(i<sinIsbn.length-1&&!stop)await new Promise(r=>setTimeout(r,120));
     }
@@ -2440,6 +2696,7 @@ function rdrSection(){
   if(rdrBusy)return `<div class="srow"><div class="stx"><div>${t('lxDling')}</div><small>${rdrPct>=0?rdrPct+'%':'…'}</small></div></div>`;
   if(!rdrInstalled())return `<button type="button" class="srow" id="srdrget"><div class="stx"><div>${t('lxGet')}</div><small>${t('lxGetD')}</small></div><span class="sic">↓</span></button>`;
   return `<label class="srow" for="srdron"><div class="stx"><div>${t('lxOn')}</div><small>${t('lxOnD')}</small></div>${sw('srdron',rdrActive())}</label>`
+    +((NATIVE&&rdrActive())?`<label class="srow" for="srdrwin"><div class="stx"><div>${t('lxWin')}</div><small>${t('lxWinD')}</small></div>${sw('srdrwin',CFG.rdrWin!==false)}</label>`:'')
     +(CFG.rdrVer?`<button type="button" class="srow" id="srdrdel"><div class="stx"><div>${t('lxDel')}</div><small>${t('lxDelD')}</small></div><span class="sic">×</span></button>`:'');
 }
 function rdrPaint(){const e=$('#srdr');if(e)e.innerHTML=rdrSection();rdrWire()}
@@ -2451,10 +2708,12 @@ function rdrWire(){
     rdrBusy=true;rdrPct=-1;rdrPaint();
     try{await rdrInstall(p=>{rdrPct=p;const e=$('#srdr .stx small');if(e)e.textContent=p>=0?p+'%':'…'});
       rdrBusy=false;rdrPaint();toast(t('lxInstalled'))}
-    catch(e){rdrBusy=false;rdrPaint();{const m=String(e&&e.message);toast(t(m==='offline'?'lxErrOff':m==='missing'?'lxErrMissing':'lxErrNet'))}}
+    catch(e){rdrBusy=false;rdrPaint();{const m=String(e&&e.message);toast(t(m==='offline'?'lxErrOff':m==='missing'?'lxErrMissing':m==='oldapk'?'lxErrOld':'lxErrNet'))}}
   };
   const s=$('#srdron');if(s)s.onclick=e=>{e.preventDefault();const v=!rdrActive();
-    s.setAttribute('aria-checked',v);CFG.rdrOn=v;saveCfg()};
+    s.setAttribute('aria-checked',v);CFG.rdrOn=v;saveCfg();rdrPaint()};
+  const w=$('#srdrwin');if(w)w.onclick=e=>{e.preventDefault();const v=CFG.rdrWin===false;
+    w.setAttribute('aria-checked',v);CFG.rdrWin=v;saveCfg()};
   const d=$('#srdrdel');if(d)armDelete(d,async()=>{await rdrRemove();rdrPaint();toast(t('lxRemoved'))},null,t('lxDel'));
 }
 let cfgSnap=null;
@@ -2718,6 +2977,13 @@ async function readEpub(file,light){
   const out={fromFile:true,title:g('title'),author:g('creator')};
   /* idioma del archivo ('es-ES' -> 'es'): es lo que decide qué versión es la principal al emparejar dos idiomas */
   {const lg=g('language');if(lg)out.lang=lg.trim().toLowerCase().slice(0,2)}
+  /* ISBN: casi todos los EPUB lo traen en un <dc:identifier>; solo vale si pasa el dígito de control */
+  try{for(const e of opf.getElementsByTagNameNS('*','identifier')){
+    const tx=(e.textContent||'').trim().replace(/isbn/ig,'');
+    if(/uuid|calibre|google|amazon|mobi-asin|[0-9a-f]{8}-[0-9a-f]{4}/i.test(tx))continue;
+    const d=tx.replace(/[^0-9Xx]/g,'');
+    if(d.length===10||d.length===13){const k=isbnOk(d);if(k){out.isbn=k;break}}
+  }}catch(e){}
   let series='',ix='';
   opf.querySelectorAll('meta').forEach(m=>{
     const n=m.getAttribute('name'),p=m.getAttribute('property');

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="color-scheme" content="light dark">
+<title>Lector</title>
+<!-- Ventana del lector: se abre como pantalla aparte de Android (tarjeta propia en los recientes).
+     NO carga la app entera: solo lo que el modulo del lector necesita, para que abra rapido y gaste poca memoria.
+     Nunca escribe la lista de libros: deja los cambios (posicion, marcadores, subrayados) en un "parche"
+     que la app aplica cuando vuelve, asi dos ventanas abiertas no se pisan los datos. -->
+<style>
+:root{--font-title:'Fraunces',Georgia,serif;--font-body:'DM Sans',system-ui,-apple-system,sans-serif}
+*{-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#f8f3f8;color:#2a1d33;font-family:var(--font-body);font-size:16px}
+body.dk{background:#1d1626;color:#e8deef}
+#st{position:fixed;inset:0;display:grid;place-items:center;padding:28px;text-align:center;font-size:15px;line-height:1.5}
+#st[hidden]{display:none}
+#st button{margin-top:16px;padding:11px 18px;border:0;border-radius:12px;background:#5b2a7a;color:#fff;font:inherit;font-weight:600}
+body.dk #st button{background:#c9a6e3;color:#1d1626}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;max-width:86%;
+  padding:11px 15px;border-radius:14px;background:#2a1b36;color:#fff;font-size:14px;text-align:center;
+  transition:opacity .2s,transform .2s;z-index:9999}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="st"></div>
+<div id="toast"></div>
+<script>
+(async()=>{
+'use strict';
+const KEY='por-leer-v2',SKEY='por-leer-ajustes',TSKEY='por-leer-ts',REFKEY='por-leer-refs',PKEY='por-leer-rdr-patch',CK='por-leer-lector';
+const RDR_DIR='lector',MAXMETA=24*1024*1024;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
+const FO=()=>(CAP&&CAP.FileOpener)||(window.Capacitor&&window.Capacitor.registerPlugin?window.Capacitor.registerPlugin('FileOpener'):null);
+
+/* ---- textos: SOLO los que el modulo del lector le pide a la app (generados desde index.html) ---- */
+const I18N={
+ es:{
+  back:"Volver",
+  fileGone:"No encuentro el archivo (¿lo moviste o borraste?). Vuélvelo a vincular en Editar",
+  fileRelinked:"Archivo enlazado de nuevo",
+  lxAa:"Lectura",
+  lxAnim:"Animación al pasar página",
+  lxAnimFade:"Fundido",
+  lxAnimNone:"Ninguna",
+  lxAnimSlide:"Deslizar",
+  lxBad:"No pude leer este epub",
+  lxChapter:(a,b)=>`Capítulo ${a} de ${b}`,
+  lxDim:"Atenuar pantalla",
+  lxEmptyCh:"(capítulo vacío)",
+  lxFind:"Buscar en el libro",
+  lxFindHint:"Escribe al menos dos letras",
+  lxFindPh:"Palabra o frase",
+  lxLine:"Interlineado",
+  lxLoading:"Abriendo el libro…",
+  lxMargin:"Márgenes",
+  lxNoHits:"Sin resultados",
+  lxNoToc:"Este libro no trae índice",
+  lxSearching:"Buscando…",
+  lxSize:"Tamaño de letra",
+  lxTheme:"Tema",
+  lxToc:"Capítulos"
+ },
+ en:{
+  back:"Back",
+  fileGone:"I can’t find the file (moved or deleted?). Link it again in Edit",
+  fileRelinked:"File linked again",
+  lxAa:"Reading",
+  lxAnim:"Page turn animation",
+  lxAnimFade:"Fade",
+  lxAnimNone:"None",
+  lxAnimSlide:"Slide",
+  lxBad:"Couldn’t read this epub",
+  lxChapter:(a,b)=>`Chapter ${a} of ${b}`,
+  lxDim:"Dim screen",
+  lxEmptyCh:"(empty chapter)",
+  lxFind:"Find in book",
+  lxFindHint:"Type at least two letters",
+  lxFindPh:"Word or phrase",
+  lxLine:"Line spacing",
+  lxLoading:"Opening the book…",
+  lxMargin:"Margins",
+  lxNoHits:"No matches",
+  lxNoToc:"This book has no table of contents",
+  lxSearching:"Searching…",
+  lxSize:"Text size",
+  lxTheme:"Theme",
+  lxToc:"Chapters"
+ }
+};
+
+let CFG=(()=>{const d={lang:(navigator.language||'es').toLowerCase().startsWith('es')?'es':'en'};
+  try{return Object.assign(d,JSON.parse(localStorage.getItem(SKEY)||'{}'))}catch(e){return d}})();
+function saveCfg(){try{const o=JSON.parse(localStorage.getItem(SKEY)||'{}');localStorage.setItem(SKEY,JSON.stringify(Object.assign(o,CFG)))}catch(e){}}
+function t(k,...a){const v=(I18N[CFG.lang]||I18N.es)[k];return typeof v==='function'?v(...a):(v==null?k:v)}
+let tt;function toast(m){const x=$('#toast');x.textContent=m;x.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>x.classList.remove('on'),2600)}
+const say=(m,btn,fn)=>{const e=$('#st');if(!e)return;e.hidden=false;e.innerHTML=`<div><p>${esc(m)}</p></div>`;
+  if(btn){const b=document.createElement('button');b.type='button';b.textContent=btn;b.onclick=fn;e.firstChild.appendChild(b)}};
+/* el fondo se pone del color del tema guardado para que no pegue un fogonazo blanco al abrir de noche */
+try{const th=(JSON.parse(localStorage.getItem(CK)||'{}')||{}).theme;
+  if(th==='dark'||th==='amoled'){document.body.classList.add('dk');if(th==='amoled')document.body.style.background='#000'}
+  else if(th==='sepia')document.body.style.background='#f3e9d6'}catch(e){}
+
+/* ---- archivos (lo mismo que hace la app, pero solo lo que el lector usa) ---- */
+const mime=n=>/\.pdf$/i.test(n)?'application/pdf':'application/epub+zip';
+const why=e=>String(e&&(e.message||e));
+const b64bytes=d=>{const bin=atob(d),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u};
+const fdb=()=>new Promise((ok,ko)=>{const r=indexedDB.open('tbr-files',1);r.onupgradeneeded=()=>{try{r.result.createObjectStore('f')}catch(e){}};
+  r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)});
+const fop=(mode,fn)=>fdb().then(db=>new Promise((ok,ko)=>{const tx=db.transaction('f',mode),rq=fn(tx.objectStore('f'));
+  tx.oncomplete=()=>ok(rq&&rq.result);tx.onerror=()=>ko(tx.error);tx.onabort=()=>ko(tx.error)}));
+const FS={
+  async pickNative(){
+    const fo=FO();if(!fo)throw new Error('fail');
+    let r;try{r=await fo.pick()}catch(e){throw new Error(/cancel/i.test(why(e))?'cancelled':'fail')}
+    const type=r.type&&r.type!=='application/octet-stream'?r.type:mime(r.name||'');
+    const ref={name:r.name||'libro',type,uri:r.uri},size=+r.size||0;
+    return {file:{name:ref.name,size,rf:FS.range(ref,size),fallback:size&&size<=MAXMETA?async()=>new File([await FS.get(ref)],ref.name,{type}):null},ref};
+  },
+  range(ref,size){const fo=FO();
+    return {size,async read(off,len){const r=await fo.readRange({uri:ref.uri,offset:off,length:len});return b64bytes(r.data)}}},
+  async put(id,file){await fop('readwrite',st=>st.put(file,id));return {name:file.name,type:mime(file.name),idb:id}},
+  async get(ref){
+    if(!ref)throw new Error('gone');
+    if(ref.uri){const fo=FO();if(!fo)throw new Error('fail');
+      let r;try{r=await fo.read({uri:ref.uri})}catch(e){throw new Error(/not_found|permission|security/i.test(why(e))?'gone':'fail')}
+      return new Blob([b64bytes(r.data)],{type:ref.type})}
+    if(ref.idb){const f=await fop('readonly',st=>st.get(ref.idb));if(f)return f}
+    throw new Error('gone');
+  },
+  async open(ref){const fo=FO();if(!(ref&&ref.uri&&fo))throw new Error('gone');
+    try{await fo.open({uri:ref.uri,type:ref.type})}catch(e){const m=why(e);throw new Error(/no_app/.test(m)?'noapp':/not_found|permission|security/i.test(m)?'gone':'fail')}},
+  async del(ref){try{if(!ref)return;if(ref.uri){const fo=FO();if(fo)await fo.release({uri:ref.uri})}else if(ref.idb)await fop('readwrite',st=>st.delete(ref.idb))}catch(e){}}
+};
+const libs={};function lib(src){if(src.indexOf('jszip')>=0&&window.JSZip)return Promise.resolve();
+  return libs[src]||(libs[src]=new Promise((ok,ko)=>{const x=document.createElement('script');x.src=src;x.onload=ok;
+    x.onerror=()=>{delete libs[src];ko(new Error('lib'))};document.head.appendChild(x)}))}
+
+/* ---- el libro: se lee de donde la app lo dejo guardado, sin tocar nada ---- */
+const idbGet=(db,store,key)=>new Promise((ok,ko)=>{try{const r=indexedDB.open(db);
+  r.onsuccess=()=>{try{const d=r.result;if(!d.objectStoreNames.contains(store))return ok(null);
+    const rq=d.transaction(store).objectStore(store).get(key);rq.onsuccess=()=>ok(rq.result);rq.onerror=()=>ko(rq.error)}catch(e){ko(e)}};
+  r.onerror=()=>ko(r.error)}catch(e){ko(e)}});
+async function loadState(){
+  let ls=null,lts=0;
+  try{const raw=localStorage.getItem(KEY);if(raw){ls=JSON.parse(raw);lts=+localStorage.getItem(TSKEY)||0}}catch(e){}
+  let rec=null;try{rec=await idbGet('tbr-state','s','main')}catch(e){}
+  /* la base de datos manda si es mas nueva que la copia rapida */
+  if(rec&&rec.json&&(!ls||(+rec.t||0)>=lts)){try{return JSON.parse(rec.json)}catch(e){}}
+  return ls||{books:[],sagas:[],universes:[]};
+}
+const pkey=id=>PKEY+':'+id;
+const readPatch=id=>{try{return JSON.parse(localStorage.getItem(pkey(id))||'null')}catch(e){return null}};
+const PFIELDS=['pos','marks','hl','file','file2'];
+let B=null,readFlag=false;
+const stOf=b=>b.status||(b.read?'read':'unread');
+
+function applyPatch(b){
+  const p=readPatch(b.id);if(!p)return;
+  PFIELDS.forEach(k=>{if(!(k in p))return;if(p[k]===null)delete b[k];else b[k]=p[k]});
+  if(p.read){b.status='read';b.read=true}
+}
+/* Guardar = dejar el parche, nunca reescribir la lista entera (asi la app no pierde nada de lo que hiciste alli) */
+function writePatch(){
+  if(!B)return;
+  try{
+    const p=readPatch(B.id)||{};
+    PFIELDS.forEach(k=>{p[k]=B[k]===undefined?null:B[k]});
+    if(readFlag)p.read=true;
+    p.t=Date.now();
+    localStorage.setItem(pkey(B.id),JSON.stringify(p));
+  }catch(e){}
+}
+/* se escribe al instante: es un parche pequeño de un solo libro, y si Android congela la ventana al salir, un temporizador no llegaría a ejecutarse */
+const save=()=>writePatch();
+const flush=()=>writePatch();
+addEventListener('pagehide',flush);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
+
+/* ---- cerrar la ventana (cierra la pantalla de Android, no solo la vista) ---- */
+let closing=false;
+function closeWin(){
+  if(closing)return;closing=true;flush();
+  const fo=FO();
+  if(fo&&fo.closeReader){fo.closeReader().catch(()=>{})}
+  else{try{window.close()}catch(e){}}
+}
+/* el boton "atras" de Android cierra la ventana en vez de volver a la lista de la app */
+try{history.pushState({lx:1},'')}catch(e){}
+addEventListener('popstate',()=>{closeWin()});
+
+/* ---- el modulo del lector: el mismo archivo que usa la app ---- */
+async function loadModule(){
+  if(window.__LECTOR__)return window.__LECTOR__;
+  if(CAP&&CAP.Filesystem&&CFG.rdrVer){
+    const rd=async n=>(await CAP.Filesystem.readFile({path:RDR_DIR+'/'+n,directory:'DATA',encoding:'utf8'})).data;
+    const css=await rd('lector.css'),js=await rd('lector.js');
+    const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+    const u=URL.createObjectURL(new Blob([js],{type:'text/javascript'}));
+    try{await import(u)}finally{setTimeout(()=>URL.revokeObjectURL(u),4000)}
+  }else{
+    const l=document.createElement('link');l.rel='stylesheet';l.href=RDR_DIR+'/lector.css';document.head.appendChild(l);
+    await import(new URL(RDR_DIR+'/lector.js',document.baseURI).href);
+  }
+  return window.__LECTOR__;
+}
+
+/* ---- arranque ---- */
+const id=new URLSearchParams(location.search).get('b')||'';
+say(t('lxLoading'));
+const S=await loadState();
+B=(S.books||[]).find(b=>b&&b.id===id)||null;
+if(B){
+  /* respaldo: si el libro perdio su enlace al archivo, esta guardado aparte */
+  try{const r=readPatch(B.id)?null:(JSON.parse(localStorage.getItem(REFKEY)||'{}')[B.id]||null);
+    if(r){if(!B.file&&r.f)B.file=r.f;if(!B.file2&&r.g&&B.file)B.file2=r.g;if(!B.pos&&r.p)B.pos=r.p}}catch(e){}
+  applyPatch(B);
+}
+if(!B||!B.file){say(t('fileGone'),t('back'),closeWin);
+}else if(!CAP&&!window.__LECTOR__&&!location.protocol.startsWith('http')){say(t('lxBad'),t('back'),closeWin);
+}else{
+  window.TBR={FS,lib,book:x=>(B&&B.id===x?B:null),save,t,esc,norm,toast,CFG,saveCfg,I18N,CAP,
+    relink:async b=>{try{const {ref}=await FS.pickNative();b.file=ref;flush();toast(t('fileRelinked'));return true}catch(e){return false}},
+    isRead:b=>stOf(b)==='read',
+    markRead:b=>{b.status='read';b.read=true;readFlag=true;flush()}};
+  let L=null;
+  try{L=await loadModule()}catch(e){}
+  if(!L||!L.open){say(t('lxBad'),t('back'),closeWin)}
+  else{
+    $('#st').hidden=true;
+    try{await L.open(B)}catch(e){say(t('lxBad'),t('back'),closeWin);return}
+    /* cuando el lector se cierra (su boton de volver), se cierra la ventana entera */
+    const el=document.querySelector('.lx');
+    if(el)new MutationObserver(()=>{if(!el.classList.contains('on'))closeWin()}).observe(el,{attributes:true,attributeFilter:['class']});
+  }
+}
+})();
+</script>
+</body>
+</html>
