@@ -481,7 +481,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.17.8',BUILD=98;
+const VERSION='0.18.0',BUILD=100;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){

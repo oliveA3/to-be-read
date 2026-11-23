@@ -39,7 +39,7 @@ const X = {
     bmAdd: 'Marcador guardado', bmDel: 'Marcador quitado', bm: 'Marcador',
     more: 'Más', listen: 'Escuchar en voz alta', stopListen: 'Detener la lectura',
     noTts: 'Este teléfono no tiene voz para leer en voz alta',
-    swapHere: 'Cambiar de versión desde aquí', markAs: 'Marcar como…', stUnread: 'Por leer', stReading: 'Leyendo', stRead: 'Leído', stDropped: 'Abandonado', markedAs: x => `Marcado como «${x}»`, covSave: 'Guardar portada', covSaved: 'Portada guardada en Descargas', covBad: 'No se pudo guardar la portada', lxFg: 'Color de letra', fgAuto: 'Del tema', lxParas: 'Párrafos', parInd: 'Con sangría', parSp: 'Separados', tr: 'Traducir', tabLooks: 'Búsquedas', noLooks: 'Aquí saldrán las palabras y frases que busques en el diccionario o traduzcas.', kD: 'Diccionario', kT: 'Traducción', noTr: 'No hay ninguna app de traducción. Texto copiado', again: 'Buscar otra vez', lxCols: 'Columnas en horizontal', colsTwo: 'Dos', colsOne: 'Una', bright: 'Brillo', brAuto: 'Auto', noDict: 'No hay ninguna app de diccionario. Palabra copiada', about: 'Acerca del documento', share: 'Compartir archivo', pageOf: (a, b) => `${a} de ${b}`, orient: 'Girar pantalla', needApk: 'Esto necesita la última versión de la app (instala el APK nuevo)', shareBad: 'No se pudo compartir el archivo',
+    swapHere: 'Cambiar de versión desde aquí', markAs: 'Marcar como…', stUnread: 'Por leer', stReading: 'Leyendo', stRead: 'Leído', stDropped: 'Abandonado', markedAs: x => `Marcado como «${x}»`, covSave: 'Guardar portada', covSaved: 'Portada guardada en Descargas', covBad: 'No se pudo guardar la portada', lxFg: 'Color de letra', lxFont: 'Tipo de letra', fgAuto: 'Del tema', lxParas: 'Párrafos', parInd: 'Con sangría', parSp: 'Separados', tr: 'Traducir', tabLooks: 'Búsquedas', noLooks: 'Aquí saldrán las palabras y frases que busques en el diccionario o traduzcas.', kD: 'Diccionario', kT: 'Traducción', noTr: 'No hay ninguna app de traducción. Texto copiado', again: 'Buscar otra vez', lxCols: 'Columnas en horizontal', colsTwo: 'Dos', colsOne: 'Una', bright: 'Brillo', brAuto: 'Auto', noDict: 'No hay ninguna app de diccionario. Palabra copiada', about: 'Acerca del documento', share: 'Compartir archivo', pageOf: (a, b) => `${a} de ${b}`, orient: 'Girar pantalla', needApk: 'Esto necesita la última versión de la app (instala el APK nuevo)', shareBad: 'No se pudo compartir el archivo',
     aTitle: 'Título', aAuthor: 'Autor', aPub: 'Editorial', aLang: 'Idioma', aDate: 'Fecha', aId: 'Identificador', aSubj: 'Temas', aDesc: 'Descripción', aRights: 'Derechos', aVer: 'Versión de EPUB', aCh: 'Capítulos', aFile: 'Archivo', aSize: 'Tamaño', aNone: 'Este archivo no trae datos', addVer: 'Añadir otra versión (bilingüe)', delVer: 'Quitar la segunda versión',
     verPrep: 'Preparando las dos versiones…', verAdded: 'Versión añadida. Toca ES/EN para cambiar',
     verBad: 'No pude leer ese epub', verDel: 'Segunda versión quitada', verAsk: 'Elige el mismo libro en otro idioma',
@@ -57,7 +57,7 @@ const X = {
     bmAdd: 'Bookmark saved', bmDel: 'Bookmark removed', bm: 'Bookmark',
     more: 'More', listen: 'Read aloud', stopListen: 'Stop reading',
     noTts: 'This phone has no voice to read aloud',
-    swapHere: 'Switch version from here', markAs: 'Mark as…', stUnread: 'To read', stReading: 'Reading', stRead: 'Read', stDropped: 'Dropped', markedAs: x => `Marked as “${x}”`, covSave: 'Save cover', covSaved: 'Cover saved to Downloads', covBad: 'Couldn’t save the cover', lxFg: 'Text colour', fgAuto: 'From theme', lxParas: 'Paragraphs', parInd: 'Indented', parSp: 'Spaced', tr: 'Translate', tabLooks: 'Lookups', noLooks: 'Words and phrases you look up in the dictionary or translate will show up here.', kD: 'Dictionary', kT: 'Translation', noTr: 'No translator app found. Text copied', again: 'Look up again', lxCols: 'Columns in landscape', colsTwo: 'Two', colsOne: 'One', bright: 'Brightness', brAuto: 'Auto', noDict: 'No dictionary app found. Word copied', about: 'About document', share: 'Share file', pageOf: (a, b) => `${a} of ${b}`, orient: 'Rotate screen', needApk: 'This needs the latest app version (install the new APK)', shareBad: 'Could not share the file',
+    swapHere: 'Switch version from here', markAs: 'Mark as…', stUnread: 'To read', stReading: 'Reading', stRead: 'Read', stDropped: 'Dropped', markedAs: x => `Marked as “${x}”`, covSave: 'Save cover', covSaved: 'Cover saved to Downloads', covBad: 'Couldn’t save the cover', lxFg: 'Text colour', lxFont: 'Font', fgAuto: 'From theme', lxParas: 'Paragraphs', parInd: 'Indented', parSp: 'Spaced', tr: 'Translate', tabLooks: 'Lookups', noLooks: 'Words and phrases you look up in the dictionary or translate will show up here.', kD: 'Dictionary', kT: 'Translation', noTr: 'No translator app found. Text copied', again: 'Look up again', lxCols: 'Columns in landscape', colsTwo: 'Two', colsOne: 'One', bright: 'Brightness', brAuto: 'Auto', noDict: 'No dictionary app found. Word copied', about: 'About document', share: 'Share file', pageOf: (a, b) => `${a} of ${b}`, orient: 'Rotate screen', needApk: 'This needs the latest app version (install the new APK)', shareBad: 'Could not share the file',
     aTitle: 'Title', aAuthor: 'Author', aPub: 'Publisher', aLang: 'Language', aDate: 'Date', aId: 'Identifier', aSubj: 'Subjects', aDesc: 'Description', aRights: 'Rights', aVer: 'EPUB version', aCh: 'Chapters', aFile: 'File', aSize: 'Size', aNone: 'This file has no data', addVer: 'Add another version (bilingual)', delVer: 'Remove the second version',
     verPrep: 'Preparing both versions…', verAdded: 'Version added. Tap ES/EN to switch',
     verBad: 'Couldn’t read that epub', verDel: 'Second version removed', verAsk: 'Pick the same book in another language',
@@ -75,7 +75,7 @@ const T = (k, ...a) => {
   return typeof v === 'function' ? v(...a) : v;
 };
 
-const DEF = { theme:'light', fs:18, lh:1.55, pad:22, anim:'slide', dim:0, mode:'page', rate:1, cols:2, bright:null, paras:'indent', fg:'' };
+const DEF = { theme:'light', fs:18, lh:1.55, pad:22, anim:'slide', dim:0, mode:'page', rate:1, cols:2, bright:null, paras:'indent', fg:'', font:'serif' };
 const CK = 'por-leer-lector';
 let P = (() => { try { return Object.assign({}, DEF, JSON.parse(localStorage.getItem(CK) || '{}')); } catch (e) { return { ...DEF }; } })();
 const savePrefs = () => { try { localStorage.setItem(CK, JSON.stringify(P)); } catch (e) {} };
@@ -383,6 +383,7 @@ function applyPrefs() {
   c.style.setProperty('--lx-lh', P.lh);
   c.style.setProperty('--lx-pad', P.pad + 'px');
   c.classList.toggle('lx-sp', P.paras === 'spaced');
+  c.style.setProperty('--lx-font', FONTS[P.font] || FONTS.serif);
   if (P.fg) c.style.setProperty('--lx-text', P.fg); else c.style.removeProperty('--lx-text');
   dimEl.style.opacity = !nativeBr() && P.bright != null ? (1 - P.bright) * 0.75 : 0;
 }
@@ -409,6 +410,7 @@ function viewRange() {
    el reparto una vez y pasar página es solo un transform. */
 function relayout(keepPct) {
   if (!el || !cur || !bk) return;
+  if (chapDone) chapDone();
   curlDrop();
   const wrap = wrapEl, col = colEl;
   applyPrefs();
@@ -437,7 +439,13 @@ function relayout(keepPct) {
   let cs = getComputedStyle(col);
   const lhp = parseFloat(cs.lineHeight) || P.fs * P.lh, pb = parseFloat(cs.paddingBottom);
   const avail = wrap.clientHeight - parseFloat(cs.paddingTop) - pb, res = avail - Math.floor(avail / lhp) * lhp;
-  if (res > lhp * 0.7 && pb - (lhp - res) - 1 >= 26) col.style.paddingBottom = (pb - (lhp - res) - 1) + 'px';
+  /* el alto útil se deja en un número EXACTO de renglones: si no, los decimales se acumulan y unas
+     páginas entran un renglón más que otras. Si abajo sobra casi un renglón entero, se aprovecha. */
+  if (res > 0.05) {
+    const up = res > lhp * 0.7 && pb - (lhp - res) >= 26;
+    /* medio píxel de más: justo lo que falta para que el último renglón no se vaya a la página siguiente */
+    col.style.paddingBottom = Math.max(0, pb + (up ? res - lhp : res) - 0.5) + 'px';
+  }
   cs = getComputedStyle(col);
   col.style.setProperty('--lx-ch', Math.max(80, wrap.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)) + 'px');
   pages = Math.max(1, Math.round((col.scrollWidth + P.pad) / w));
@@ -742,11 +750,12 @@ async function chapTurn(d, i, o) {
     snap.remove();
   };
   chapDone = fin;
-  await show(i, { ...o, snap: true });
+  try { await show(i, { ...o, snap: true }); } catch (e) { fin(); return; }
   if (done) return;
   if (si === was) { fin(); return; }
   const bx = -page * W, tr = x => ({ transform: `translate3d(${x}px,0,0)` });
   let anim = P.anim;
+  if (anim === 'curl' && colEl.textContent.length > 60000) anim = 'fade';
   if (anim === 'curl') {
     const g = curlChap(d, snap, oldTx, ty);
     if (g) { curlRun(curlGone(g), window.__LXDUR || 460, fin, 0.16); return; }
@@ -1308,6 +1317,13 @@ async function runSearch(q) {
   box.innerHTML = found ? html : `<p class="lx-note">${esc(t('lxNoHits'))}</p>`;
 }
 
+const FONTS = {
+  serif: "Georgia,'Times New Roman',serif", book: "'Noto Serif','Droid Serif',Cambria,serif",
+  sans: "Roboto,'Noto Sans',system-ui,'Segoe UI',sans-serif", light: "'Roboto Light','sans-serif-light',Roboto,'Segoe UI Light',sans-serif",
+  cond: "'sans-serif-condensed','Roboto Condensed','Arial Narrow',sans-serif", mono: "'Courier New','Droid Sans Mono',monospace",
+  casual: "'casual','Comic Sans MS',cursive"
+};
+const FONT_LB = { serif: 'Georgia', book: 'Noto Serif', sans: 'Roboto', light: 'Roboto Light', cond: 'Roboto Condensed', mono: 'Courier New', casual: 'Casual' };
 const FGS = ['', '#111111', '#3a3a3a', '#4b3621', '#ffffff', '#e8e4dc', '#bdbdbd', '#e0c27a', '#a8c7a0', '#9db8d9', '#c9a6e3'];
 function setPanel() {
   const seg = (name, opts, val) => `<div class="lx-seg">${opts.map(([v, lb]) =>
@@ -1317,6 +1333,9 @@ function setPanel() {
       <div class="lx-row"><span>${esc(t('lxTheme'))}</span><div class="lx-th">
         ${[['light','#fdfcfa','#22202b'],['sepia','#f3e9d6','#3b3222'],['dark','#20202a','#ddd9e4'],['amoled','#000','#cfcbd6']]
           .map(([v,bg,fg])=>`<button type="button" data-set="theme" data-v="${v}" aria-pressed="${P.theme===v}" style="background:${bg};color:${fg}">Aa</button>`).join('')}
+      </div></div>
+      <div class="lx-row"><span>${esc(T('lxFont'))}</span><div class="lx-fonts">
+        ${Object.keys(FONTS).map(k => `<button type="button" data-set="font" data-v="${k}" aria-pressed="${(FONTS[P.font] ? P.font : 'serif') === k}"><i style="font-family:${FONTS[k].replace(/"/g, "'")}">Aa</i><span>${esc(FONT_LB[k])}</span></button>`).join('')}
       </div></div>
       <div class="lx-row"><span>${esc(T('lxFg'))}</span><div class="lx-fgs">
         ${FGS.map(c => `<button type="button" data-set="fg" data-v="${c}" aria-pressed="${(P.fg || '') === c}" aria-label="${esc(c || T('fgAuto'))}" class="${c ? '' : 'auto'}" ${c ? `style="background:${c}"` : ''}>${c ? '' : 'A'}</button>`).join('')}
@@ -1452,11 +1471,14 @@ const idbGet = async k => { try { const db = await idb(); return await new Promi
 const idbPut = async (k, v) => { try { const db = await idb(); await new Promise(ok => { const tx = db.transaction('al', 'readwrite'); if (v === null) tx.objectStore('al').delete(k); else tx.objectStore('al').put(v, k); tx.oncomplete = ok; tx.onerror = ok; }); } catch (e) {} };
 
 const alKey = b => `${b.id}|${(b.file && b.file.name) || ''}|${(b.file2 && b.file2.name) || ''}`;
+const vOpening = [null, null];
 async function openVersion(v) {
   if (bks[v]) return bks[v];
+  if (vOpening[v]) return vOpening[v];
   const b = curBook(), ref = v ? b.file2 : b.file;
-  bks[v] = await openEpub(await FS.get(ref));
-  return bks[v];
+  const pr = (async () => { const k = await openEpub(await FS.get(ref)); if (curBook() === b) bks[v] = k; return k; })();
+  vOpening[v] = pr;
+  try { return await pr; } finally { if (vOpening[v] === pr) vOpening[v] = null; }
 }
 /* cuántos párrafos tiene cada capítulo de cada versión; se calcula una vez y se guarda */
 async function getAlign(force) {
@@ -1546,25 +1568,35 @@ function paintLang() {
   }
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+/* preparar la alineación puede tardar: sin esto, dos toques seguidos lanzan dos cambios a la vez
+   y la versión y el texto acaban descolocados */
+let swapping = false;
 async function switchVer(anchor) {
   const b = curBook();
-  if (!b || !b.file2 || busy) return;
+  if (!b || !b.file2 || busy || swapping) return;
   const to = 1 - ver, move = moveEl;
+  swapping = true;
+  if (chapDone) chapDone();
   ttsStop();
-  let al;
-  try { al = await getAlign(); await openVersion(to); } catch (e) { toast(T('verBad')); return; }
-  const m = mapPara(al, ver, si, anchor != null && anchor >= 0 ? anchor : topPara());
-  writePos();
-  move.style.transition = 'opacity .2s linear'; move.style.opacity = '0';
-  await sleep(200);
-  ver = to; bk = bks[to];
-  await show(m.i, { para: m.k });
-  move.style.opacity = '1';
-  await sleep(210);
-  move.style.transition = ''; move.style.opacity = '';
-  paintLang();
-  writePos();
-  flashPara(m.k);
+  try {
+    let al;
+    try { al = await getAlign(); await openVersion(to); } catch (e) { toast(T('verBad')); return; }
+    if (!curBook() || curBook() !== b || !b.file2) return;   /* se cerró el libro o se quitó la versión */
+    const m = mapPara(al, ver, si, anchor != null && anchor >= 0 ? anchor : topPara());
+    writePos();
+    move.style.transition = 'opacity .2s linear'; move.style.opacity = '0';
+    await sleep(200);
+    ver = to; bk = bks[to];
+    await show(m.i, { para: m.k });
+    move.style.opacity = '1';
+    await sleep(210);
+    paintLang();
+    writePos();
+    flashPara(m.k);
+  } finally {
+    move.style.transition = ''; move.style.opacity = '';
+    swapping = false;
+  }
 }
 /* resalta en morado la primera línea del párrafo al que se ha saltado */
 function flashPara(k) {
@@ -1592,7 +1624,7 @@ function pickWeb() {
   });
 }
 async function addVersion() {
-  const b = curBook(); if (!b) return;
+  const b = curBook(); if (!b || swapping) return;
   toast(T('verAsk'));
   let ref;
   try {
@@ -1614,8 +1646,8 @@ async function addVersion() {
   toast(T('verAdded'));
 }
 async function delVersion() {
-  const b = curBook(); if (!b || !b.file2) return;
-  if (ver === 1) await switchVer();
+  const b = curBook(); if (!b || !b.file2 || swapping) return;
+  if (ver === 1) { await switchVer(); if (ver === 1) return; }
   FS.del(b.file2);
   idbPut(alKey(b), null);
   delete b.file2; delete b.vl; bks[1] = null;
@@ -1640,7 +1672,7 @@ function onTap(e) {
       relayout(false); gotoFrac(f);
     } else applyPrefs();
     if (s.dataset.set === 'anim') curlWarm();
-    if (s.dataset.set === 'cols' || s.dataset.set === 'paras') { ensureOff(); relayout(true); }
+    if (s.dataset.set === 'cols' || s.dataset.set === 'paras' || s.dataset.set === 'font') { ensureOff(); relayout(true); }
     return;
   }
   const tb = e.target.closest('[data-tab]');
@@ -1802,6 +1834,8 @@ function lockPage(on) {
 }
 function close() {
   clearTimeout(posT);
+  if (chapDone) chapDone();
+  if (moveEl) { moveEl.style.transition = ''; moveEl.style.opacity = ''; }
   orientBack(); brightBack();
   lockPage(false);
   ttsStop();
