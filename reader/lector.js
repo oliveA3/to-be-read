@@ -39,7 +39,7 @@ const X = {
     bmAdd: 'Marcador guardado', bmDel: 'Marcador quitado', bm: 'Marcador',
     more: 'Más', listen: 'Escuchar en voz alta', stopListen: 'Detener la lectura',
     noTts: 'Este teléfono no tiene voz para leer en voz alta',
-    swapHere: 'Cambiar de versión desde aquí', markAs: 'Marcar como…', stUnread: 'Por leer', stReading: 'Leyendo', stRead: 'Leído', stDropped: 'Abandonado', markedAs: x => `Marcado como «${x}»`, covSave: 'Guardar portada', covSaved: 'Portada guardada en Descargas', covBad: 'No se pudo guardar la portada', lxFg: 'Color de letra', lxFont: 'Tipo de letra', fgAuto: 'Del tema', lxParas: 'Párrafos', parInd: 'Con sangría', parSp: 'Separados', tr: 'Traducir', tabLooks: 'Búsquedas', noLooks: 'Aquí saldrán las palabras y frases que busques en el diccionario o traduzcas.', kD: 'Diccionario', kT: 'Traducción', noTr: 'No hay ninguna app de traducción. Texto copiado', again: 'Buscar otra vez', lxCols: 'Columnas en horizontal', colsTwo: 'Dos', colsOne: 'Una', bright: 'Brillo', brAuto: 'Auto', noDict: 'No hay ninguna app de diccionario. Palabra copiada', about: 'Acerca del documento', share: 'Compartir archivo', pageOf: (a, b) => `${a} de ${b}`, orient: 'Girar pantalla', needApk: 'Esto necesita la última versión de la app (instala el APK nuevo)', shareBad: 'No se pudo compartir el archivo',
+    swapHere: 'Cambiar de versión desde aquí', addWidget: 'Añadir widget al escritorio', widgetAsk: 'Confirma en el cuadro de Android para colocarlo', widgetNo: 'Tu pantalla de inicio no permite añadirlo sola. Añade el widget «To be read» desde la lista de widgets y mostrará este libro', widgetBad: 'No se pudo crear el widget', qcard: 'Tarjeta', qMeta: 'Mostrar título y autor', qShare: 'Compartir', qSave: 'Guardar', qSaved: 'Imagen guardada en Descargas', qBad: 'No se pudo crear la imagen', markAs: 'Marcar como…', stUnread: 'Por leer', stReading: 'Leyendo', stRead: 'Leído', stDropped: 'Abandonado', markedAs: x => `Marcado como «${x}»`, covSave: 'Guardar portada', covSaved: 'Portada guardada en Descargas', covBad: 'No se pudo guardar la portada', lxFg: 'Color de letra', lxFont: 'Tipo de letra', fgAuto: 'Del tema', lxParas: 'Párrafos', parInd: 'Con sangría', parSp: 'Separados', tr: 'Traducir', tabLooks: 'Búsquedas', noLooks: 'Aquí saldrán las palabras y frases que busques en el diccionario o traduzcas.', kD: 'Diccionario', kT: 'Traducción', noTr: 'No hay ninguna app de traducción. Texto copiado', again: 'Buscar otra vez', lxCols: 'Columnas en horizontal', colsTwo: 'Dos', colsOne: 'Una', bright: 'Brillo', brAuto: 'Auto', noDict: 'No hay ninguna app de diccionario. Palabra copiada', about: 'Acerca del documento', share: 'Compartir archivo', pageOf: (a, b) => `${a} de ${b}`, orient: 'Girar pantalla', needApk: 'Esto necesita la última versión de la app (instala el APK nuevo)', shareBad: 'No se pudo compartir el archivo',
     aTitle: 'Título', aAuthor: 'Autor', aPub: 'Editorial', aLang: 'Idioma', aDate: 'Fecha', aId: 'Identificador', aSubj: 'Temas', aDesc: 'Descripción', aRights: 'Derechos', aVer: 'Versión de EPUB', aCh: 'Capítulos', aFile: 'Archivo', aSize: 'Tamaño', aNone: 'Este archivo no trae datos', addVer: 'Añadir otra versión (bilingüe)', delVer: 'Quitar la segunda versión',
     verPrep: 'Preparando las dos versiones…', verAdded: 'Versión añadida. Toca ES/EN para cambiar',
     verBad: 'No pude leer ese epub', verDel: 'Segunda versión quitada', verAsk: 'Elige el mismo libro en otro idioma',
@@ -57,7 +57,7 @@ const X = {
     bmAdd: 'Bookmark saved', bmDel: 'Bookmark removed', bm: 'Bookmark',
     more: 'More', listen: 'Read aloud', stopListen: 'Stop reading',
     noTts: 'This phone has no voice to read aloud',
-    swapHere: 'Switch version from here', markAs: 'Mark as…', stUnread: 'To read', stReading: 'Reading', stRead: 'Read', stDropped: 'Dropped', markedAs: x => `Marked as “${x}”`, covSave: 'Save cover', covSaved: 'Cover saved to Downloads', covBad: 'Couldn’t save the cover', lxFg: 'Text colour', lxFont: 'Font', fgAuto: 'From theme', lxParas: 'Paragraphs', parInd: 'Indented', parSp: 'Spaced', tr: 'Translate', tabLooks: 'Lookups', noLooks: 'Words and phrases you look up in the dictionary or translate will show up here.', kD: 'Dictionary', kT: 'Translation', noTr: 'No translator app found. Text copied', again: 'Look up again', lxCols: 'Columns in landscape', colsTwo: 'Two', colsOne: 'One', bright: 'Brightness', brAuto: 'Auto', noDict: 'No dictionary app found. Word copied', about: 'About document', share: 'Share file', pageOf: (a, b) => `${a} of ${b}`, orient: 'Rotate screen', needApk: 'This needs the latest app version (install the new APK)', shareBad: 'Could not share the file',
+    swapHere: 'Switch version from here', addWidget: 'Add widget to home screen', widgetAsk: 'Confirm in the Android dialog to place it', widgetNo: 'Your home screen can’t add it automatically. Add the “To be read” widget from the widget list and it will show this book', widgetBad: 'Couldn’t create the widget', qcard: 'Card', qMeta: 'Show title and author', qShare: 'Share', qSave: 'Save', qSaved: 'Image saved to Downloads', qBad: 'Couldn’t create the image', markAs: 'Mark as…', stUnread: 'To read', stReading: 'Reading', stRead: 'Read', stDropped: 'Dropped', markedAs: x => `Marked as “${x}”`, covSave: 'Save cover', covSaved: 'Cover saved to Downloads', covBad: 'Couldn’t save the cover', lxFg: 'Text colour', lxFont: 'Font', fgAuto: 'From theme', lxParas: 'Paragraphs', parInd: 'Indented', parSp: 'Spaced', tr: 'Translate', tabLooks: 'Lookups', noLooks: 'Words and phrases you look up in the dictionary or translate will show up here.', kD: 'Dictionary', kT: 'Translation', noTr: 'No translator app found. Text copied', again: 'Look up again', lxCols: 'Columns in landscape', colsTwo: 'Two', colsOne: 'One', bright: 'Brightness', brAuto: 'Auto', noDict: 'No dictionary app found. Word copied', about: 'About document', share: 'Share file', pageOf: (a, b) => `${a} of ${b}`, orient: 'Rotate screen', needApk: 'This needs the latest app version (install the new APK)', shareBad: 'Could not share the file',
     aTitle: 'Title', aAuthor: 'Author', aPub: 'Publisher', aLang: 'Language', aDate: 'Date', aId: 'Identifier', aSubj: 'Subjects', aDesc: 'Description', aRights: 'Rights', aVer: 'EPUB version', aCh: 'Chapters', aFile: 'File', aSize: 'Size', aNone: 'This file has no data', addVer: 'Add another version (bilingual)', delVer: 'Remove the second version',
     verPrep: 'Preparing both versions…', verAdded: 'Version added. Tap ES/EN to switch',
     verBad: 'Couldn’t read that epub', verDel: 'Second version removed', verAsk: 'Pick the same book in another language',
@@ -1104,6 +1104,7 @@ function dockSel() {
     ${one ? `<button type="button" class="lx-dbtn" data-x="dict">${esc(T('dict'))}</button>` : ''}
     <button type="button" class="lx-dbtn" data-x="tr">${esc(T('tr'))}</button>
     <button type="button" class="lx-dbtn" data-x="copy">${esc(T('copy'))}</button>
+    <button type="button" class="lx-dbtn" data-x="qcard">${esc(T('qcard'))}</button>
     ${(curBook() || {}).file2 && selInfo.k >= 0 ? `<button type="button" class="lx-lang lx-lang-in" data-x="lang" aria-label="${esc(T('swapHere'))}">${esc(langCode(ver))}</button>` : ''}`);
 }
 function addHl(c, note) {
@@ -1123,6 +1124,7 @@ function openHlEditor(id) {
   hlEdit = h; selInfo = null;
   dock(`${colorsRow('hlc', h.c)}
     <button type="button" class="lx-dbtn" data-x="hlnote">${esc(h.n ? T('edit') : T('note'))}</button>
+    <button type="button" class="lx-dbtn" data-x="qcard">${esc(T('qcard'))}</button>
     <button type="button" class="lx-dbtn" data-x="hldel">${esc(T('hlDel'))}</button>
     <button type="button" class="lx-dbtn lx-dx" data-x="dockx" aria-label="x">${I.x}</button>`);
 }
@@ -1192,6 +1194,89 @@ function tocPanel(tab) {
     <div class="lx-plist">${body}</div>`);
 }
 
+/* ---------- tarjeta de cita: el subrayado como imagen para compartir ---------- */
+const QSTY = {
+  plum:  { bg: ['#6a2f8f', '#2a1245'], fg: '#ffffff', ac: '#e3c6ff', soft: '#d8c0ee' },
+  light: { bg: '#f8f3f8', fg: '#2a1d33', ac: '#5b2a7a', soft: '#6b587a' },
+  sepia: { bg: '#f3e9d6', fg: '#3b3222', ac: '#7a4a2a', soft: '#7a6b53' },
+  dark:  { bg: '#1d1626', fg: '#e8deef', ac: '#c9a6e3', soft: '#a994b8' },
+  paper: { bg: '#ffffff', fg: '#111111', ac: '#111111', soft: '#666666' }
+};
+let qc = null;
+function qWrap(c, text, maxW) {
+  const out = []; let line = '';
+  for (const w of text.split(' ')) {
+    const t = line ? line + ' ' + w : w;
+    if (line && c.measureText(t).width > maxW) { out.push(line); line = w; } else line = t;
+  }
+  if (line) out.push(line);
+  return out;
+}
+function drawQuote(cv, q) {
+  const W = 1080, H = 1350, pad = 104, s = QSTY[q.sty] || QSTY.plum, fam = FONTS[P.font] || FONTS.serif;
+  cv.width = W; cv.height = H;
+  const c = cv.getContext('2d');
+  if (Array.isArray(s.bg)) { const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, s.bg[0]); g.addColorStop(1, s.bg[1]); c.fillStyle = g; } else c.fillStyle = s.bg;
+  c.fillRect(0, 0, W, H);
+  c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+  c.fillStyle = s.ac; c.font = `bold 230px ${fam}`; c.fillText('\u201C', pad - 10, pad + 200);
+  const top = 340, bottom = H - (q.meta ? 330 : 150), maxW = W - pad * 2, areaH = bottom - top;
+  let size = 68, lines;
+  for (; size >= 32; size -= 2) {
+    c.font = `${size}px ${fam}`; lines = qWrap(c, q.text, maxW);
+    if (lines.length * size * 1.4 <= areaH) break;
+  }
+  const fit = Math.max(1, Math.floor(areaH / (size * 1.4)));
+  if (lines.length > fit) { lines = lines.slice(0, fit); let l = lines[fit - 1]; while (l.length > 1 && c.measureText(l + '\u2026').width > maxW) l = l.slice(0, -1); lines[fit - 1] = l.replace(/[ ,;:.]+$/, '') + '\u2026'; }
+  c.fillStyle = s.fg; c.font = `${size}px ${fam}`;
+  const y0 = top + Math.max(0, (areaH - lines.length * size * 1.4) / 2 - 20);   /* las citas cortas quedan centradas */
+  lines.forEach((l, i) => c.fillText(l, pad, y0 + size + i * size * 1.4));
+  if (q.meta && (q.title || q.author)) {
+    c.fillStyle = s.ac; c.fillRect(pad, H - 290, 120, 5);
+    const fit1 = (txt, px, wt) => { c.font = `${wt} ${px}px ${fam}`; let t = txt; while (t.length > 1 && c.measureText(t).width > maxW) t = t.slice(0, -1); return t.length < txt.length ? t.trim() + '\u2026' : t; };
+    c.fillStyle = s.fg; c.fillText(fit1(q.title || '', 44, 'bold'), pad, H - 220);
+    if (q.author) { c.fillStyle = s.soft; c.fillText(fit1(q.author, 34, 'normal'), pad, H - 164); }
+  }
+}
+function quotePanel(text) {
+  const b = curBook() || {};
+  qc = { text: text.replace(/\s+/g, ' ').trim().slice(0, 700), sty: 'plum', meta: true, title: b.title || '', author: b.author || '' };
+  if (!qc.text) return;
+  const sw = k => { const a = QSTY[k].bg; return Array.isArray(a) ? `linear-gradient(135deg,${a[0]},${a[1]})` : a; };
+  panel(`<div class="lx-phead"><button type="button" class="lx-ico" data-x="pclose">${I.back}</button><b>${esc(T('qcard'))}</b></div>
+    <div class="lx-qc">
+      <div class="lx-qprev"><canvas id="lxQc"></canvas></div>
+      <div class="lx-qsty">${Object.keys(QSTY).map(k => `<button type="button" data-x="qs-${k}" aria-pressed="${k === qc.sty}" aria-label="${k}" style="background:${sw(k)}"></button>`).join('')}</div>
+      <label class="lx-qmeta"><input type="checkbox" id="lxQm" checked> ${esc(T('qMeta'))}</label>
+      <div class="lx-qact"><button type="button" class="lx-dbtn pri" data-x="qshare">${esc(T('qShare'))}</button><button type="button" class="lx-dbtn" data-x="qsave">${esc(T('qSave'))}</button></div>
+    </div>`);
+  const cv = $('#lxQc', el); drawQuote(cv, qc);
+  $('#lxQm', el).addEventListener('change', e => { qc.meta = e.target.checked; drawQuote(cv, qc); });
+}
+const qBlob = () => new Promise((ok, ko) => { const cv = $('#lxQc', el); if (!cv) return ko(new Error('x')); cv.toBlob(b => b ? ok(b) : ko(new Error('x')), 'image/png'); });
+const blobB64 = bl => new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1] || ''); r.onerror = ko; r.readAsDataURL(bl); });
+const qName = () => (qc.title || 'cita').replace(/[\\/:*?"<>|]+/g, ' ').trim().slice(0, 40) + ' - cita.png';
+async function quoteOut(share) {
+  try {
+    const bl = await qBlob(), name = qName(), CAP = API.CAP;
+    if (CAP) {
+      const b64 = await blobB64(bl);
+      if (share && CAP.Filesystem && CAP.Share) {
+        await CAP.Filesystem.writeFile({ path: 'cita.png', data: b64, directory: 'CACHE' });
+        const { uri } = await CAP.Filesystem.getUri({ path: 'cita.png', directory: 'CACHE' });
+        try { await CAP.Share.share({ title: name, files: [uri] }); } catch (e) { if (/cancel|dismiss/i.test(String(e && (e.message || e)))) return; throw e; }
+        return;
+      }
+      const fo = API.FO && API.FO();
+      if (fo && fo.saveDownload) { await fo.saveDownload({ name, data: b64, mime: 'image/png' }); toast(T('qSaved')); return; }
+    }
+    const f = new File([bl], name, { type: 'image/png' });
+    if (share && navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f] }); } catch (e) { if (!/abort|cancel/i.test(String(e && e.name || e))) throw e; } return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 8000);
+    if (!share) toast(T('qSaved'));
+  } catch (e) { toast(T('qBad')); }
+}
 const fsize = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
 function aboutPanel() {
   const b = curBook(), m = bk.meta || {}, ref = b && (ver && b.file2 ? b.file2 : b.file);
@@ -1205,6 +1290,48 @@ function aboutPanel() {
   panel(`<div class="lx-phead"><button type="button" class="lx-ico" data-x="pclose">${I.back}</button><b>${esc(T('about'))}</b></div>
     <div class="lx-plist lx-about"><div class="lx-cover" id="lxCov" hidden></div>${rows.length ? rows.map(([k, v]) => `<div class="lx-kv"><small>${esc(T(k))}</small><div>${esc(v)}</div></div>`).join('') : `<p class="lx-note">${esc(T('aNone'))}</p>`}</div>`);
   aboutCover();
+}
+/* Widget del libro: círculo con la portada (o la inicial si no tiene), del tamaño de un icono */
+async function widgetCircle() {
+  const b = curBook() || {}, N = 192, cv = document.createElement('canvas');
+  cv.width = cv.height = N;
+  const c = cv.getContext('2d');
+  c.save(); c.beginPath(); c.arc(N / 2, N / 2, N / 2 - 1, 0, Math.PI * 2); c.clip();
+  let drawn = false;
+  if (bk && bk.cover) {
+    try {
+      const raw = await bk.bin(bk.cover.href);
+      if (raw) {
+        const u = URL.createObjectURL(new Blob([raw], { type: raw.type || MIME(bk.cover.href) }));
+        const img = await new Promise((ok, ko) => { const im = new Image(); im.onload = () => ok(im); im.onerror = ko; im.src = u; });
+        const r = Math.max(N / img.width, N / img.height), w = img.width * r, h = img.height * r;
+        c.drawImage(img, (N - w) / 2, (N - h) / 2, w, h); drawn = true;
+        URL.revokeObjectURL(u);
+      }
+    } catch (e) { drawn = false; }
+  }
+  if (!drawn) {
+    const g = c.createLinearGradient(0, 0, N, N); g.addColorStop(0, '#6a2f8f'); g.addColorStop(1, '#2a1245');
+    c.fillStyle = g; c.fillRect(0, 0, N, N);
+    c.fillStyle = '#fff'; c.font = 'bold 96px Georgia,serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(((b.title || '?').trim()[0] || '?').toUpperCase(), N / 2, N / 2 + 6);
+  }
+  c.restore();
+  c.lineWidth = 5; c.strokeStyle = 'rgba(255,255,255,.9)'; c.beginPath(); c.arc(N / 2, N / 2, N / 2 - 3, 0, Math.PI * 2); c.stroke();
+  return cv.toDataURL('image/png').split(',')[1];
+}
+async function addWidget() {
+  const b = curBook(), fo = API.FO && API.FO();
+  if (!b) return;
+  if (!fo || !fo.pinWidget) { toast(T('needApk')); return; }
+  try {
+    const cover = await widgetCircle();
+    await fo.pinWidget({ id: b.id, title: b.title || '', cover });
+    toast(T('widgetAsk'));
+  } catch (e) {
+    const m = String(e && (e.message || e));
+    toast(T(/not_supported/.test(m) ? 'widgetNo' : /implement|not available/i.test(m) ? 'needApk' : 'widgetBad'));
+  }
 }
 let covBlob = null, covName = 'cover.jpg';
 async function aboutCover() {
@@ -1372,6 +1499,7 @@ function menu() {
   const items = [];
   items.push(tts && tts.on ? ['tts', T('stopListen')] : ['tts', T('listen')]);
   items.push(b && b.file2 ? ['delver', T('delVer')] : ['addver', T('addVer')]);
+  items.push(['widget', T('addWidget')]);
   items.push(['mark', T('markAs') + ' ' + I.chev]);
   items.push(['about', T('about')]);
   items.push(['share', T('share')]);
@@ -1703,6 +1831,11 @@ function onTap(e) {
   const a = x.dataset.x;
   if (a !== 'more') hideMenu();
   if (a.slice(0, 3) === 'mk-') return markAs(a.slice(3));
+  if (a.slice(0, 3) === 'qs-' && qc) {
+    qc.sty = a.slice(3); const cv = $('#lxQc', el); if (cv) drawQuote(cv, qc);
+    panelEl.querySelectorAll('.lx-qsty button').forEach(bn => bn.setAttribute('aria-pressed', String(bn.dataset.x === a)));
+    return;
+  }
   switch (a) {
     case 'close': return close();
     case 'pclose': return closePanel();
@@ -1719,7 +1852,17 @@ function onTap(e) {
     case 'm-tts': return tts && tts.on ? ttsStop() : ttsStart();
     case 'm-addver': return addVersion();
     case 'm-mark': hideMenu(); return setTimeout(markMenu, 130);
+    case 'm-widget': hideMenu(); return addWidget();
     case 'covsave': return saveCover();
+    case 'qshare': return quoteOut(true);
+    case 'qsave': return quoteOut(false);
+    case 'qcard': {
+      let tx = selInfo ? selInfo.q : '';
+      if (!tx && hlEdit) tx = (colEl.textContent || '').slice(hlEdit.s, hlEdit.e) || hlEdit.q || '';
+      const sl = getSelection(); if (sl) sl.removeAllRanges();
+      selInfo = null; hideDock();
+      return quotePanel(tx);
+    }
     case 'm-about': hideMenu(); return aboutPanel();
     case 'm-share': hideMenu(); return shareFile();
     case 'orient': return toggleOrient();

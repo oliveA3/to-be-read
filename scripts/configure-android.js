@@ -121,6 +121,20 @@ fs.writeFileSync(gradlePath, g);
     fs.writeFileSync(mp, m);
     console.log('Manifiesto: consulta de apps de diccionario/traducción añadida');
   }
+  // Widget de un libro (círculo con la portada y el título) para la pantalla de inicio
+  m = fs.readFileSync(mp, 'utf8');
+  if (!/\.BookWidget/.test(m)) {
+    const rcv = '        <receiver android:name=".BookWidget" android:exported="false">\n'
+      + '            <intent-filter>\n'
+      + '                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />\n'
+      + '            </intent-filter>\n'
+      + '            <meta-data android:name="android.appwidget.provider" android:resource="@xml/book_widget_info" />\n'
+      + '        </receiver>\n';
+    if (m.indexOf('</application>') < 0) fail('El manifiesto no tiene </application>');
+    m = m.replace('</application>', rcv + '    </application>');
+    fs.writeFileSync(mp, m);
+    console.log('Manifiesto: widget del libro añadido');
+  }
   // Instalar la actualización descargada desde GitHub (Android pide confirmación al usuario)
   m = fs.readFileSync(mp, 'utf8');
   if (!/REQUEST_INSTALL_PACKAGES/.test(m)) {
@@ -650,6 +664,33 @@ fs.writeFileSync(gradlePath, g);
     '        }',
     '    }',
     '',
+    '    /** Widget de un libro: guarda título y portada (PNG redondo) y pide a Android que lo ponga en la pantalla de inicio. */',
+    '    @PluginMethod',
+    '    public void pinWidget(PluginCall call) {',
+    '        String id = call.getString("id");',
+    '        String title = call.getString("title", "");',
+    '        String cover = call.getString("cover");',
+    '        if (id == null || id.length() == 0) { call.reject("bad_id"); return; }',
+    '        try {',
+    '            android.content.Context ctx = getContext();',
+    '            if (cover != null && cover.length() > 0) {',
+    '                byte[] png = Base64.decode(cover, Base64.NO_WRAP);',
+    '                try (FileOutputStream fo = new FileOutputStream(new File(ctx.getFilesDir(), "wcov_" + BookWidget.safe(id) + ".png"))) { fo.write(png); }',
+    '            }',
+    '            android.content.SharedPreferences sp = ctx.getSharedPreferences(BookWidget.PREFS, 0);',
+    '            sp.edit().putString("t_" + id, title).putString("last", id).apply();',
+    '            BookWidget.refreshBook(ctx, id);',
+    '            android.appwidget.AppWidgetManager mgr = android.appwidget.AppWidgetManager.getInstance(ctx);',
+    '            if (Build.VERSION.SDK_INT < 26 || !mgr.isRequestPinAppWidgetSupported()) { call.reject("not_supported"); return; }',
+    '            sp.edit().putString("pending", id).putLong("pendingAt", System.currentTimeMillis()).apply();',
+    '            boolean ok = mgr.requestPinAppWidget(new android.content.ComponentName(ctx, BookWidget.class), null, null);',
+    '            if (!ok) { sp.edit().remove("pending").apply(); call.reject("not_supported"); return; }',
+    '            call.resolve();',
+    '        } catch (Exception e) {',
+    '            call.reject(String.valueOf(e.getMessage()));',
+    '        }',
+    '    }',
+    '',
     '    /** Abre el libro en una pantalla aparte (tarea propia: tarjeta suya en los recientes, una por libro). */',
     '    @PluginMethod',
     '    public void openReader(PluginCall call) {',
@@ -868,6 +909,161 @@ fs.writeFileSync(gradlePath, g);
     '}',
     ''
   ].join('\n'));
+
+  // Widget de un libro: círculo con la portada y el título debajo, del tamaño de un icono (1x1)
+  fs.writeFileSync(path.join(javaDir, 'BookWidget.java'), [
+    'package ' + appId + ';',
+    '',
+    'import android.app.PendingIntent;',
+    'import android.appwidget.AppWidgetManager;',
+    'import android.appwidget.AppWidgetProvider;',
+    'import android.content.ComponentName;',
+    'import android.content.Context;',
+    'import android.content.Intent;',
+    'import android.content.SharedPreferences;',
+    'import android.graphics.Bitmap;',
+    'import android.graphics.BitmapFactory;',
+    'import android.net.Uri;',
+    'import android.widget.RemoteViews;',
+    'import java.io.File;',
+    '',
+    'public class BookWidget extends AppWidgetProvider {',
+    '    static final String PREFS = "tbr_widgets";',
+    '',
+    '    static String safe(String id) { return id.replaceAll("[^A-Za-z0-9_-]", "_"); }',
+    '',
+    '    static int rid(Context ctx, String name, String type) {',
+    '        return ctx.getResources().getIdentifier(name, type, ctx.getPackageName());',
+    '    }',
+    '',
+    '    @Override',
+    '    public void onUpdate(Context ctx, AppWidgetManager mgr, int[] ids) {',
+    '        SharedPreferences sp = ctx.getSharedPreferences(PREFS, 0);',
+    '        for (int id : ids) {',
+    '            String book = sp.getString("w" + id, null);',
+    '            if (book == null) {',
+    '                // widget recién puesto: se queda con el libro que se pidió hace un momento; si no, con el último',
+    '                String pend = sp.getString("pending", null);',
+    '                long at = sp.getLong("pendingAt", 0);',
+    '                if (pend != null && System.currentTimeMillis() - at < 120000) {',
+    '                    book = pend;',
+    '                    sp.edit().putString("w" + id, book).remove("pending").apply();',
+    '                } else {',
+    '                    book = sp.getString("last", null);',
+    '                }',
+    '            }',
+    '            draw(ctx, mgr, id, book);',
+    '        }',
+    '    }',
+    '',
+    '    @Override',
+    '    public void onDeleted(Context ctx, int[] ids) {',
+    '        SharedPreferences.Editor ed = ctx.getSharedPreferences(PREFS, 0).edit();',
+    '        for (int id : ids) ed.remove("w" + id);',
+    '        ed.apply();',
+    '    }',
+    '',
+    '    static void draw(Context ctx, AppWidgetManager mgr, int id, String book) {',
+    '        try {',
+    '            RemoteViews rv = new RemoteViews(ctx.getPackageName(), rid(ctx, "book_widget", "layout"));',
+    '            int ivCover = rid(ctx, "bw_cover", "id");',
+    '            int tvTitle = rid(ctx, "bw_title", "id");',
+    '            int root = rid(ctx, "bw_root", "id");',
+    '            Intent go;',
+    '            if (book != null) {',
+    '                SharedPreferences sp = ctx.getSharedPreferences(PREFS, 0);',
+    '                String title = sp.getString("t_" + book, "");',
+    '                rv.setTextViewText(tvTitle, title);',
+    '                File f = new File(ctx.getFilesDir(), "wcov_" + safe(book) + ".png");',
+    '                if (f.exists()) {',
+    '                    Bitmap bm = BitmapFactory.decodeFile(f.getPath());',
+    '                    if (bm != null) rv.setImageViewBitmap(ivCover, bm);',
+    '                }',
+    '                go = new Intent(ctx, ReaderActivity.class);',
+    '                go.setData(Uri.parse("tbr://libro/" + Uri.encode(book)));',
+    '                go.putExtra("book", book);',
+    '                go.putExtra("title", title);',
+    '                go.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_NEW_TASK);',
+    '            } else {',
+    '                rv.setTextViewText(tvTitle, "To be read");',
+    '                go = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());',
+    '                if (go == null) go = new Intent();',
+    '            }',
+    '            PendingIntent pi = PendingIntent.getActivity(ctx, id, go, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);',
+    '            rv.setOnClickPendingIntent(root, pi);',
+    '            mgr.updateAppWidget(id, rv);',
+    '        } catch (Exception e) {',
+    '            // un widget que no se pinta no debe tumbar la app',
+    '        }',
+    '    }',
+    '',
+    '    /** Vuelve a pintar todos los widgets de ese libro (por ejemplo, tras cambiar la portada). */',
+    '    static void refreshBook(Context ctx, String book) {',
+    '        try {',
+    '            AppWidgetManager mgr = AppWidgetManager.getInstance(ctx);',
+    '            int[] ids = mgr.getAppWidgetIds(new ComponentName(ctx, BookWidget.class));',
+    '            SharedPreferences sp = ctx.getSharedPreferences(PREFS, 0);',
+    '            for (int id : ids) {',
+    '                if (book.equals(sp.getString("w" + id, null))) draw(ctx, mgr, id, book);',
+    '            }',
+    '        } catch (Exception e) {',
+    '            // sin widgets que repintar',
+    '        }',
+    '    }',
+    '}',
+    ''
+  ].join('\n'));
+  (function widgetRes() {
+    const res = path.join(root, 'android/app/src/main/res');
+    if (!fs.existsSync(res)) return;
+    fs.mkdirSync(path.join(res, 'layout'), { recursive: true });
+    fs.mkdirSync(path.join(res, 'xml'), { recursive: true });
+    fs.writeFileSync(path.join(res, 'layout', 'book_widget.xml'), [
+      '<?xml version="1.0" encoding="utf-8"?>',
+      '<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"',
+      '    android:id="@+id/bw_root"',
+      '    android:layout_width="match_parent"',
+      '    android:layout_height="match_parent"',
+      '    android:orientation="vertical"',
+      '    android:gravity="center_horizontal"',
+      '    android:padding="2dp">',
+      '    <ImageView',
+      '        android:id="@+id/bw_cover"',
+      '        android:layout_width="52dp"',
+      '        android:layout_height="52dp"',
+      '        android:scaleType="centerCrop"',
+      '        android:contentDescription="@null" />',
+      '    <TextView',
+      '        android:id="@+id/bw_title"',
+      '        android:layout_width="match_parent"',
+      '        android:layout_height="wrap_content"',
+      '        android:gravity="center"',
+      '        android:maxLines="1"',
+      '        android:ellipsize="end"',
+      '        android:textColor="#FFFFFF"',
+      '        android:textSize="10sp"',
+      '        android:shadowColor="#CC000000"',
+      '        android:shadowDx="0"',
+      '        android:shadowDy="1"',
+      '        android:shadowRadius="3" />',
+      '</LinearLayout>',
+      ''
+    ].join('\n'));
+    fs.writeFileSync(path.join(res, 'xml', 'book_widget_info.xml'), [
+      '<?xml version="1.0" encoding="utf-8"?>',
+      '<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"',
+      '    android:minWidth="40dp"',
+      '    android:minHeight="40dp"',
+      '    android:targetCellWidth="1"',
+      '    android:targetCellHeight="1"',
+      '    android:updatePeriodMillis="0"',
+      '    android:initialLayout="@layout/book_widget"',
+      '    android:resizeMode="none"',
+      '    android:widgetCategory="home_screen" />',
+      ''
+    ].join('\n'));
+    console.log('Android: widget del libro listo (clase, diseño y datos)');
+  })();
 
   fs.writeFileSync(path.join(javaDir, 'MainActivity.java'), [
     'package ' + appId + ';',

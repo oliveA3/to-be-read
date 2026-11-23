@@ -315,3 +315,14 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx-fonts button span{font:500 9.5px var(--lx-ui);text-align:center;line-height:1.15;color:var(--lx-soft)}
 .lx-fonts button[aria-pressed=true]{border-color:var(--lx-ac);background:var(--lx-sel)}
 .lx-fonts button[aria-pressed=true] span{color:var(--lx-ac);font-weight:700}
+
+/* ---- tarjeta de cita ---- */
+.lx-qc{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 16px 22px;font-family:var(--lx-ui)}
+.lx-qprev{flex:none;max-width:100%}
+.lx-qprev canvas{display:block;width:auto;height:auto;max-width:100%;max-height:52vh;border-radius:10px;box-shadow:0 6px 22px rgba(0,0,0,.28)}
+.lx-qsty{display:flex;gap:12px}
+.lx-qsty button{width:34px;height:34px;border-radius:50%;border:2px solid var(--lx-line);padding:0;cursor:pointer}
+.lx-qsty button[aria-pressed=true]{border-color:var(--lx-ac);box-shadow:0 0 0 2px var(--lx-bg),0 0 0 4px var(--lx-ac)}
+.lx-qmeta{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--lx-fg)}
+.lx-qact{display:flex;gap:10px}
+.lx-qact .lx-dbtn{min-width:120px;min-height:42px}
