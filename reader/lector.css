@@ -14,38 +14,64 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx[data-theme=amoled]{--lx-bg:#000;--lx-fg:#d6cbe0;--lx-soft:#8f7fa0;--lx-line:#2a2033;--lx-bar:#000;--lx-sel:#2a2038;--lx-ac:#c9a6e3;--lx-on:#000}
 
 /* barras */
-.lx-bar{display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;
+.lx-bar{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 8px;
   background:var(--lx-bar);border-bottom:1px solid var(--lx-line);
   /* pantalla completa: la barra superior solo sale al tocar el centro de la página */
   position:absolute;top:0;left:0;right:0;z-index:6;box-shadow:0 4px 16px rgba(0,0,0,.16);
   transform:translate3d(0,-105%,0);visibility:hidden;transition:transform .18s cubic-bezier(.4,0,.2,1),visibility 0s .18s}
 .lx.ui .lx-bar{transform:none;visibility:visible;transition:transform .18s cubic-bezier(.4,0,.2,1)}
-.lx-bar .lx-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;color:var(--lx-soft);
-  font-family:var(--lx-ui)}
+.lx-bar .lx-t{order:9;flex:1 0 100%;min-width:0;display:flex;flex-direction:column;gap:1px;font-family:var(--lx-ui);padding:2px 4px 0}
+.lx-bar>[data-x=close]{margin-right:auto}
+.lx-t b,.lx-t small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lx-t b{font-size:17px;line-height:1.25;white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.lx-t small{font-size:12px;line-height:1.3;color:var(--lx-soft);font-weight:400}
 .lx-ico{flex:none;width:38px;height:38px;border-radius:50%;border:0;background:transparent;color:var(--lx-fg);
   display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
 .lx-ico:active{background:var(--lx-sel)}
-.lx-foot{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:6px 16px calc(5px + min(env(safe-area-inset-bottom,0px),24px));
+.lx-foot{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:0 16px calc(6px + min(env(safe-area-inset-bottom,0px),24px));
   background:transparent;border-top:1px solid transparent;pointer-events:none;
-  font-size:11.5px;color:var(--lx-soft);font-family:var(--lx-ui);transition:background .18s,border-color .18s}
-/* con las barras visibles, la de abajo se pinta; si no, queda solo el puntito del progreso, el % y el capítulo */
-.lx.ui .lx-foot{background:var(--lx-bar);border-top-color:var(--lx-line)}
-.lx-trk{position:absolute;left:16px;right:16px;top:-1px;height:0;pointer-events:none}
-.lx-trk::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:var(--lx-line);opacity:.55}
-.lx-trk b{position:absolute;top:-3px;left:0;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
-  background:var(--lx-fg);opacity:.75;will-change:transform}
+  font-size:13px;color:var(--lx-soft);font-family:var(--lx-ui);transition:background .18s,border-color .18s}
+/* leyendo: solo el puntito del progreso; con las barras (tocar el centro) se amplía la información */
+.lx-fi{display:none}
+.lx.ui .lx-foot{background:var(--lx-bar);border-top-color:var(--lx-line);padding-top:10px;pointer-events:auto;box-shadow:0 -4px 16px rgba(0,0,0,.12)}
+.lx.ui .lx-fi{display:flex;align-items:center;justify-content:center;gap:8px;position:relative;min-height:30px;padding:0 46px;color:var(--lx-fg)}
+.lx-fi .lx-sep{opacity:.5}
+.lx-fi .lx-orient{position:absolute;right:-8px;top:50%;margin-top:-19px}
+.lx-trk{position:relative;height:14px}
+/* leyendo: una línea muy fina bajo el punto para ver cuánto falta */
+.lx-trk::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;margin-top:-.5px;background:var(--lx-soft);opacity:.35}
+.lx.ui .lx-trk::before{display:none}
+.lx.ui .lx-trk{height:34px;touch-action:none;cursor:pointer}
+.lx-segs{position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;display:none;gap:2px}
+.lx.ui .lx-segs{display:flex}
+.lx-segs i{display:block;height:100%;min-width:1px;border-radius:2px;background:var(--lx-line)}
+.lx-segs i.done{background:var(--lx-ac)}
+.lx-segs i.part{background:linear-gradient(90deg,var(--lx-ac) var(--p),var(--lx-line) var(--p))}
+.lx-trk b{position:absolute;top:50%;left:0;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;
+  background:var(--lx-ac);will-change:transform}
+.lx.ui .lx-trk b{width:18px;height:18px;margin:-9px 0 0 -9px;box-shadow:0 1px 6px rgba(0,0,0,.3)}
 
 /* zona de texto: columnas del ancho de la pantalla, se avanza moviendo el carro */
 .lx-wrap{flex:1;position:relative;overflow:hidden;contain:strict;touch-action:pan-x}
 .lx-move{position:absolute;inset:0;backface-visibility:hidden}
-.lx-col{height:100%;box-sizing:border-box;padding:calc(12px + env(safe-area-inset-top,0px)) var(--lx-pad,22px) calc(32px + min(env(safe-area-inset-bottom,0px),24px));
+.lx-col{height:100%;box-sizing:border-box;padding:calc(12px + env(safe-area-inset-top,0px)) var(--lx-pad,22px) calc(42px + min(env(safe-area-inset-bottom,0px),24px));
   column-fill:auto;column-gap:var(--lx-gap,44px);
   font-size:var(--lx-fs,18px);line-height:var(--lx-lh,1.55);
   text-align:justify;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
-.lx-col p{margin:0 0 .85em}
+.lx-col{color:var(--lx-text,var(--lx-fg))}
+.lx-col p{margin:0;text-indent:1.4em}
+/* como un libro impreso: sin hueco entre párrafos y con sangría; así cada página lleva las mismas líneas */
+.lx-col>p:first-child,.lx-col :is(h1,h2,h3,h4,h5,h6,hr,blockquote,figure,img,svg,table)+p{text-indent:0}
+/* opción "separados": hueco entre párrafos, sin sangría */
+.lx-col.lx-sp p{margin:0 0 .85em;text-indent:0}
 .lx-col h1,.lx-col h2,.lx-col h3,.lx-col h4{font-size:1.18em;line-height:1.25;margin:1.1em 0 .6em;break-after:avoid}
-.lx-col img,.lx-col svg{max-width:100%;height:auto;display:block;margin:.6em auto}
+.lx-col img,.lx-col svg{max-width:100%;height:auto;display:block;margin:.6em auto;object-fit:contain;max-height:var(--lx-ch,none);width:auto;break-inside:avoid!important}
+.lx-col svg:not([width]){width:100%}
+/* los saltos de página del epub no se respetan; los párrafos se parten donde acaba la pantalla (con guion si hace falta) */
+.lx-col *{break-inside:auto;break-before:auto!important;break-after:auto!important;page-break-before:auto!important;page-break-after:auto!important;page-break-inside:auto!important}
+.lx-col p,.lx-col div,.lx-col li,.lx-col blockquote{orphans:1;widows:1;break-inside:auto!important}
+.lx-col h1,.lx-col h2,.lx-col h3,.lx-col h4{break-after:avoid!important}
+.lx-col img,.lx-col svg{break-inside:avoid!important}
 .lx-col blockquote{margin:.8em 1.2em;color:var(--lx-soft)}
 .lx-col hr{border:0;border-top:1px solid var(--lx-line);margin:1.2em 0}
 .lx-col a{color:inherit;text-decoration:none}
@@ -63,7 +89,7 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx-dim{position:absolute;inset:0;z-index:4;pointer-events:none;background:#000;opacity:0}
 
 /* paneles (índice, buscador, ajustes) */
-.lx-panel{position:absolute;inset:0;z-index:5;background:var(--lx-bg);display:flex;flex-direction:column;
+.lx-panel{position:absolute;inset:0;z-index:9;background:var(--lx-bg);display:flex;flex-direction:column;
   transform:translate3d(0,14px,0);opacity:0;visibility:hidden;transition:opacity .16s ease,transform .16s ease,visibility 0s .16s}
 .lx-panel.on{transform:none;opacity:1;visibility:visible;transition:opacity .16s ease,transform .16s ease}
 .lx-phead{flex:none;display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;border-bottom:1px solid var(--lx-line)}
@@ -186,34 +212,28 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx-chnav button[hidden]{display:none}
 
 /* ---- animación "pasar hoja" ---- */
-/* hoja que se dobla: arriba la copia de la página que sale (lx-cv) y el
-   reverso del papel (lx-cf), los dos recortados por la línea del doblez */
-/* hoja que se dobla: lx-cv es la parte que todavía no se ha doblado y lx-cf el
-   reverso del papel (la misma página reflejada, tenue), los dos recortados por
-   la línea del doblez. Las copias se preparan una vez por capítulo. */
-.lx-cv,.lx-cf{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;contain:strict;visibility:hidden}
-.lx-cv{background:var(--lx-bg);clip-path:polygon(0 0,0 0,0 0)}
-/* visibility (no display): la copia sigue maquetada y pasar página no la vuelve a calcular */
-.lx-cv.lx-run,.lx-cf.lx-run{visibility:visible}
-.lx-cv.lx-run,.lx-cf.lx-run .lx-cfi{will-change:clip-path}
+/* hoja que se dobla (solo transformaciones: ver curlApply). lx-cv / lx-cf son marcos girados que recortan por el
+   doblez; dentro van la página que sale (lx-cvi) y su reverso reflejado (lx-cfi). lx-csh es la sombra sobre la página nueva. */
+.lx-cv,.lx-cf{position:absolute;left:0;top:0;width:var(--lx-S,2000px);height:var(--lx-S,2000px);transform-origin:0 0;overflow:hidden;
+  z-index:3;pointer-events:none;visibility:hidden;will-change:transform}
+.lx-cvi,.lx-cfi{position:absolute;left:0;top:0;width:var(--lx-W,100%);height:var(--lx-H,100%);transform-origin:0 0;overflow:hidden;
+  background:var(--lx-bg);will-change:transform}
+.lx-csh{position:absolute;left:0;top:0;width:44px;height:var(--lx-S,2000px);transform-origin:0 0;z-index:3;pointer-events:none;visibility:hidden;
+  background:linear-gradient(to right,rgba(0,0,0,.36),rgba(0,0,0,.12) 40%,rgba(0,0,0,0));will-change:transform,opacity}
+.lx-fsh{position:absolute;left:0;top:0;width:240px;height:var(--lx-S,2000px);transform-origin:0 0;pointer-events:none;z-index:1;
+  background:linear-gradient(to right,rgba(0,0,0,.32),rgba(0,0,0,.12) 8%,rgba(255,255,255,.16) 30%,rgba(255,255,255,.05) 60%,rgba(0,0,0,.10));will-change:transform}
+.lx-cv.lx-run,.lx-cf.lx-run,.lx-csh.lx-run{visibility:visible}
 .lx-cp{will-change:transform;backface-visibility:hidden}
-.lx-cfi{position:absolute;inset:0;transform-origin:0 0;background:var(--lx-bg);clip-path:polygon(0 0,0 0,0 0)}
-/* arrastrando, el navegador no debe quedarse el gesto */
-.lx-anim-curl .lx-wrap{touch-action:none}
-.lx-row[hidden]{display:none}
-/* sombra junto al doblez y brillo del papel, en la dirección del pliegue */
-.lx-cfi::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(var(--lx-fold,90deg),rgba(0,0,0,.22),rgba(0,0,0,.07) 18px,rgba(255,255,255,.10) 70px,rgba(0,0,0,0) 150px)}
+.lx-cpb{opacity:.2}
+.lx-lite .lx-cpb{visibility:hidden}
 
 /* ---- mismo estilo que el resto de la app: lila, Fraunces en títulos, botones tipo "chip" ---- */
 .lx-bar,.lx-foot,.lx-phead,.lx-dock,.lx-menu,.lx-tabs,.lx-set,.lx-nbox{font-family:var(--lx-ui)}
-.lx-phead b,.lx-bar .lx-t{font-family:var(--lx-ti);font-weight:600;color:var(--lx-ac)}
+.lx-phead b,.lx-bar .lx-t b{font-family:var(--lx-ti);font-weight:600;color:var(--lx-ac)}
 .lx-phead b{font-size:19px}
-.lx-bar .lx-t{font-size:15px}
 .lx-ico{color:var(--lx-ac)}
 .lx-ico:active{background:var(--lx-sel)}
 .lx-ico.on{color:var(--lx-ac)}
-.lx-trk b{background:var(--lx-ac);opacity:1}
 .lx-rib{background:var(--lx-ac)}
 .lx-item.cur{background:var(--lx-sel);font-weight:600}
 .lx-item.cur::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lx-ac);margin-right:8px;vertical-align:middle}
@@ -240,3 +260,44 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx-load{font-family:var(--lx-ui)}
 /* los avisos de la app salían por debajo del lector */
 .toast{z-index:90!important}
+
+/* destello morado en la primera línea del párrafo al cambiar de versión */
+.lx-flash{position:absolute;z-index:5;pointer-events:none;border-radius:5px;background:rgba(127,71,163,.42);
+  animation:lxFlash 1.6s ease-out forwards}
+@keyframes lxFlash{0%{opacity:0;transform:scaleX(.6);transform-origin:0 50%}15%{opacity:1;transform:none}60%{opacity:.85}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.lx-flash{animation:lxFlashR 1.4s linear forwards}@keyframes lxFlashR{0%,70%{opacity:.7}100%{opacity:0}}}
+
+/* el botón EN/ES flotante solo sale al tocar la pantalla (con las barras); con una selección sale dentro de su barra */
+.lx:not(.ui) #lxLang{visibility:hidden}
+.lx-lang.lx-lang-in{position:static;flex:none;visibility:visible}
+
+/* acerca del documento */
+.lx-about{padding:6px 18px 24px}
+.lx-kv{padding:10px 0;border-bottom:1px solid var(--lx-line)}
+.lx-kv small{display:block;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--lx-soft);margin-bottom:2px}
+.lx-kv div{font-size:15px;line-height:1.4;word-break:break-word;white-space:pre-line;color:var(--lx-fg)}
+
+.lx-bpill{position:absolute;left:50%;top:18%;transform:translate3d(-50%,0,0);z-index:6;padding:8px 16px;border-radius:99px;background:rgba(0,0,0,.72);color:#fff;
+  font:600 15px var(--lx-ui);pointer-events:none;opacity:0;transition:opacity .2s}
+.lx-bpill.on{opacity:1}
+
+/* búsquedas guardadas (diccionario / traducción) */
+.lx-lk{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:99px;margin-right:4px;vertical-align:1px;
+  background:var(--lx-sel);color:var(--lx-ac)}
+.lx-lk.t{background:var(--lx-ac);color:var(--lx-on)}
+.lx-tabs button{padding-left:2px;padding-right:2px;font-size:13.5px}
+
+/* ---- color de letra ---- */
+.lx-fgs{display:flex;flex-wrap:wrap;gap:10px}
+.lx-fgs button{width:30px;height:30px;border-radius:50%;border:2px solid var(--lx-line);cursor:pointer;padding:0;font:700 12px var(--lx-ui);color:var(--lx-fg);background:transparent}
+.lx-fgs button[aria-pressed=true]{border-color:var(--lx-ac);box-shadow:0 0 0 2px var(--lx-bg),0 0 0 4px var(--lx-ac)}
+/* ---- portada en "acerca del documento" ---- */
+.lx-cover{position:relative;margin:14px auto 8px;width:min(74%,300px)}
+.lx-cover[hidden]{display:none}
+.lx-cover img{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 6px 22px rgba(0,0,0,.3)}
+.lx-covdl{position:absolute;right:8px;bottom:8px;width:38px;height:38px;border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(20,12,28,.72);color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.lx-covdl:active{background:rgba(20,12,28,.92)}
+/* ---- menú "marcar como" ---- */
+.lx-menu .lx-mk{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lx-menu .lx-mk.cur{font-weight:700;color:var(--lx-ac)}

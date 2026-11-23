@@ -51,7 +51,6 @@ const I18N={
   lxAnimSlide:"Deslizar",
   lxBad:"No pude leer este epub",
   lxChapter:(a,b)=>`Capítulo ${a} de ${b}`,
-  lxDim:"Atenuar pantalla",
   lxEmptyCh:"(capítulo vacío)",
   lxFind:"Buscar en el libro",
   lxFindHint:"Escribe al menos dos letras",
@@ -77,7 +76,6 @@ const I18N={
   lxAnimSlide:"Slide",
   lxBad:"Couldn’t read this epub",
   lxChapter:(a,b)=>`Chapter ${a} of ${b}`,
-  lxDim:"Dim screen",
   lxEmptyCh:"(empty chapter)",
   lxFind:"Find in book",
   lxFindHint:"Type at least two letters",
@@ -156,14 +154,15 @@ async function loadState(){
 }
 const pkey=id=>PKEY+':'+id;
 const readPatch=id=>{try{return JSON.parse(localStorage.getItem(pkey(id))||'null')}catch(e){return null}};
-const PFIELDS=['pos','marks','hl','file','file2'];
-let B=null,readFlag=false;
+const PFIELDS=['pos','marks','hl','file','file2','looks','vl'];
+let B=null,readFlag=false,stFlag=false;
 const stOf=b=>b.status||(b.read?'read':'unread');
 
 function applyPatch(b){
   const p=readPatch(b.id);if(!p)return;
   PFIELDS.forEach(k=>{if(!(k in p))return;if(p[k]===null)delete b[k];else b[k]=p[k]});
-  if(p.read){b.status='read';b.read=true}
+  if(p.st){b.status=p.st;b.read=p.st==='read'}
+  else if(p.read){b.status='read';b.read=true}
 }
 /* Guardar = dejar el parche, nunca reescribir la lista entera (asi la app no pierde nada de lo que hiciste alli) */
 function writePatch(){
@@ -171,7 +170,8 @@ function writePatch(){
   try{
     const p=readPatch(B.id)||{};
     PFIELDS.forEach(k=>{p[k]=B[k]===undefined?null:B[k]});
-    if(readFlag)p.read=true;
+    if(readFlag)p.read=true;else delete p.read;
+    if(stFlag)p.st=B.status||'unread';
     p.t=Date.now();
     localStorage.setItem(pkey(B.id),JSON.stringify(p));
   }catch(e){}
@@ -187,12 +187,16 @@ let closing=false;
 function closeWin(){
   if(closing)return;closing=true;flush();
   const fo=FO();
+  const L=window.__LECTOR__;try{if(L&&L.isOpen&&L.isOpen())L.close()}catch(e){}
   if(fo&&fo.closeReader){fo.closeReader().catch(()=>{})}
+  else if(CAP&&CAP.App&&CAP.App.exitApp){try{CAP.App.exitApp()}catch(e){}}
   else{try{window.close()}catch(e){}}
 }
 /* el boton "atras" de Android cierra la ventana en vez de volver a la lista de la app */
 try{history.pushState({lx:1},'')}catch(e){}
 addEventListener('popstate',()=>{closeWin()});
+/* con el boton "atras" del telefono: primero se cierra lo que haya encima (panel, menu, seleccion) y luego el libro */
+try{if(CAP&&CAP.App&&CAP.App.addListener)CAP.App.addListener('backButton',()=>{const L=window.__LECTOR__;try{if(L&&L.back&&L.back())return}catch(e){}closeWin()})}catch(e){}
 
 /* ---- el modulo del lector: el mismo archivo que usa la app ---- */
 async function loadModule(){
@@ -224,10 +228,12 @@ if(B){
 if(!B||!B.file){say(t('fileGone'),t('back'),closeWin);
 }else if(!CAP&&!window.__LECTOR__&&!location.protocol.startsWith('http')){say(t('lxBad'),t('back'),closeWin);
 }else{
-  window.TBR={FS,lib,book:x=>(B&&B.id===x?B:null),save,t,esc,norm,toast,CFG,saveCfg,I18N,CAP,
+  window.TBR={FS,lib,book:x=>(B&&B.id===x?B:null),save,t,esc,norm,toast,CFG,saveCfg,I18N,CAP,FO,
     relink:async b=>{try{const {ref}=await FS.pickNative();b.file=ref;flush();toast(t('fileRelinked'));return true}catch(e){return false}},
     isRead:b=>stOf(b)==='read',
-    markRead:b=>{b.status='read';b.read=true;readFlag=true;flush()}};
+    status:b=>stOf(b),
+    setStatus:(b,st)=>{b.status=st;b.read=st==='read';readFlag=st==='read';stFlag=true;flush()},
+    markRead:b=>{b.status='read';b.read=true;readFlag=true;stFlag=true;flush()}};
   let L=null;
   try{L=await loadModule()}catch(e){}
   if(!L||!L.open){say(t('lxBad'),t('back'),closeWin)}

@@ -223,6 +223,7 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 .btn{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--line);font-size:16px;font-weight:500;text-align:center;background:#fff}
 .btn.main{background:linear-gradient(135deg,var(--plum2),var(--plum));border-color:var(--plum);color:#fff;box-shadow:0 3px 10px rgba(91,42,122,.35)}
 .btn.del{flex:none;border-color:#b4577a;color:#9c2f58;padding:12px 14px;transition:all .15s}
+.vbadges{display:flex;gap:4px;margin:6px 0 2px}.vb{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.9);color:var(--plum)}
 .btn.del.arm{background:#9c2f58;color:#fff;border-color:#9c2f58}
 .hint{font-size:13px;color:var(--ink2);margin-top:5px}
 .toast{font-size:15px;position:fixed;left:50%;bottom:calc(112px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#fbf4fe;padding:9px 16px;border-radius:10px;z-index:40;opacity:0;pointer-events:none;transition:opacity .25s;max-width:88%;text-align:center}
@@ -373,7 +374,7 @@ body.dragging{cursor:grabbing}
 .nb svg{display:block}
 .nav .fab{position:relative;right:auto;bottom:auto;justify-self:center;margin-top:-30px;width:60px;height:60px;
   box-shadow:0 6px 14px rgba(50,15,75,.35),0 0 0 5px var(--parch2)}
-.ico{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}.ico.ck{stroke-width:3}
+.ico{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}.ico.ck{stroke-width:2.6}
 .seal .ico{width:16px;height:16px}.pen .ico{width:16px;height:16px}
 .stars2{position:relative;display:inline-block;font-size:14px;letter-spacing:1px;line-height:1;font-family:Arial,sans-serif;color:var(--star0)}
 .stars2::before{content:"★★★★★"}
@@ -445,7 +446,7 @@ body.magic .empty{background:rgba(250,245,252,.7);border-radius:12px;color:var(-
   <div id="sent" style="height:1px;margin-top:-1px"></div>
   <div class="stick" id="stick">
     <label class="search">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
       <input id="q" type="search" placeholder="Buscar título, autor, serie…" autocomplete="off">
     </label>
     <div class="chips" id="chips"></div>
@@ -454,13 +455,13 @@ body.magic .empty{background:rgba(250,245,252,.7);border-radius:12px;color:var(-
 </div>
 
 <div class="menu" id="menu">
-  <button data-a="new-book"><span class="ic" style="background:#7f47a3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg></span><span data-t="book">Libro</span></button>
-  <button data-a="new-saga"><span class="ic" style="background:#9a5fb8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="M15.5 5.5l3.8-1 3 15.4-3.8 1z"/></svg></span><span data-t="saga">Saga</span></button>
-  <button data-a="new-uni"><span class="ic" style="background:#5b2a7a"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/></svg></span><span data-t="universe">Universo</span></button>
+  <button data-a="new-book"><span class="ic" style="background:#7f47a3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg></span><span data-t="book">Libro</span></button>
+  <button data-a="new-saga"><span class="ic" style="background:#9a5fb8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="M15.5 5.5l3.8-1 3 15.4-3.8 1z"/></svg></span><span data-t="saga">Saga</span></button>
+  <button data-a="new-uni"><span class="ic" style="background:#5b2a7a"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/></svg></span><span data-t="universe">Universo</span></button>
 </div>
 <nav class="nav" id="nav">
   <button class="nb" id="statsbtn" aria-label="Estadísticas"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span data-t="statsT">Estadísticas</span></button>
-  <button class="fab" id="fab" aria-label="Añadir"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button class="fab" id="fab" aria-label="Añadir"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
   <button class="nb" id="gear" aria-label="Ajustes"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-t="settings">Ajustes</span></button>
 </nav>
 <input type="file" id="file" class="vh">
@@ -480,7 +481,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.16.4',BUILD=87;
+const VERSION='0.17.8',BUILD=98;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -568,7 +569,7 @@ const I18N={
   lxGet:'Descargar lector integrado',lxGetD:'Se baja una sola vez y queda guardado en el teléfono',
   lxWin:'Abrir el lector en ventana aparte',lxWinD:'Como una app suya: queda en los recientes y puedes fijarla; la lista se abre aparte',
   lxOn:'Usar el lector integrado',lxOnD:'Apagado, los libros se abren con tu app de lectura de siempre',
-  lxDel:'Eliminar lector',lxDelSure:'Toca otra vez para eliminar',lxDelD:'Borra el módulo y libera el espacio',
+  verBoth:'Este libro tiene dos versiones (bilingüe)',lxDel:'Eliminar lector',lxDelSure:'Toca otra vez para eliminar',lxDelD:'Borra el módulo y libera el espacio',
   lxDling:'Descargando…',lxInstalled:'Lector instalado',lxRemoved:'Lector eliminado',
   lxErrNet:'No pude descargar el lector',lxErrMissing:'El lector aún no está publicado: falta lector.zip en la última release de GitHub',lxErrOff:'Necesitas conexión a internet',
   lxErrNative:'Esto solo funciona en el teléfono, no en la vista previa',lxErrOld:'Actualiza la app a la última versión para poder descargar el lector',
@@ -663,7 +664,7 @@ const I18N={
   lxGet:'Download built-in reader',lxGetD:'Downloaded once and kept on your phone',
   lxWin:'Open the reader in its own window',lxWinD:'Like its own app: it stays in recents and you can pin it; the list opens separately',
   lxOn:'Use the built-in reader',lxOnD:'When off, books open in your usual reading app',
-  lxDel:'Remove reader',lxDelSure:'Tap again to remove',lxDelD:'Deletes the module and frees the space',
+  verBoth:'This book has two versions (bilingual)',lxDel:'Remove reader',lxDelSure:'Tap again to remove',lxDelD:'Deletes the module and frees the space',
   lxDling:'Downloading…',lxInstalled:'Reader installed',lxRemoved:'Reader removed',
   lxErrNet:'Couldn\u2019t download the reader',lxErrMissing:'The reader isn\u2019t published yet: lector.zip is missing from the latest GitHub release',lxErrOff:'You need an internet connection',
   lxErrNative:'This only works on the phone, not in the preview',lxErrOld:'Update the app to the latest version to download the reader',
@@ -840,7 +841,7 @@ addEventListener('pagehide',flush);document.addEventListener('visibilitychange',
 /* ---- lo que guardó la ventana aparte del lector ----
    Esa ventana nunca reescribe la lista (hay dos copias en memoria y se pisarían): deja los cambios
    en una clave por libro y la app los aplica a su copia al volver. */
-const PKEY='por-leer-rdr-patch',PFIELDS=['pos','marks','hl','file','file2'];
+const PKEY='por-leer-rdr-patch',PFIELDS=['pos','marks','hl','file','file2','looks','vl'];
 function rdrPatchApply(){
   let keys=[];
   try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(PKEY+':')===0)keys.push(k)}}catch(e){return false}
@@ -855,7 +856,8 @@ function rdrPatchApply(){
       if(p[f]===null||p[f]===undefined){if(b[f]!==undefined){delete b[f];n++}}
       else if(JSON.stringify(b[f])!==JSON.stringify(p[f])){b[f]=p[f];n++}
     });
-    if(p.read&&stOf(b)!=='read'){setStatus(b,'read');n++}
+    if(p.st&&p.st!==stOf(b)){setStatus(b,p.st);n++}
+    else if(!p.st&&p.read&&stOf(b)!=='read'){setStatus(b,'read');n++}
     if(b.file)BROKEN.delete(b.id);
   });
   /* se guarda ya (no con retraso): la ventana del lector lee de aquí si se vuelve a abrir enseguida */
@@ -919,13 +921,13 @@ const idx=b=>{const v=groups().ix2.get(b);return v==null?-1:v};
 
 /* ---------- iconos ---------- */
 function stars(v,size){return `<span class="stars2" style="--v:${v}${size?';font-size:'+size+'px':''}"></span>`}
-const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-const PEN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
-const CHEV='<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>';
-const I_SAGA='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="M15.5 5.5l3.8-1 3 15.4-3.8 1z"/></svg>';
-const I_UNI='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/><circle cx="19.5" cy="6" r="1" fill="currentColor"/></svg>';
-const I_FILT='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
-const I_GEAR='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const PEN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+const CHEV='<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
+const I_SAGA='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="M15.5 5.5l3.8-1 3 15.4-3.8 1z"/></svg>';
+const I_UNI='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/><circle cx="19.5" cy="6" r="1" fill="currentColor"/></svg>';
+const I_FILT='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
+const I_GEAR='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 
 /* ---------- filtros ---------- */
 function passes(b){
@@ -1103,7 +1105,7 @@ function render(persist=true){
     const build=n=>{let h='';const end=Math.min(items.length,i+n);
       for(;i<end;i++){const it=items[i],r=rk(it);
         if(r!==lastR&&lastR>=0)h+=rkEnd(lastR);
-        if(multi&&r!==lastR)h+=r===2?`<button type="button" class="sep s2 tg" data-a="tgdone" aria-expanded="${!hideDone}"><svg class="chv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>${t('secDone')}<span>${cnt[r]}</span></button>`:r===1?`<button type="button" class="sep s1 tg" data-a="tgpend" aria-expanded="${!hidePend}"><svg class="chv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>${t('secPending')}<span>${cnt[r]}</span></button>`:`<div class="sep s${r}">${t('secReading')}<span>${cnt[r]}</span></div>`;
+        if(multi&&r!==lastR)h+=r===2?`<button type="button" class="sep s2 tg" data-a="tgdone" aria-expanded="${!hideDone}"><svg class="chv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>${t('secDone')}<span>${cnt[r]}</span></button>`:r===1?`<button type="button" class="sep s1 tg" data-a="tgpend" aria-expanded="${!hidePend}"><svg class="chv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>${t('secPending')}<span>${cnt[r]}</span></button>`:`<div class="sep s${r}">${t('secReading')}<span>${cnt[r]}</span></div>`;
         lastR=r;
         /* lo que está oculto no se construye: se guarda la receta y se pinta solo cuando lo muestras */
         if(HIDL[r]){HIDL[r].push(it.h);continue}
@@ -1122,7 +1124,7 @@ function render(persist=true){
   const nf=(ui.file?1:0)+(ui.min?1:0)+(ui.author?1:0)+ui.genres.length+(ui.status.length>1?1:0)+(ui.readFrom||ui.readTo?1:0)+(ui.pgMin!=null||ui.pgMax!=null?1:0);
   $('#chips').innerHTML=[['all',t('all')],['unread',t('unread')],['reading',t('readingF')],['read',t('read')],['dropped',t('st_dropped')]].map(([k,x])=>
     `<button class="chip" data-a="status" data-k="${k}" aria-pressed="${ui.status.length===1&&ui.status[0]===k}">${x}</button>`).join('')+
-    `<button class="chip filt ${nf?'on':''}" data-a="filters" aria-label="${t('filters')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${nf?`<b>${nf}</b>`:''}</button>`;
+    `<button class="chip filt ${nf?'on':''}" data-a="filters" aria-label="${t('filters')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${nf?`<b>${nf}</b>`:''}</button>`;
   if(persist)save();
 }
 
@@ -1134,7 +1136,7 @@ let onDismiss=null;
    ni pierde la posición de desplazamiento. Tienen su propio onDismiss, independiente
    del de las hojas, porque desde una vista se puede abrir una hoja encima. */
 let onViewDismiss=null;
-const I_BACK='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
+const I_BACK='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
 function openView(icon,title,sub,html){
   onViewDismiss=null;
   const v=$('#view');
@@ -1227,6 +1229,20 @@ const FS=(()=>{
     async put(id,file){await op('readwrite',st=>st.put(file,id));return {name:file.name,type:mime(file.name),idb:id}},
     async get(ref){
       if(ref.uri){const fo=FO();if(!fo)throw new Error('fail');
+        /* por trozos de 8 MB: un libro grande ya no congela la app leyéndolo de golpe */
+        if(fo.readRange){
+          try{
+            const parts=[],CH=8*1024*1024;let off=0;
+            for(;;){
+              const r=await fo.readRange({uri:ref.uri,offset:off,length:CH});
+              const bin=atob(r.data),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+              if(u.length)parts.push(u);off+=u.length;
+              if(u.length<CH)break;
+              await new Promise(z=>setTimeout(z,0));
+            }
+            if(parts.length)return new Blob(parts,{type:ref.type})
+          }catch(e){if(/not_found|permission|security/i.test(why(e)))throw new Error('gone')}
+        }
         let r;try{r=await fo.read({uri:ref.uri})}catch(e){throw new Error(/not_found|permission|security/i.test(why(e))?'gone':'fail')}
         const bin=atob(r.data),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:ref.type})}
       if(ref.idb){const f=await op('readonly',st=>st.get(ref.idb));if(f)return f}
@@ -1322,7 +1338,7 @@ let RDR_GONE=false;
 const rdrInstalled=()=>!RDR_GONE&&(!!CFG.rdrVer||!!window.__LECTOR__);
 const rdrActive=()=>rdrInstalled()&&CFG.rdrOn!==false;
 /* lo que el módulo necesita de la app base; es su única superficie de contacto */
-function rdrBridge(){window.TBR={FS,lib,book,save,t,esc,norm,toast,CFG,saveCfg,I18N,CAP,relink:b=>relinkBook(b),isRead:b=>stOf(b)==='read',markRead:b=>{setStatus(b,'read');save();render(false)}}}
+function rdrBridge(){window.TBR={FS,lib,book,save,t,esc,norm,toast,CFG,saveCfg,I18N,CAP,FO:()=>(CAP&&CAP.FileOpener)||(window.Capacitor&&window.Capacitor.registerPlugin?window.Capacitor.registerPlugin('FileOpener'):null),relink:b=>relinkBook(b),isRead:b=>stOf(b)==='read',status:b=>stOf(b),setStatus:(b,st)=>{setStatus(b,st);save();render(false)},markRead:b=>{setStatus(b,'read');save();render(false)}}}
 async function rdrLoad(){
   if(window.__LECTOR__)return window.__LECTOR__;
   rdrBridge();
@@ -1375,6 +1391,22 @@ async function rdrRemove(){
   try{if(CAP&&CAP.Filesystem)await CAP.Filesystem.rmdir({path:RDR_DIR,directory:'DATA',recursive:true})}catch(e){}
   RDR_GONE=true;delete CFG.rdrVer;saveCfg();
 }
+/* idiomas de las versiones de un libro bilingüe (se leen del propio epub una sola vez y se recuerdan) */
+const VLC=new Map();
+async function verLang(ref){
+  const k=ref.name+'|'+(ref.uri||ref.idb||'');
+  if(VLC.has(k))return VLC.get(k);
+  let lg='';try{const m=await scanRead(ref,0,true);lg=(m&&m.lang||'').slice(0,2).toUpperCase()}catch(e){}
+  VLC.set(k,lg);return lg;
+}
+async function verBadges(b,el){
+  if(!el)return;
+  el.innerHTML='<span class="vb">…</span>';
+  const a=await verLang(b.file),c=await verLang(b.file2);
+  if(!el.isConnected)return;
+  const vl=b.vl||[];el.innerHTML=[vl[0]||a||'A',vl[1]||c||'B'].map(x=>`<span class="vb">${esc(String(x).toUpperCase())}</span>`).join('');
+  el.title=t('verBoth');
+}
 /* ---------- un único punto de entrada para abrir un libro ---------- */
 async function openBookFile(b){
   if(!b||!b.file)return;
@@ -1405,7 +1437,7 @@ let pickTarget=null;
    Recorre la carpeta y sus subcarpetas y lee SOLO los datos de cada .epub (nunca el archivo entero).
    Lo que cruza con un libro que ya tienes queda enlazado a su archivo; lo que no existe se crea.
    Dos archivos del mismo libro en distinto idioma se juntan en un libro con las dos versiones del lector. */
-const I_FOLD='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l2 2.2h7A1.5 1.5 0 0 1 19 9.7v2"/><path d="M3 7.5v10A1.5 1.5 0 0 0 4.5 19h7.6"/><circle cx="17.3" cy="16.3" r="3.2"/><path d="M19.7 18.7L22 21"/></svg>';
+const I_FOLD='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l2 2.2h7A1.5 1.5 0 0 1 19 9.7v2"/><path d="M3 7.5v10A1.5 1.5 0 0 0 4.5 19h7.6"/><circle cx="17.3" cy="16.3" r="3.2"/><path d="M19.7 18.7L22 21"/></svg>';
 /* clave de comparación: sin acentos, sin signos y sin artículos, para que «El Hobbit» y «hobbit,» coincidan */
 const skey=s=>norm(s).replace(/[^a-z0-9 ]+/g,' ').replace(/\b(el|la|los|las|lo|un|una|the|a|an)\b/g,' ').replace(/\s+/g,' ').trim();
 /* el autor se compara con sus palabras ordenadas, así «Rowling, J. K.» y «J. K. Rowling» dan lo mismo */
@@ -1833,7 +1865,7 @@ function scanList(){
     return `<div class="sec">${k?esc(k):t('scNoSaga')}</div><div class="group">`+rs.map(scanRow).join('')+'</div>';
   }).join('');
 }
-const I_LINK='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/></svg>';
+const I_LINK='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/></svg>';
 /* Enlazar a mano una fila con un libro de tu lista (para lo que la app no pudo reconocer por sí sola) */
 function scanPicker(r,done){
   const p=r.items[0];
@@ -2001,9 +2033,10 @@ function bookForm(b,pre){
   openSheet(`<div class="hero"><div class="grip"></div><div class="hrow">
       <span class="cov" id="hcov"></span>
       <div style="min-width:0;flex:1"><h2 id="htt"></h2><div class="hs" id="hau"></div>
-        <button type="button" class="covbtn" id="covb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg><span id="covt"></span></button>
+        ${b&&b.file2?'<div class="vbadges" id="bvers"></div>':''}
+        <button type="button" class="covbtn" id="covb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg><span id="covt"></span></button>
       </div></div></div>
-    <div class="ffrow"><label class="fromfile" for="file"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 17v-6M9 14l3-3 3 3"/></svg></span><span><b>${t('fromFile')}</b><small>${t('fromFileD')}</small></span></label><button type="button" class="isbnb" id="bisbn" aria-label="${t('scanIsbn')}" title="${t('scanIsbn')}" ${navigator.onLine===false?'hidden':''}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 8v8M11 8v8M14 8v8M17 8v8"/></svg><span>ISBN</span></button></div>
+    <div class="ffrow"><label class="fromfile" for="file"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 17v-6M9 14l3-3 3 3"/></svg></span><span><b>${t('fromFile')}</b><small>${t('fromFileD')}</small></span></label><button type="button" class="isbnb" id="bisbn" aria-label="${t('scanIsbn')}" title="${t('scanIsbn')}" ${navigator.onLine===false?'hidden':''}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 8v8M11 8v8M14 8v8M17 8v8"/></svg><span>ISBN</span></button></div>
     ${pre&&pre.fromFile?`<p class="lead">${t('detected')}</p>`:''}
     <div class="f" id="bfw" style="display:none"><span class="lbl">${t('fileL')}</span><div id="bfile"></div></div>
     <div class="two pair">
@@ -2028,7 +2061,7 @@ function bookForm(b,pre){
       <div class="f"><label for="bu">${t('universe')}</label><select id="bu"><option value="">${t('none')}</option>${S.universes.slice().sort((a,b)=>coll.compare(a.name,b.name)).map(u=>`<option value="${u.id}" ${uSel===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
       <div class="f" id="buow"><label for="buo">${t('uniOrder')}</label><input id="buo" type="number" step="any" inputmode="decimal" value="${uoInit!=null?uoInit:''}"></div>
     </div>
-    <div class="f" id="bnotew"><button type="button" class="notebtn" id="bnoteb" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>${t('noteBtn')}</span></button><textarea id="bnote" rows="2" placeholder="${t('notePh')}" style="display:${d.note&&d.note.trim()?'block':'none'}">${esc(d.note||'')}</textarea></div>
+    <div class="f" id="bnotew"><button type="button" class="notebtn" id="bnoteb" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>${t('noteBtn')}</span></button><textarea id="bnote" rows="2" placeholder="${t('notePh')}" style="display:${d.note&&d.note.trim()?'block':'none'}">${esc(d.note||'')}</textarea></div>
     <div class="f"><span class="lbl">${t('rating')}</span><div class="box" id="brbox"><div class="rate" id="brate"></div><div class="hint" id="bhalf">${t('halfHint')}</div><div class="lockmsg">${t('rateLock')}</div></div></div>
     <div class="btns">${b?`<button type="button" class="btn del" id="bdel">${t('del')}</button>`:''}<button type="button" class="btn" id="bcan">${t('cancel')}</button><button type="button" class="btn main" id="bok">${b?t('save'):t('add')}</button></div>`);
   const paintHero=()=>{
@@ -2039,6 +2072,7 @@ function bookForm(b,pre){
     $('#covt').textContent=d.cover?t('removeCover'):t('addCover');
   };
   $('#bt').oninput=paintHero;$('#ba').oninput=paintHero;paintHero();
+  if(b&&b.file2)verBadges(b,$('#bvers'));
   const noteBtn=$('#bnoteb'),noteArea=$('#bnote');
   const noteSync=()=>{noteBtn.classList.toggle('has',!!(d.note&&d.note.trim()));noteBtn.setAttribute('aria-expanded',noteArea.style.display!=='none'?'true':'false')};
   noteSync();
@@ -2216,7 +2250,7 @@ function bookForm(b,pre){
 /* ---- Estado del libro ---- */
 function statusForm(b){
   const cur=stOf(b);
-  const ico={unread:'',reading:'<span style="width:14px;height:14px;border-radius:50%;background:linear-gradient(90deg,var(--plum2) 50%,#fff 50%);border:1.5px solid var(--plum2)"></span>',read:CHECK.replace('<svg','<svg width="16" height="16"'),dropped:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>'};
+  const ico={unread:'',reading:'<span style="width:14px;height:14px;border-radius:50%;background:linear-gradient(90deg,var(--plum2) 50%,#fff 50%);border:1.5px solid var(--plum2)"></span>',read:CHECK.replace('<svg','<svg width="16" height="16"'),dropped:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10M17 7L7 17"/></svg>'};
   openSheet(`${hero(`<span class="cov">${b.cover?`<img src="${b.cover}" alt="">`:initial(b.title)}</span>`,esc(b.title),t('statusSub'))}
     ${['unread','reading','read','dropped'].map(k=>`<button type="button" class="opt" data-s="${k}" aria-pressed="${cur===k}"><span class="oi">${ico[k]}</span><span><b>${t('st_'+k)}</b><small>${t('stD_'+k)}</small></span></button>`).join('')}
     <div class="btns"><button type="button" class="btn" id="stcan">${t('cancel')}</button></div>`);
@@ -2899,7 +2933,7 @@ function shareText(opt){
 }
 function shareForm(){
   const opt={unread:true,read:true};
-  openSheet(`${hero(medal('<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>'),t('share'),t('shareSub'))}
+  openSheet(`${hero(medal('<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>'),t('share'),t('shareSub'))}
     <div class="f"><span class="lbl">${t('incl')}</span><div class="chk" id="shinc"><button type="button" class="chip" data-k="unread" aria-pressed="true">${t('incUnread')}</button><button type="button" class="chip" data-k="read" aria-pressed="true">${t('incRead')}</button></div></div>
     <textarea class="sharetxt" id="shtxt" readonly spellcheck="false"></textarea>
     <div class="btns" id="shbtns"><button type="button" class="btn main" id="shgo">${t('shareNow')}</button><button type="button" class="btn" id="shcopy">${t('copy')}</button></div>`);
@@ -3111,7 +3145,7 @@ document.addEventListener('click',e=>{
   if(a==='new-uni'){closeMenu();return uniForm(null)}
   if(a==='import'){setTimeout(closeMenu,50)}
 });
-if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if(window.__LECTOR__&&window.__LECTOR__.isOpen())window.__LECTOR__.close();else if($('#scan').classList.contains('on'))closeScanner();else if($('#sheet').classList.contains('on'))dismissSheet();else if(viewOpen())dismissView();else if($('#menu').classList.contains('on'))closeMenu();else CAP.App.exitApp()});
+if(CAP&&CAP.App)CAP.App.addListener('backButton',()=>{if(window.__LECTOR__&&window.__LECTOR__.isOpen()){if(!(window.__LECTOR__.back&&window.__LECTOR__.back()))window.__LECTOR__.close()}else if($('#scan').classList.contains('on'))closeScanner();else if($('#sheet').classList.contains('on'))dismissSheet();else if(viewOpen())dismissView();else if($('#menu').classList.contains('on'))closeMenu();else CAP.App.exitApp()});
 
 /* ---------- mantener pulsado: reordenar o sacar de una saga/universo ---------- */
 (function(){

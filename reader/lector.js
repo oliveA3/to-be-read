@@ -11,13 +11,17 @@ if (!API) { console.warn('[lector] falta el puente TBR'); return; }
 const { FS, lib, book, save, t, esc, norm, toast, CFG } = API;
 
 const $ = (s, r) => (r || document).querySelector(s);
-const SVG = (d, w) => `<svg width="${w || 21}" height="${w || 21}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const SVG = (d, w) => `<svg width="${w || 21}" height="${w || 21}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const I = {
   back: SVG('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
-  toc:  SVG('<path d="M4 6h16M4 12h16M4 18h12"/>'),
+  toc:  SVG('<path d="M3 6h11M3 12h11M3 18h11"/><circle cx="19" cy="6" r=".9" fill="currentColor"/><circle cx="19" cy="12" r=".9" fill="currentColor"/><circle cx="19" cy="18" r=".9" fill="currentColor"/>'),
   find: SVG('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
-  aa:   SVG('<path d="M4 19l5.5-14L15 19M6 14h7M17 19l2.5-7 2.5 7M18 17h4"/>'),
+  aa:   SVG('<path d="M3 6c2.6-1 5.4-1 8 .6V20c-2.6-1.6-5.4-1.6-8-.6z"/><path d="M11 6.6c2-1.2 4-1.4 6-.9"/><path d="M20.5 9.5l-7.7 7.7-3 .6.6-3 7.7-7.7a1.4 1.4 0 0 1 2 0l.4.4a1.4 1.4 0 0 1 0 2z" fill="var(--lx-bar,#fff)"/><path d="M17.4 8.6l2.1 2.1"/>'),
+  rot:  SVG('<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3 9a8 8 0 0 1 3-4M21 15a8 8 0 0 1-3 4"/>'),
   bm:   SVG('<path d="M6 3h12v18l-6-4.5L6 21z"/>'),
+  chk: SVG('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 18),
+  chev: SVG('<path d="M9 6l6 6-6 6"/>', 16),
+  dl: SVG('<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>', 18),
   more: SVG('<circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/>'),
   play: SVG('<path d="M7 4l13 8-13 8z"/>', 20),
   pause: SVG('<path d="M8 4v16M16 4v16"/>', 20),
@@ -35,7 +39,8 @@ const X = {
     bmAdd: 'Marcador guardado', bmDel: 'Marcador quitado', bm: 'Marcador',
     more: 'Más', listen: 'Escuchar en voz alta', stopListen: 'Detener la lectura',
     noTts: 'Este teléfono no tiene voz para leer en voz alta',
-    addVer: 'Añadir otra versión (bilingüe)', delVer: 'Quitar la segunda versión',
+    swapHere: 'Cambiar de versión desde aquí', markAs: 'Marcar como…', stUnread: 'Por leer', stReading: 'Leyendo', stRead: 'Leído', stDropped: 'Abandonado', markedAs: x => `Marcado como «${x}»`, covSave: 'Guardar portada', covSaved: 'Portada guardada en Descargas', covBad: 'No se pudo guardar la portada', lxFg: 'Color de letra', fgAuto: 'Del tema', lxParas: 'Párrafos', parInd: 'Con sangría', parSp: 'Separados', tr: 'Traducir', tabLooks: 'Búsquedas', noLooks: 'Aquí saldrán las palabras y frases que busques en el diccionario o traduzcas.', kD: 'Diccionario', kT: 'Traducción', noTr: 'No hay ninguna app de traducción. Texto copiado', again: 'Buscar otra vez', lxCols: 'Columnas en horizontal', colsTwo: 'Dos', colsOne: 'Una', bright: 'Brillo', brAuto: 'Auto', noDict: 'No hay ninguna app de diccionario. Palabra copiada', about: 'Acerca del documento', share: 'Compartir archivo', pageOf: (a, b) => `${a} de ${b}`, orient: 'Girar pantalla', needApk: 'Esto necesita la última versión de la app (instala el APK nuevo)', shareBad: 'No se pudo compartir el archivo',
+    aTitle: 'Título', aAuthor: 'Autor', aPub: 'Editorial', aLang: 'Idioma', aDate: 'Fecha', aId: 'Identificador', aSubj: 'Temas', aDesc: 'Descripción', aRights: 'Derechos', aVer: 'Versión de EPUB', aCh: 'Capítulos', aFile: 'Archivo', aSize: 'Tamaño', aNone: 'Este archivo no trae datos', addVer: 'Añadir otra versión (bilingüe)', delVer: 'Quitar la segunda versión',
     verPrep: 'Preparando las dos versiones…', verAdded: 'Versión añadida. Toca ES/EN para cambiar',
     verBad: 'No pude leer ese epub', verDel: 'Segunda versión quitada', verAsk: 'Elige el mismo libro en otro idioma',
     note: 'Nota', notePh: 'Escribe una nota…', save: 'Guardar', del: 'Eliminar', edit: 'Editar',
@@ -52,7 +57,8 @@ const X = {
     bmAdd: 'Bookmark saved', bmDel: 'Bookmark removed', bm: 'Bookmark',
     more: 'More', listen: 'Read aloud', stopListen: 'Stop reading',
     noTts: 'This phone has no voice to read aloud',
-    addVer: 'Add another version (bilingual)', delVer: 'Remove the second version',
+    swapHere: 'Switch version from here', markAs: 'Mark as…', stUnread: 'To read', stReading: 'Reading', stRead: 'Read', stDropped: 'Dropped', markedAs: x => `Marked as “${x}”`, covSave: 'Save cover', covSaved: 'Cover saved to Downloads', covBad: 'Couldn’t save the cover', lxFg: 'Text colour', fgAuto: 'From theme', lxParas: 'Paragraphs', parInd: 'Indented', parSp: 'Spaced', tr: 'Translate', tabLooks: 'Lookups', noLooks: 'Words and phrases you look up in the dictionary or translate will show up here.', kD: 'Dictionary', kT: 'Translation', noTr: 'No translator app found. Text copied', again: 'Look up again', lxCols: 'Columns in landscape', colsTwo: 'Two', colsOne: 'One', bright: 'Brightness', brAuto: 'Auto', noDict: 'No dictionary app found. Word copied', about: 'About document', share: 'Share file', pageOf: (a, b) => `${a} of ${b}`, orient: 'Rotate screen', needApk: 'This needs the latest app version (install the new APK)', shareBad: 'Could not share the file',
+    aTitle: 'Title', aAuthor: 'Author', aPub: 'Publisher', aLang: 'Language', aDate: 'Date', aId: 'Identifier', aSubj: 'Subjects', aDesc: 'Description', aRights: 'Rights', aVer: 'EPUB version', aCh: 'Chapters', aFile: 'File', aSize: 'Size', aNone: 'This file has no data', addVer: 'Add another version (bilingual)', delVer: 'Remove the second version',
     verPrep: 'Preparing both versions…', verAdded: 'Version added. Tap ES/EN to switch',
     verBad: 'Couldn’t read that epub', verDel: 'Second version removed', verAsk: 'Pick the same book in another language',
     note: 'Note', notePh: 'Write a note…', save: 'Save', del: 'Delete', edit: 'Edit',
@@ -69,7 +75,7 @@ const T = (k, ...a) => {
   return typeof v === 'function' ? v(...a) : v;
 };
 
-const DEF = { theme:'light', fs:18, lh:1.55, pad:22, anim:'slide', dim:0, mode:'page', rate:1 };
+const DEF = { theme:'light', fs:18, lh:1.55, pad:22, anim:'slide', dim:0, mode:'page', rate:1, cols:2, bright:null, paras:'indent', fg:'' };
 const CK = 'por-leer-lector';
 let P = (() => { try { return Object.assign({}, DEF, JSON.parse(localStorage.getItem(CK) || '{}')); } catch (e) { return { ...DEF }; } })();
 const savePrefs = () => { try { localStorage.setItem(CK, JSON.stringify(P)); } catch (e) {} };
@@ -123,6 +129,14 @@ async function openEpub(blob) {
   if (!spine.length) throw new Error('epub');
 
   const gmeta = n => { const e = opf.getElementsByTagNameNS('*', n)[0]; return e ? e.textContent.trim() : ''; };
+  /* portada: la que declara el OPF (epub2: meta cover; epub3: cover-image) o, si no, una imagen que se llame "cover" */
+  let coverIt = null;
+  try {
+    const cm = [...opf.getElementsByTagName('meta')].find(m => m.getAttribute('name') === 'cover');
+    coverIt = cm && man.get(cm.getAttribute('content'));
+    if (!coverIt || !/image/.test(coverIt.type)) coverIt = [...man.values()].find(x => /cover-image/.test(x.props));
+    if (!coverIt) coverIt = [...man.values()].find(x => /image/.test(x.type) && /cover|portada/i.test(x.href));
+  } catch (e) { coverIt = null; }
 
   /* índice: primero el nav.xhtml de epub3, si no el NCX de epub2 */
   let toc = [];
@@ -152,7 +166,15 @@ async function openEpub(blob) {
   toc.forEach(x => { x.i = idx.has(x.href) ? idx.get(x.href) : -1; });
   toc = toc.filter(x => x.i >= 0);
 
-  return { zip, spine, toc, title: gmeta('title'), lang: (gmeta('language') || '').slice(0, 2).toLowerCase(), grab,
+  const all = n => [...opf.getElementsByTagNameNS('*', n)].map(e => e.textContent.trim()).filter(Boolean);
+  /* tamaño de cada hoja del lomo: sirve para repartir el progreso del libro (si no se sabe, todas pesan igual) */
+  const w = spine.map(sp => { try { const f = zip.file(sp.href); const n = f && f._data && f._data.uncompressedSize; return n > 0 ? n : 1; } catch (e) { return 1; } });
+  const meta = {
+    title: gmeta('title'), creators: all('creator'), publisher: gmeta('publisher'), date: gmeta('date'),
+    ids: all('identifier'), description: gmeta('description'), subjects: all('subject'), rights: gmeta('rights'),
+    lang: all('language')[0] || '', version: (opf.documentElement && opf.documentElement.getAttribute('version')) || ''
+  };
+  return { zip, spine, toc, w, meta, size: blob && blob.size || 0, cover: coverIt || null, title: gmeta('title'), lang: (gmeta('language') || '').slice(0, 2).toLowerCase(), grab,
     async bin(p) { const f = zip.file(p); return f ? await f.async('blob') : null; } };
 }
 
@@ -200,8 +222,8 @@ async function chapterHtml(b, item, vid) {
         u = URL.createObjectURL(new Blob([bl], { type: MIME(path) }));
         urlCache.set(key, u);
       }
-      im.setAttribute('src', u);
-      im.removeAttribute('xlink:href'); im.removeAttribute('href');
+      if (im.tagName.toLowerCase() === 'image') { im.removeAttribute('xlink:href'); im.setAttribute('href', u); }
+      else { im.setAttribute('src', u); im.removeAttribute('xlink:href'); im.removeAttribute('href'); im.removeAttribute('srcset'); }
     } catch (e) { im.remove(); }
   }
   body.querySelectorAll('a').forEach(a => a.removeAttribute('href'));
@@ -212,10 +234,12 @@ async function chapterHtml(b, item, vid) {
 let el = null, bk = null, bks = [null, null], ver = 0, cur = null, si = 0, page = 0, pages = 1;
 let busy = false, curling = false, searchTok = 0, chapHtml = '', selInfo = null, hlEdit = null, finAsked = false;
 /* referencias fijas: se buscan una sola vez al construir la vista, no en cada cuadro */
-let wrapEl, moveEl, colEl, dimEl, loadEl, panelEl, chEl, pctEl, dotEl, dockEl, menuEl, titleEl, bmEl, ribEl, langEl, navEl, cvEl, flapEl, flapIn;
+let wrapEl, moveEl, colEl, dimEl, loadEl, panelEl, authEl, chapEl, pgEl, pctEl, trkEl, segsEl, dotEl, dockEl, menuEl, titleEl, bmEl, ribEl, langEl, navEl, cvEl, cviEl, csEl, flapEl, flapIn, fshEl;
 let trkW = 0, fadeA = null;
 
 const curBook = () => book(cur);
+const hasContent = h => /<(img|image|svg|video|table|hr)\b/i.test(h) || h.replace(/<[^>]*>/g, '').replace(/&nbsp;|\s/g, '').length > 3;
+let openedAt = 0, uiWas = false;
 const verOf = x => x.v === 1 ? 1 : 0;
 
 /* ---------- la vista ---------- */
@@ -225,7 +249,7 @@ function build() {
   el.innerHTML = `
     <div class="lx-bar">
       <button type="button" class="lx-ico" data-x="close" aria-label="${esc(t('back'))}">${I.back}</button>
-      <div class="lx-t" id="lxTitle"></div>
+      <div class="lx-t"><b id="lxTitle"></b><small id="lxAuthor"></small><small id="lxChap"></small></div>
       <button type="button" class="lx-ico" data-x="bm" id="lxBm" aria-label="${esc(T('bm'))}">${I.bm}</button>
       <button type="button" class="lx-ico" data-x="toc" aria-label="${esc(t('lxToc'))}">${I.toc}</button>
       <button type="button" class="lx-ico" data-x="find" aria-label="${esc(t('lxFind'))}">${I.find}</button>
@@ -238,23 +262,30 @@ function build() {
       <div class="lx-tap l" data-x="prev"></div>
       <div class="lx-tap r" data-x="next"></div>
       <div class="lx-rib" id="lxRib" hidden></div>
-      <div class="lx-cv" id="lxCv"></div>
-      <div class="lx-cf" id="lxCf"><div class="lx-cfi" id="lxCfi"></div></div>
+      <div class="lx-csh" id="lxCs"></div>
+      <div class="lx-cv" id="lxCv"><div class="lx-cvi" id="lxCvi"></div></div>
+      <div class="lx-cf" id="lxCf"><div class="lx-cfi" id="lxCfi"><i class="lx-fsh" id="lxFsh"></i></div></div>
       <div class="lx-dim" id="lxDim"></div>
       <div class="lx-load" id="lxLoad">${esc(t('lxLoading'))}</div>
+      <div class="lx-bpill" id="lxBpill"></div>
     </div>
     <button type="button" class="lx-lang" id="lxLang" data-x="lang" hidden></button>
     <div class="lx-dock" id="lxDock"></div>
-    <div class="lx-foot"><i class="lx-trk"><b id="lxDot"></b></i><span id="lxCh"></span><span id="lxPct"></span></div>
+    <div class="lx-foot">
+      <div class="lx-fi"><span id="lxPg"></span><span class="lx-sep">·</span><span id="lxPct"></span>
+        <button type="button" class="lx-ico lx-orient" data-x="orient" aria-label="${esc(T('orient'))}">${I.rot}</button></div>
+      <div class="lx-trk" id="lxTrk"><span class="lx-segs" id="lxSegs"></span><b id="lxDot"></b></div>
+    </div>
     <div class="lx-menu" id="lxMenu"></div>
     <div class="lx-panel" id="lxP"></div>`;
   document.body.appendChild(el);
   wrapEl = $('#lxWrap', el); moveEl = $('#lxMove', el); colEl = $('#lxCol', el);
   dimEl = $('#lxDim', el); loadEl = $('#lxLoad', el); panelEl = $('#lxP', el);
-  chEl = $('#lxCh', el); pctEl = $('#lxPct', el); dotEl = $('#lxDot', el);
+  authEl = $('#lxAuthor', el); chapEl = $('#lxChap', el); pgEl = $('#lxPg', el); pctEl = $('#lxPct', el);
+  trkEl = $('#lxTrk', el); segsEl = $('#lxSegs', el); dotEl = $('#lxDot', el); wireTrack();
   dockEl = $('#lxDock', el); menuEl = $('#lxMenu', el); titleEl = $('#lxTitle', el);
   bmEl = $('#lxBm', el); ribEl = $('#lxRib', el); langEl = $('#lxLang', el);
-  navEl = $('#lxNav', el); cvEl = $('#lxCv', el); flapEl = $('#lxCf', el); flapIn = $('#lxCfi', el);
+  navEl = $('#lxNav', el); cvEl = $('#lxCv', el); cviEl = $('#lxCvi', el); csEl = $('#lxCs', el); flapEl = $('#lxCf', el); flapIn = $('#lxCfi', el); fshEl = $('#lxFsh', el);
   el.addEventListener('click', onTap);
   document.addEventListener('visibilitychange', () => { if (document.hidden && el.classList.contains('on') && bk) { clearTimeout(posT); writePos(); } });
 
@@ -264,21 +295,34 @@ function build() {
     const hm = e.target.closest && e.target.closest('mark.lx-hl');
     if (hm && !hasSel()) { openHlEditor(hm.dataset.id); return; }
     if (hasSel()) return;
+    if (performance.now() - openedAt < 500) return;
     hideDock();
     if (e.target.closest('[data-x]')) return;
     /* toda la pantalla es el libro; las barras salen al tocar el centro (o en cualquier parte si es desplazar) */
     if (P.mode === 'scroll') { toggleUi(); return; }
     const r = w.getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
+    tapY = e.clientY - r.top;
     if (x < 0.3) go(-1); else if (x > 0.7) go(1); else toggleUi();
+    tapY = null;
   });
   /* deslizar para pasar página. Con "pasar hoja" la hoja sigue al dedo mientras arrastras */
-  let x0 = null, y0 = null, lx = 0, lt = 0, vx = 0, drag = false;
+  let x0 = null, y0 = null, lx = 0, lt = 0, vx = 0, drag = false, bz = null;
   w.addEventListener('touchstart', e => {
     if (e.touches.length !== 1) { if (drag) { drag = false; curlSettle(false); } x0 = null; return; }
     const tch = e.touches[0]; x0 = tch.clientX; y0 = tch.clientY; lx = x0; lt = performance.now(); vx = 0; drag = false;
+    bz = null;
   }, { passive: true });
   w.addEventListener('touchmove', e => {
-    if (x0 == null || P.mode === 'scroll' || P.anim !== 'curl' || hasSel()) return;
+    if (x0 == null) return;
+    /* brillo: deslizar arriba/abajo por el lado izquierdo (en modo páginas) */
+    if (P.mode !== 'scroll' && !drag && !hasSel()) {
+      const tch = e.touches[0], dy = tch.clientY - y0, dx = tch.clientX - x0;
+      if (!bz && x0 - w.getBoundingClientRect().left < w.clientWidth * 0.22 && Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+        bz = { v0: brightNow(), y0: tch.clientY }; hideUi();
+      }
+      if (bz) { setBright(Math.max(0.02, Math.min(1, bz.v0 - (tch.clientY - bz.y0) / (w.clientHeight * 0.8))), true); return; }
+    }
+    if (P.mode === 'scroll' || P.anim !== 'curl' || hasSel()) return;
     const tch = e.touches[0], dx = tch.clientX - x0, dy = tch.clientY - y0, now = performance.now();
     vx = (tch.clientX - lx) / Math.max(1, now - lt) * 0.6 + vx * 0.4; lx = tch.clientX; lt = now;
     if (!drag) {
@@ -286,20 +330,21 @@ function build() {
       const d = dx < 0 ? 1 : -1, n = page + d;
       if (n < 0 || n >= pages) return;            /* al cambiar de capítulo se usa el gesto normal al soltar */
       ttsStop(); hideUi();
-      if (!curlBegin(d, n)) return;
+      if (!curlBegin(d, n, y0 - w.getBoundingClientRect().top)) return;
       drag = true;
     }
-    curlDragMove(Math.abs(dx));
+    curlDragMove(dx, dy);
   }, { passive: true });
-  w.addEventListener('touchcancel', () => { if (drag) { drag = false; curlSettle(false); } x0 = null; }, { passive: true });
+  w.addEventListener('touchcancel', () => { if (drag) { drag = false; curlSettle(false); } if (bz) { bz = null; savePrefs(); } x0 = null; }, { passive: true });
   w.addEventListener('touchend', e => {
     if (x0 == null) return;
+    if (bz) { bz = null; x0 = null; savePrefs(); return; }
     const tch = e.changedTouches[0], dx = tch.clientX - x0, dy = tch.clientY - y0;
     x0 = null;
     if (drag) {
       drag = false;
       const g = cg;
-      if (g) curlSettle(g.u > 0.32 || (g.u > 0.05 && Math.abs(vx) > 0.45 && (vx < 0) === (g.d > 0)));
+      if (g) { const pr = curlProg(g); curlSettle(pr > 0.2 || (pr > 0.03 && Math.abs(vx) > 0.45 && (vx < 0) === (g.d > 0))); }
       return;
     }
     if (P.mode === 'scroll' || hasSel()) return;
@@ -324,7 +369,7 @@ function build() {
 }
 
 /* barras superior e inferior: ocultas mientras lees */
-const toggleUi = () => { if (el) el.classList.toggle('ui'); };
+const toggleUi = () => { if (!el) return; const on = el.classList.toggle('ui'); if (on) { trkW = trkEl.clientWidth || trkW; showProgress(gdone()); } };
 const hideUi = () => { if (el && el.classList.contains('ui')) el.classList.remove('ui'); };
 
 const hasSel = () => { const s = getSelection(); return !!(s && !s.isCollapsed && s.toString().trim()); };
@@ -337,7 +382,9 @@ function applyPrefs() {
   c.style.setProperty('--lx-fs', P.fs + 'px');
   c.style.setProperty('--lx-lh', P.lh);
   c.style.setProperty('--lx-pad', P.pad + 'px');
-  dimEl.style.opacity = (P.dim || 0) / 100;
+  c.classList.toggle('lx-sp', P.paras === 'spaced');
+  if (P.fg) c.style.setProperty('--lx-text', P.fg); else c.style.removeProperty('--lx-text');
+  dimEl.style.opacity = !nativeBr() && P.bright != null ? (1 - P.bright) * 0.75 : 0;
 }
 
 /* fracción del capítulo donde está el principio de lo que se ve */
@@ -367,8 +414,8 @@ function relayout(keepPct) {
   applyPrefs();
   if (P.mode === 'scroll') {
     const f = keepPct === true ? frac() : null;
-    col.style.width = ''; col.style.columnWidth = '';
-    pages = 1; page = 0;
+    col.style.width = ''; col.style.columnWidth = ''; col.style.columnCount = ''; col.style.paddingBottom = ''; col.style.removeProperty('--lx-ch');
+    pages = 1; page = 0; colsNow = 1;
     moveEl.style.transform = '';
     if (f != null) wrap.scrollTop = f * wrap.scrollHeight;
     paint();
@@ -376,28 +423,178 @@ function relayout(keepPct) {
   }
   trkW = dotEl.parentElement.clientWidth;
   const w = wrap.clientWidth, gap = P.pad * 2;
+  const off = keepPct === true ? curOff : null;
   const pct = keepPct === true && pages > 1 ? page / pages : null;
+  /* en horizontal se parte en dos columnas (cada "página" es un par); el hueco entre columnas es el mismo que entre páginas */
+  const two = String(P.cols) !== '1' && w > wrap.clientHeight && w >= 560;
   col.style.setProperty('--lx-gap', gap + 'px');
   col.style.width = w + 'px';
-  col.style.columnWidth = w - (P.pad * 2) + 'px';
+  colsNow = two ? 2 : 1;
+  if (two) { col.style.columnCount = '2'; col.style.columnWidth = 'auto'; }
+  else { col.style.columnCount = 'auto'; col.style.columnWidth = w - (P.pad * 2) + 'px'; }
+  /* el alto útil se ajusta a un número entero de renglones: si sobra casi un renglón abajo, se aprovecha */
+  col.style.paddingBottom = '';
+  let cs = getComputedStyle(col);
+  const lhp = parseFloat(cs.lineHeight) || P.fs * P.lh, pb = parseFloat(cs.paddingBottom);
+  const avail = wrap.clientHeight - parseFloat(cs.paddingTop) - pb, res = avail - Math.floor(avail / lhp) * lhp;
+  if (res > lhp * 0.7 && pb - (lhp - res) - 1 >= 26) col.style.paddingBottom = (pb - (lhp - res) - 1) + 'px';
+  cs = getComputedStyle(col);
+  col.style.setProperty('--lx-ch', Math.max(80, wrap.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)) + 'px');
   pages = Math.max(1, Math.round((col.scrollWidth + P.pad) / w));
-  if (pct != null) page = Math.min(pages - 1, Math.round(pct * pages));
-  page = Math.min(page, pages - 1);
+  if (off != null) { const pg = pageOfOff(off); page = pg != null ? pg : Math.min(pages - 1, Math.round((pct || 0) * pages)); }
+  else if (pct != null) page = Math.min(pages - 1, Math.round(pct * pages));
+  page = Math.max(0, Math.min(page, pages - 1));
   paint();
   curlWarm();
 }
-let lastCh = '', lastPct = -1, lastBm = null;
+let lastBm = null, drag = null, curOff = null, anchorT = 0;
+const ensureOff = () => { if (curOff == null) curOff = anchorOff(); };
+/* posición (en caracteres) de lo primero que se lee en pantalla: sobrevive a cambios de letra, giro o imágenes que cargan */
+function anchorOff() {
+  if (P.mode === 'scroll' || !colEl.firstChild) return null;
+  try {
+    const wr = wrapEl.getBoundingClientRect(), cs = getComputedStyle(colEl);
+    const x = wr.left + parseFloat(cs.paddingLeft) + 3, y = wr.top + parseFloat(cs.paddingTop) + (parseFloat(cs.lineHeight) || 24) / 2;
+    const rg = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
+    if (!rg || !colEl.contains(rg.startContainer)) return null;
+    const pre = document.createRange(); pre.selectNodeContents(colEl); pre.setEnd(rg.startContainer, rg.startOffset);
+    return pre.toString().length;
+  } catch (e) { return null; }
+}
+function pageOfOff(off) {
+  try {
+    const w = document.createTreeWalker(colEl, NodeFilter.SHOW_TEXT);
+    let n, acc = 0;
+    while ((n = w.nextNode())) {
+      const l = n.nodeValue.length;
+      if (acc + l >= off) {
+        const rg = document.createRange(), k = Math.min(l, off - acc);
+        rg.setStart(n, k); rg.setEnd(n, Math.min(l, k + 1));
+        const r = rg.getClientRects()[0] || rg.getBoundingClientRect();
+        const wr = wrapEl.getBoundingClientRect(), ww = wrapEl.clientWidth;
+        return Math.max(0, Math.min(pages - 1, Math.floor((r.left - wr.left + page * ww) / ww + 0.001)));
+      }
+      acc += l;
+    }
+  } catch (e) {}
+  return null;
+}
+/* progreso del libro entero: cada hoja pesa lo que ocupa; así 40% es 40% del texto y no "capítulo 3 de 8" */
+function wts() {
+  if (!bk.cum) { let a = 0; bk.cum = bk.w.map(n => (a += n) - n); bk.W = a || 1; }
+  return bk;
+}
+let colsNow = 1;
+const chPages = () => P.mode === 'scroll' ? Math.max(1, Math.round(wrapEl.scrollHeight / Math.max(1, wrapEl.clientHeight))) : Math.max(1, pages * colsNow);
+function gdone() { wts(); return Math.min(1, (bk.cum[si] + frac() * bk.w[si]) / bk.W); }
+/* páginas del libro: estimadas con cuánto texto cabe en una página con la letra elegida */
+function pageEst(f) {
+  wts();
+  const n = chPages();
+  if (n >= 3 || !bk.cpp) bk.cpp = bk.w[si] / n;
+  const total = Math.max(1, Math.round(bk.W / bk.cpp));
+  return { cur: Math.min(total, Math.round(f * total) + 1), total };
+}
 function paint() {
   if (P.mode !== 'scroll') moveEl.style.transform = `translate3d(${-page * wrapEl.clientWidth}px,0,0)`;
-  const total = bk.spine.length;
-  const ch = t('lxChapter', si + 1, total);
-  if (ch !== lastCh) { chEl.textContent = ch; lastCh = ch; }
-  const done = Math.min(1, (si + frac()) / total), pct = Math.round(done * 100);
-  if (pct !== lastPct) { pctEl.textContent = pct + '%'; lastPct = pct; }
-  if (!trkW) trkW = dotEl.parentElement.clientWidth;
-  dotEl.style.transform = `translate3d(${(done * trkW).toFixed(1)}px,0,0)`;
+  if (!drag) {
+    if (!trkW) trkW = trkEl.clientWidth;
+    dotEl.style.transform = `translate3d(${(gdone() * trkW).toFixed(1)}px,0,0)`;
+  }
   paintBm();
+  /* el ancla se calcula con calma (obliga a maquetar): no en el cuadro en que se pasa la página */
+  curOff = null; clearTimeout(anchorT); anchorT = setTimeout(() => { curOff = anchorOff(); }, 160);
   savePos();
+}
+/* texto y barra de capítulos (solo con las barras visibles) */
+function showProgress(f) {
+  const e = pageEst(f);
+  pgEl.textContent = T('pageOf', e.cur, e.total);
+  pctEl.textContent = Math.round(f * 100) + '%';
+  paintSegs(f);
+}
+let segsFor = null, segNodes = [], segStart = [];
+function paintSegs(f) {
+  wts();
+  if (segsFor !== bk) {
+    segsFor = bk;
+    let st = [...new Set(bk.toc.map(x => x.i))].sort((a, z) => a - z);
+    if (!st.length || st[0] > 0) st.unshift(0);
+    if (st.length > 140) { const k = Math.ceil(st.length / 140); st = st.filter((_, i) => i % k === 0); }
+    segStart = st;
+    segsEl.innerHTML = st.map((a, i) => { const z = i + 1 < st.length ? bk.cum[st[i + 1]] : bk.W; return `<i style="flex:${Math.max(1, z - bk.cum[a])} 1 0"></i>`; }).join('');
+    segNodes = [...segsEl.children];
+  }
+  const pos = f * bk.W;
+  segNodes.forEach((n, i) => {
+    const a = bk.cum[segStart[i]], z = i + 1 < segStart.length ? bk.cum[segStart[i + 1]] : bk.W;
+    if (pos >= z) { if (n.className !== 'done') { n.className = 'done'; n.style.removeProperty('--p'); } }
+    else if (pos > a) { n.className = 'part'; n.style.setProperty('--p', ((pos - a) / Math.max(1, z - a) * 100).toFixed(1) + '%'); }
+    else if (n.className) { n.className = ''; n.style.removeProperty('--p'); }
+  });
+}
+/* arrastrar el punto: salta de verdad al soltar (a medio camino solo se ve dónde caería) */
+function wireTrack() {
+  const at = e => { const r = trkEl.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / Math.max(1, r.width))); };
+  /* Mientras arrastras, dentro del mismo capítulo las páginas pasan de verdad y el punto se pega a la página
+     que vas a dejar: así no "retrocede" al soltar (una página es un salto, no un punto cualquiera de la barra). */
+  const move = f => {
+    wts();
+    const pos = f * bk.W;
+    let i = 0; while (i < bk.cum.length - 1 && bk.cum[i + 1] <= pos) i++;
+    drag.i = i;
+    if (i === si && P.mode === 'page' && pages > 0) {
+      const p = (pos - bk.cum[i]) / Math.max(1, bk.w[i]);
+      const n = Math.max(0, Math.min(pages - 1, Math.round(p * pages)));
+      if (n !== page) { page = n; paint(); }
+      f = (bk.cum[i] + n / pages * bk.w[i]) / bk.W;
+      drag.here = true;
+    } else drag.here = false;
+    drag.f = f;
+    dotEl.style.transform = `translate3d(${(f * trkW).toFixed(1)}px,0,0)`;
+    showProgress(f);
+  };
+  /* un toque corto pasa la página (a la izquierda del punto, atrás; a la derecha, adelante);
+     si se mantiene apretado o se arrastra, el punto sigue al dedo y salta al soltar */
+  let tap = null;
+  const grab = e => { if (!tap) return; clearTimeout(tap.tm); tap = null; drag = { f: 0 }; move(at(e)); };
+  trkEl.addEventListener('pointerdown', e => {
+    if (!el.classList.contains('ui') || !bk) return;
+    trkW = trkEl.clientWidth || trkW;
+    try { trkEl.setPointerCapture(e.pointerId); } catch (x) {}
+    tap = { x: e.clientX, e, tm: setTimeout(() => { if (tap) grab(tap.e); }, 230) };
+    e.preventDefault();
+  });
+  trkEl.addEventListener('pointermove', e => {
+    if (tap) { tap.e = e; if (Math.abs(e.clientX - tap.x) > 8) grab(e); return; }
+    if (drag) move(at(e));
+  });
+  const end = e => {
+    if (tap) {
+      clearTimeout(tap.tm); const x = tap.x; tap = null;
+      if (e.type === 'pointercancel') return;
+      const r = dotEl.getBoundingClientRect(), c = r.left + r.width / 2;
+      if (Math.abs(x - c) < 14) return;
+      const d = x < c ? -1 : 1;
+      Promise.resolve(go(d, true)).then(() => setTimeout(() => { if (!drag && el.classList.contains('ui')) showProgress(gdone()); }, 40));
+      return;
+    }
+    if (!drag) return;
+    const f = drag.f, here = drag.here; drag = null;
+    if (e.type === 'pointercancel') { paint(); return; }
+    if (here) { paint(); showProgress(gdone()); return; }   /* ya estás ahí: solo falta fijar el punto */
+    jumpTo(f);
+  };
+  trkEl.addEventListener('pointerup', end); trkEl.addEventListener('pointercancel', end);
+}
+async function jumpTo(f) {
+  wts();
+  ttsStop();
+  const pos = f * bk.W;
+  let i = 0; while (i < bk.cum.length - 1 && bk.cum[i + 1] <= pos) i++;
+  const p = Math.max(0, Math.min(1, (pos - bk.cum[i]) / Math.max(1, bk.w[i])));
+  if (i === si) { gotoFrac(p, true); showProgress(gdone()); }
+  else { await show(i, { pct: p, near: true }); showProgress(gdone()); }
 }
 
 let posT = null;
@@ -415,12 +612,12 @@ function writePos() {
 }
 
 /* Va a una posición dentro del capítulo ya pintado */
-function gotoFrac(p) {
+function gotoFrac(p, near) {
   if (P.mode === 'scroll') {
     const w = wrapEl;
     w.scrollTop = p >= 1 ? w.scrollHeight : p * w.scrollHeight;
   } else {
-    page = p >= 1 ? pages - 1 : Math.max(0, Math.min(pages - 1, Math.floor(p * pages + 0.001)));
+    page = p >= 1 ? pages - 1 : Math.max(0, Math.min(pages - 1, near ? Math.round(p * pages) : Math.floor(p * pages + 0.001)));
   }
   paint();
 }
@@ -457,25 +654,41 @@ async function show(i, o) {
   const load = loadEl;
   const move = moveEl;
   si = Math.max(0, Math.min(bk.spine.length - 1, i));
-  if (P.anim === 'fade') move.classList.add('lx-out');
+  if (chapDone && !o.snap) chapDone();
+  if (P.anim === 'fade' && !o.snap) move.classList.add('lx-out');
   /* el aviso de "cargando" solo aparece si el capítulo tarda de verdad */
   const lt = setTimeout(() => { load.hidden = false; }, 180);
   let html = '';
   try { html = await chapterHtml(bk, bk.spine[si], ver); } catch (e) { html = ''; }
   clearTimeout(lt); load.hidden = true;
+  /* hojas sin nada que leer (portadas vacías, separadores): se saltan en el sentido en que vas */
+  if (!hasContent(html) && o.para == null && !o.noSkip) {
+    const nx = si + (o.end ? -1 : 1);
+    if (nx >= 0 && nx < bk.spine.length) { busy = false; return show(nx, o); }
+  }
   curlDrop();
   chapHtml = html || `<p>${esc(t('lxEmptyCh'))}</p>`;
   const col = colEl;
+  /* el carro vuelve al inicio sin animación (antes "rebobinaba" todas las páginas al cambiar de capítulo) */
+  const prevTr = move.style.transition;
+  move.style.transition = 'none';
+  if (fadeA) { fadeA.cancel(); fadeA = null; }
   col.innerHTML = chapHtml;
+  col.lang = (bk.meta && bk.meta.lang) || bk.lang || (isEn() ? 'en' : 'es');
   applyHl();
-  page = 0;
+  page = 0; curOff = null;
   wrapEl.scrollTop = 0;
+  /* con imágenes, se espera a que carguen para contar bien las páginas */
+  const pend = [...col.querySelectorAll('img')].filter(i => !i.complete);
+  if (pend.length) await Promise.race([Promise.all(pend.map(i => new Promise(r => { i.onload = i.onerror = r; }))), sleep(1800)]);
   relayout();
   if (o.para != null) gotoPara(o.para);
   else if (o.end) gotoFrac(1);
-  else if (o.pct != null && o.pct > 0) gotoFrac(o.pct);
+  else if (o.pct != null && o.pct > 0) gotoFrac(o.pct, o.near);
+  void move.offsetWidth;
+  move.style.transition = prevTr;
   const ch = bk.toc.filter(x => x.i <= si).pop();
-  titleEl.textContent = (ch && ch.label) || bk.title || '';
+  paintHead(ch && ch.label);
   move.classList.remove('lx-out');
   const nav = navEl;
   nav.querySelector('[data-x="chprev"]').hidden = si <= 0;
@@ -485,6 +698,14 @@ async function show(i, o) {
   nx.dataset.x = last ? 'finish' : 'chnext';
   nx.textContent = last ? T('markRead') : T('nextCh');
   busy = false;
+}
+
+function paintHead(label) {
+  const b = curBook(), m = bk.meta || {};
+  titleEl.textContent = (b && b.title) || m.title || bk.title || '';
+  authEl.textContent = (b && b.author) || (m.creators && m.creators[0]) || '';
+  const n = t('lxChapter', si + 1, bk.spine.length);
+  chapEl.textContent = label ? `${label} · ${n}` : n;
 }
 
 /* fundido real entre páginas: sale la actual, entra la nueva (antes solo se notaba al cambiar de capítulo) */
@@ -498,19 +719,63 @@ function fadeTurn(n) {
     b.onfinish = () => { if (fadeA === b) fadeA = null; };
   };
 }
-function go(d) {
-  if (busy || P.mode === 'scroll') return;
+/* Cambio de capítulo con la misma animación que entre páginas: se deja una foto de la página que sale encima,
+   se carga el capítulo nuevo debajo y la foto sale (deslizar, desvanecer o pasar hoja). */
+let chapDone = null;
+async function chapTurn(d, i, o) {
+  o = o || {};
+  if (P.anim === 'none' || REDUCE || P.mode === 'scroll' || !moveEl.animate || !wrapEl.clientWidth) return show(i, o);
   if (curling && curlEnd) curlEnd();
-  ttsStop(); hideUi();
+  const W = wrapEl.clientWidth, H = wrapEl.clientHeight, oldTx = -page * W, ty = tapY, was = si;
+  const snap = moveEl.cloneNode(true);
+  snap.removeAttribute('id'); snap.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+  const nv = snap.querySelector('.lx-chnav'); if (nv) nv.remove();
+  snap.className = 'lx-cp lx-snap';
+  snap.style.cssText = 'position:absolute;inset:0;transition:none;pointer-events:none';
+  snap.style.transform = `translate3d(${oldTx}px,0,0)`;
+  moveEl.after(snap);
+  let done = false; const anims = [];
+  const fin = () => {
+    if (done) return; done = true; chapDone = null;
+    anims.forEach(a => { try { a.cancel(); } catch (e) {} });
+    if (curlEnd && cg && cg.chap) curlEnd();
+    snap.remove();
+  };
+  chapDone = fin;
+  await show(i, { ...o, snap: true });
+  if (done) return;
+  if (si === was) { fin(); return; }
+  const bx = -page * W, tr = x => ({ transform: `translate3d(${x}px,0,0)` });
+  let anim = P.anim;
+  if (anim === 'curl') {
+    const g = curlChap(d, snap, oldTx, ty);
+    if (g) { curlRun(curlGone(g), window.__LXDUR || 460, fin, 0.16); return; }
+    anim = 'fade';
+  }
+  if (anim === 'slide') {
+    const opt = { duration: 250, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'forwards' };
+    anims.push(snap.animate([tr(oldTx), tr(oldTx - d * W)], opt));
+    const a = moveEl.animate([tr(bx + d * W), tr(bx)], opt); anims.push(a); a.onfinish = fin;
+  } else {
+    const opt = { duration: 160, easing: 'ease-out', fill: 'forwards' };
+    anims.push(snap.animate([{ opacity: 1 }, { opacity: 0 }], opt));
+    const a = moveEl.animate([{ opacity: 0 }, { opacity: 1 }], opt); anims.push(a); a.onfinish = fin;
+  }
+}
+function go(d, keepUi) {
+  if (busy || P.mode === 'scroll') return;
+  if (chapDone) chapDone();
+  if (curling && curlEnd) curlEnd();
+  ttsStop(); if (!keepUi) hideUi();
   const n = page + d;
   if (n >= 0 && n < pages) {
     if (P.anim === 'curl') return curl(d, n);
     if (P.anim === 'fade' && !REDUCE && moveEl.animate) return fadeTurn(n);
     page = n; paint(); return;
   }
-  if (d > 0 && si < bk.spine.length - 1) return show(si + 1);
+  if (d > 0 && si < bk.spine.length - 1) return chapTurn(1, si + 1);
   if (d > 0) return askFinish();
-  if (d < 0 && si > 0) return show(si - 1, { end: true });
+  if (d < 0 && si > 0) return chapTurn(-1, si - 1, { end: true });
 }
 
 /* Al llegar al final del último capítulo se ofrece marcar el libro como leído */
@@ -543,32 +808,37 @@ function clipRect(W, H, q, n, keepNeg) {
 }
 const poly = pts => pts.length < 3 ? 'polygon(0 0,0 0,0 0)' : 'polygon(' + pts.map(p => p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px').join(',') + ')';
 
-let curlA = null, curlRaf = 0, curlEnd = null, cg = null, dragRaf = 0, warmT = 0;
+let curlA = null, curlB = null, curlRaf = 0, curlEnd = null, cg = null, dragRaf = 0, warmT = 0, tapY = null;
 const REDUCE = (() => { try { return matchMedia('(prefers-reduced-motion:reduce)').matches; } catch (e) { return false; } })();
-const curlHide = () => { if (cvEl) { cvEl.classList.remove('lx-run'); flapEl.classList.remove('lx-run'); } };
+const curlHide = () => { if (cvEl) { cvEl.classList.remove('lx-run'); flapEl.classList.remove('lx-run'); csEl.classList.remove('lx-run'); } };
 
 /* la copia deja de servir cuando cambia el capítulo, la letra o los subrayados */
 function curlDrop() {
   if (curlEnd) curlEnd();
   if (curlA) { curlA.remove(); curlA = null; }
+  if (curlB) { curlB.remove(); curlB = null; }
   cg = null;
   clearTimeout(warmT);
   curlHide();
 }
-/* UNA sola copia del capítulo (la hoja que sale). El reverso del papel no lleva texto: es solo papel con sombra,
-   así se evita duplicar otra vez todo el capítulo. La copia se queda maquetada (visibility, no display) para que
-   pasar página no vuelva a maquetarla entera cada vez. */
+/* Copia del capítulo para la hoja que sale (lx-cv) y otra para su reverso (lx-cfi): el reverso deja ver
+   el texto del otro lado en espejo, como el papel de verdad. Las dos se maquetan UNA vez por capítulo y se
+   quedan ocultas con visibility (no display), así pasar página solo cambia recortes y una transformación. */
 function curlPrep() {
   if (curlA) return true;
   /* en capítulos muy largos la copia costaría más que la animación: se pasa a deslizar */
   if (colEl.textContent.length > 60000) return false;
-  const c = moveEl.cloneNode(true);
-  c.removeAttribute('id');
-  c.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
-  const nv = c.querySelector('.lx-chnav'); if (nv) nv.remove();
-  c.className = 'lx-cp';
-  c.style.cssText = 'position:absolute;inset:0;transition:none';
-  curlA = c; cvEl.appendChild(c);
+  const mk = cls => {
+    const c = moveEl.cloneNode(true);
+    c.removeAttribute('id');
+    c.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+    const nv = c.querySelector('.lx-chnav'); if (nv) nv.remove();
+    c.className = cls;
+    c.style.cssText = 'position:absolute;inset:0;transition:none';
+    return c;
+  };
+  curlA = mk('lx-cp'); cviEl.appendChild(curlA);
+  curlB = mk('lx-cp lx-cpb'); flapIn.insertBefore(curlB, fshEl);
   return true;
 }
 /* se prepara en un rato libre justo tras maquetar, para que la primera hoja no tenga que esperar */
@@ -580,67 +850,147 @@ function curlWarm() {
     (window.requestIdleCallback ? requestIdleCallback(run, { timeout: 1500 }) : run());
   }, 250);
 }
-/* recorte de las dos mitades según el doblez (u: 0 = plana, 1 = hoja ya pasada) */
-function curlApply(g, u) {
-  const { W, H, s2, cx } = g, D = W + H;
-  const th = (46 - 36 * u) * Math.PI / 180;
-  const nx = s2 * Math.cos(th), ny = -Math.sin(th);
-  const q = [cx - nx * D * u, -ny * D * u];
-  cvEl.style.clipPath = poly(clipRect(W, H, q, [nx, ny], true));
-  /* el reverso: el trozo doblado, reflejado respecto a la línea del doblez */
-  flapIn.style.clipPath = poly(clipRect(W, H, q, [nx, ny], false));
+/* Geometría de la hoja: la esquina C se levanta y va hasta F (el dedo). El doblez es la mediatriz de C-F;
+   lo que queda del lado de la esquina se refleja sobre el doblez (el reverso) y deja ver la página nueva. */
+/* Solo transformaciones (las mueve la tarjeta gráfica, sin volver a pintar texto en cada cuadro):
+   - lx-cv: un "marco" enorme girado con su borde sobre el doblez y overflow:hidden; dentro, la página que sale
+     con la transformación inversa, así queda quieta y solo se ve la parte que aún no se ha doblado.
+   - lx-cf: otro marco igual con el reverso dentro, reflejado sobre el doblez (texto en espejo, tenue).
+   - las sombras son tiras con un degradado fijo, colocadas sobre el doblez con una transformación. */
+const mat = m => `matrix(${m[0].toFixed(5)},${m[1].toFixed(5)},${m[2].toFixed(5)},${m[3].toFixed(5)},${m[4].toFixed(2)},${m[5].toFixed(2)})`;
+const mmul = (A, B) => [A[0] * B[0] + A[2] * B[1], A[1] * B[0] + A[3] * B[1], A[0] * B[2] + A[2] * B[3], A[1] * B[2] + A[3] * B[3], A[0] * B[4] + A[2] * B[5] + A[4], A[1] * B[4] + A[3] * B[5] + A[5]];
+const minv = M => { const d = M[0] * M[3] - M[1] * M[2], a = M[3] / d, b = -M[1] / d, c = -M[2] / d, e = M[0] / d; return [a, b, c, e, -(a * M[4] + c * M[5]), -(b * M[4] + e * M[5])]; };
+/* marco con origen en q, eje x a lo largo de (ux,uy) y el borde (u=0) sobre el doblez, centrado en vertical */
+const frame = (ux, uy, q, S) => [ux, uy, -uy, ux, q[0] + uy * S / 2, q[1] - ux * S / 2];
+let curlLast = 0, curlSlow = 0;
+function curlApply(g) {
+  const { W, H, C, S } = g;
+  /* teléfono lento: si los cuadros tardan, el reverso deja de llevar el texto en espejo */
+  const now = performance.now();
+  if (curlLast && now - curlLast < 200) { curlSlow = now - curlLast > 34 ? curlSlow + 1 : Math.max(0, curlSlow - 1); if (curlSlow >= 4 && !flapEl.classList.contains('lx-lite')) flapEl.classList.add('lx-lite'); }
+  curlLast = now;
+  let fx = g.F[0], fy = g.F[1];
+  /* el papel no se estira: la esquina no puede alejarse del lomo más que el ancho de la página */
+  const sx = C[0] === W ? 0 : W, sy = C[1];
+  let dx = fx - sx, dy = fy - sy, r = Math.hypot(dx, dy);
+  if (r > W) { fx = sx + dx / r * W; fy = sy + dy / r * W; }
+  const oy = H - C[1], R2 = Math.hypot(W, H);
+  dx = fx - sx; dy = fy - oy; r = Math.hypot(dx, dy);
+  if (r > R2) { fx = sx + dx / r * R2; fy = oy + dy / r * R2; }
+  let vx = C[0] - fx, vy = C[1] - fy, len = Math.hypot(vx, vy);
+  if (len < 0.5) { vx = C[0] === W ? 1 : -1; vy = 0; len = 0; fx = C[0]; fy = C[1]; }
+  const nx = len ? vx / len : vx, ny = len ? vy / len : 0, q = [(C[0] + fx) / 2, (C[1] + fy) / 2];
+  /* lo que queda plano: marco orientado hacia el lado contrario a la esquina */
+  const K = frame(-nx, -ny, q, S);
+  cvEl.style.transform = mat(K);
+  cviEl.style.transform = mat(minv(K));
+  /* reverso: mismo marco, contenido reflejado sobre el doblez */
   const nq = nx * q[0] + ny * q[1];
-  flapIn.style.transform = `matrix(${1 - 2 * nx * nx},${-2 * nx * ny},${-2 * nx * ny},${1 - 2 * ny * ny},${2 * nx * nq},${2 * ny * nq})`;
-  flapIn.style.setProperty('--lx-fold', (Math.atan2(-ny, -nx) * 180 / Math.PI + 90).toFixed(1) + 'deg');
+  const R = [1 - 2 * nx * nx, -2 * nx * ny, -2 * nx * ny, 1 - 2 * ny * ny, 2 * nx * nq, 2 * ny * nq];
+  flapEl.style.transform = cvEl.style.transform;
+  flapIn.style.transform = mat(mmul(minv(K), R));
+  flapEl.style.opacity = len ? '1' : '0';
+  /* sombras: sobre el reverso (oscuro junto al doblez) y la que cae sobre la página nueva */
+  const G = frame(nx, ny, q, S), k = Math.min(1, len / (W * 0.6));
+  fshEl.style.transform = mat(G) + ` scale(${Math.max(0.05, Math.min(1, len / (W * 0.9))).toFixed(3)},1)`;
+  csEl.style.transform = mat(G) + ` scale(${(0.2 + 0.8 * k).toFixed(3)},1)`;
+  csEl.style.opacity = (0.45 + 0.55 * k).toFixed(2);
 }
-/* empieza una hoja (por toque o por arrastre); devuelve null si no se puede y entonces se cambia sin animar */
-function curlBegin(d, n) {
+/* empieza una hoja (por toque o por arrastre); devuelve null si no se puede y entonces se cambia sin animar.
+   y: altura donde empezó el gesto (arriba levanta la esquina de arriba, abajo la de abajo) */
+function curlBegin(d, n, y) {
   const W = wrapEl.clientWidth, H = wrapEl.clientHeight;
   if (REDUCE || !W || !H || !curlPrep()) return null;
   if (curlEnd) curlEnd();
-  curlA.style.transform = `translate3d(${-page * W}px,0,0)`;
-  const g = cg = { d, n, old: page, W, H, s2: d > 0 ? 1 : -1, cx: d > 0 ? W : 0, u: 0, cancel: false };
-  cvEl.classList.add('lx-run'); flapEl.classList.add('lx-run');
-  curlApply(g, 0);                        /* el primer cuadro ya está cubierto por la hoja */
+  curlA.style.transform = curlB.style.transform = `translate3d(${-page * W}px,0,0)`;
+  const top = y != null && y < H * 0.4;
+  const C = [d > 0 ? W : 0, top ? 0 : H];
+  const S = Math.ceil(Math.hypot(W, H) * 2.2);
+  if (wrapEl.dataset.cs !== W + 'x' + H) {
+    wrapEl.dataset.cs = W + 'x' + H;
+    wrapEl.style.setProperty('--lx-S', S + 'px'); wrapEl.style.setProperty('--lx-W', W + 'px'); wrapEl.style.setProperty('--lx-H', H + 'px');
+  }
+  const g = cg = { d, n, old: page, W, H, C, S, F: [C[0], C[1]], y0: y, cancel: false };
+  cvEl.classList.add('lx-run'); flapEl.classList.add('lx-run'); csEl.classList.add('lx-run');
+  curlApply(g);                           /* el primer cuadro ya está cubierto por la hoja */
   page = n; paint();                      /* la página nueva ya está debajo */
   curling = true;
   curlEnd = () => {
     if (curlRaf) cancelAnimationFrame(curlRaf);
     if (dragRaf) cancelAnimationFrame(dragRaf);
-    curlRaf = dragRaf = 0; curlEnd = null; curling = false;
+    curlRaf = dragRaf = 0; curlEnd = null; curling = false; curlLast = 0;
     curlHide(); cg = null;
     if (g.cancel) { page = g.old; paint(); }   /* soltaste antes de pasar la hoja: se queda donde estaba */
   };
   return g;
 }
-/* anima el doblez de u=from a u=to */
-function curlRun(from, to, dur, done) {
-  const g = cg, T0 = performance.now(), ease = u => 1 - Math.pow(1 - u, 3);
+/* hoja que sale al cambiar de capítulo: la copia ya es la foto de la página vieja y la nueva ya está debajo */
+function curlChap(d, snap, tx, y) {
+  const W = wrapEl.clientWidth, H = wrapEl.clientHeight;
+  if (!W || !H) return null;
+  if (curlEnd) curlEnd();
+  if (curlA) { curlA.remove(); curlA = null; }
+  if (curlB) { curlB.remove(); curlB = null; }
+  snap.className = 'lx-cp'; curlA = snap; cviEl.appendChild(curlA);
+  curlB = snap.cloneNode(true); curlB.className = 'lx-cp lx-cpb'; flapIn.insertBefore(curlB, fshEl);
+  curlA.style.transform = curlB.style.transform = `translate3d(${tx}px,0,0)`;
+  const C = [d > 0 ? W : 0, y != null && y < H * 0.4 ? 0 : H], S = Math.ceil(Math.hypot(W, H) * 2.2);
+  if (wrapEl.dataset.cs !== W + 'x' + H) {
+    wrapEl.dataset.cs = W + 'x' + H;
+    wrapEl.style.setProperty('--lx-S', S + 'px'); wrapEl.style.setProperty('--lx-W', W + 'px'); wrapEl.style.setProperty('--lx-H', H + 'px');
+  }
+  const g = cg = { d, n: page, old: page, W, H, C, S, F: [C[0], C[1]], y0: y, cancel: false, chap: true };
+  cvEl.classList.add('lx-run'); flapEl.classList.add('lx-run'); csEl.classList.add('lx-run');
+  curlApply(g);
+  curling = true;
+  curlEnd = () => {
+    if (curlRaf) cancelAnimationFrame(curlRaf);
+    curlRaf = 0; curlEnd = null; curling = false; curlLast = 0;
+    curlHide(); cg = null;
+    if (curlA) { curlA.remove(); curlA = null; }
+    if (curlB) { curlB.remove(); curlB = null; }
+    curlWarm();
+  };
+  return g;
+}
+/* cuánto se ha pasado la hoja (0 = plana, 1 = pasada) */
+const curlProg = g => Math.max(0, Math.min(1, Math.abs(g.C[0] - g.F[0]) / (g.W * 1.6)));
+/* anima la esquina desde donde está hasta "to"; con lift, describe un arco (como al tirar de la esquina) */
+function curlRun(to, dur, done, lift) {
+  const g = cg, T0 = performance.now(), F0 = [g.F[0], g.F[1]];
+  const ease = u => u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  const up = g.C[1] === 0 ? 1 : -1;
   const frame = now => {
     if (cg !== g) return;
-    const k = dur > 0 ? Math.min(1, (now - T0) / dur) : 1, u = from + (to - from) * ease(k);
-    g.u = u; curlApply(g, u);
+    const k = dur > 0 ? Math.min(1, (now - T0) / dur) : 1, e = ease(k);
+    g.F[0] = F0[0] + (to[0] - F0[0]) * e;
+    g.F[1] = F0[1] + (to[1] - F0[1]) * e + (lift ? up * Math.sin(Math.PI * e) * g.H * lift : 0);
+    curlApply(g);
     if (k < 1) curlRaf = requestAnimationFrame(frame); else { curlRaf = 0; done(); }
   };
   curlRaf = requestAnimationFrame(frame);
 }
+const curlGone = g => [g.d > 0 ? -g.W : 2 * g.W, g.C[1]];
 function curl(d, n) {
-  if (!curlBegin(d, n)) { page = n; paint(); return; }
-  curlRun(0, 1, window.__LXDUR || 380, () => { if (curlEnd) curlEnd(); });
+  const g = curlBegin(d, n, tapY);
+  if (!g) { page = n; paint(); return; }
+  /* toque: la esquina se levanta un poco hacia dentro y la hoja pasa entera */
+  curlRun(curlGone(g), window.__LXDUR || 460, () => { if (curlEnd) curlEnd(); }, 0.16);
 }
-/* arrastre: el doblez sigue al dedo; al soltar, la hoja termina de pasar o vuelve */
-function curlDragMove(adx) {
+/* arrastre: la esquina sigue al dedo; al soltar, la hoja termina de pasar o vuelve */
+function curlDragMove(dx, dy) {
   const g = cg; if (!g) return;
-  g.u = Math.min(1, adx / (g.W * 0.78));
-  if (!dragRaf) dragRaf = requestAnimationFrame(() => { dragRaf = 0; if (cg === g) curlApply(g, g.u); });
+  g.F[0] = g.C[0] + dx;
+  g.F[1] = g.C[1] + dy * 0.9 + (g.C[1] === 0 ? 1 : -1) * Math.min(Math.abs(dx) * 0.12, g.H * 0.08);
+  if (!dragRaf) dragRaf = requestAnimationFrame(() => { dragRaf = 0; if (cg === g) curlApply(g); });
 }
 function curlSettle(commit) {
   const g = cg; if (!g) return;
   if (dragRaf) { cancelAnimationFrame(dragRaf); dragRaf = 0; }
   if (curlRaf) { cancelAnimationFrame(curlRaf); curlRaf = 0; }
   g.cancel = !commit;
-  const to = commit ? 1 : 0;
-  curlRun(g.u, to, Math.max(70, Math.abs(to - g.u) * 320), () => { if (curlEnd) curlEnd(); });
+  const pr = curlProg(g);
+  curlRun(commit ? curlGone(g) : [g.C[0], g.C[1]], Math.max(110, (commit ? 1 - pr : pr) * 420), () => { if (curlEnd) curlEnd(); });
 }
 
 /* ---------- marcadores ---------- */
@@ -725,7 +1075,8 @@ function selOffsets() {
   pre.selectNodeContents(col); pre.setEnd(r.startContainer, r.startOffset);
   const s = pre.toString().length, q = r.toString();
   if (!q.trim()) return null;
-  return { s, e: s + q.length, q: q.replace(/\s+/g, ' ').trim() };
+  const k = paras().findIndex(p => p.contains(r.startContainer));
+  return { s, e: s + q.length, q: q.replace(/\s+/g, ' ').trim(), k };
 }
 function onSelection() {
   if (!el || !el.classList.contains('on') || panelEl.classList.contains('on')) return;
@@ -742,7 +1093,9 @@ function dockSel() {
   dock(`${colorsRow('hl', null)}
     <button type="button" class="lx-dbtn" data-x="hlnote">${esc(T('note'))}</button>
     ${one ? `<button type="button" class="lx-dbtn" data-x="dict">${esc(T('dict'))}</button>` : ''}
-    <button type="button" class="lx-dbtn" data-x="copy">${esc(T('copy'))}</button>`);
+    <button type="button" class="lx-dbtn" data-x="tr">${esc(T('tr'))}</button>
+    <button type="button" class="lx-dbtn" data-x="copy">${esc(T('copy'))}</button>
+    ${(curBook() || {}).file2 && selInfo.k >= 0 ? `<button type="button" class="lx-lang lx-lang-in" data-x="lang" aria-label="${esc(T('swapHere'))}">${esc(langCode(ver))}</button>` : ''}`);
 }
 function addHl(c, note) {
   const b = curBook(); if (!b || !selInfo) return;
@@ -778,11 +1131,25 @@ function hideDock() { const d = dockEl; if (!d) return; if (tts && tts.on) { tts
 /* ---------- paneles ---------- */
 function panel(html) {
   const p = panelEl;
+  if (!p.classList.contains('on')) uiWas = el.classList.contains('ui');
   p.innerHTML = html;
   p.classList.add('on');
   hideMenu(); hideUi();
 }
-const closePanel = () => { const p = panelEl; p.classList.remove('on'); setTimeout(() => { if (!p.classList.contains('on')) p.innerHTML = ''; }, 200); };
+/* al volver de un panel (ajustes, índice…) las barras vuelven a estar como estaban */
+const closePanel = () => {
+  const p = panelEl; p.classList.remove('on');
+  if (uiWas) { uiWas = false; el.classList.add('ui'); trkW = trkEl.clientWidth || trkW; showProgress(gdone()); }
+  setTimeout(() => { if (!p.classList.contains('on')) p.innerHTML = ''; }, 200);
+};
+/* botón "atrás" de Android: primero cierra lo que esté abierto encima; si no hay nada, devuelve false para que cierre el libro */
+function back() {
+  if (!el || !el.classList.contains('on')) return false;
+  if (menuEl.classList.contains('on')) { hideMenu(); return true; }
+  if (panelEl.classList.contains('on')) { closePanel(); return true; }
+  if (dockEl.classList.contains('on') && (selInfo || hlEdit)) { const sl = getSelection(); if (sl) sl.removeAllRanges(); selInfo = null; hideDock(); return true; }
+  return false;
+}
 
 const when = ts => { try { return new Date(ts).toLocaleDateString(isEn() ? 'en' : 'es', { day: 'numeric', month: 'short' }); } catch (e) { return ''; } };
 const chLabel = i => { const ch = bk.toc.filter(x => x.i <= i).pop(); return (ch && ch.label) || t('lxChapter', i + 1, bk.spine.length); };
@@ -794,6 +1161,7 @@ function tocPanel(tab) {
   const cuRow = bk.toc.filter(x => x.i <= si).pop();
   const marks = ((b && b.marks) || []).filter(m => verOf(m) === ver).sort((a, z) => a.i - z.i || a.p - z.p);
   const hls = ((b && b.hl) || []).filter(h => verOf(h) === ver).sort((a, z) => a.i - z.i || a.s - z.s);
+  const lks = ((b && b.looks) || []).slice().sort((a, z) => z.ts - a.ts);
   let body;
   if (tocTab === 'ch') {
     body = bk.toc.length
@@ -802,14 +1170,91 @@ function tocPanel(tab) {
   } else if (tocTab === 'bm') {
     body = marks.length ? marks.map(m => `<div class="lx-irow"><button type="button" class="lx-item" data-go="${m.i}" data-pct="${m.p}">${esc(m.tx || '…')}<small>${esc(chLabel(m.i))} · ${esc(when(m.ts))}</small></button><button type="button" class="lx-rm" data-rmm="${m.id}" aria-label="${esc(T('del'))}">${I.x}</button></div>`).join('')
       : `<p class="lx-note">${esc(T('noMarks'))}</p>`;
+  } else if (tocTab === 'lk') {
+    body = lks.length ? lks.map(x => `<div class="lx-irow"><button type="button" class="lx-item" ${verOf(x) === ver ? `data-go="${x.i}" data-pct="${x.p}"` : ''}><span class="lx-lk ${x.k}">${esc(T(x.k === 't' ? 'kT' : 'kD'))}</span> ${esc(x.q)}<small>${esc(verOf(x) === ver ? chLabel(x.i) : langCode(verOf(x)))} · ${esc(when(x.ts))}</small></button><button type="button" class="lx-rm" data-relk="${x.id}" aria-label="${esc(T('again'))}">${I.find}</button><button type="button" class="lx-rm" data-rml="${x.id}" aria-label="${esc(T('del'))}">${I.x}</button></div>`).join('')
+      : `<p class="lx-note">${esc(T('noLooks'))}</p>`;
   } else {
     body = hls.length ? hls.map(h => `<div class="lx-irow"><button type="button" class="lx-item hl" data-go="${h.i}" data-hl="${h.id}"><span class="lx-q ${h.c}">${esc(h.q)}</span>${h.n ? `<em>${esc(h.n)}</em>` : ''}<small>${esc(chLabel(h.i))} · ${esc(when(h.ts))}</small></button><button type="button" class="lx-rm" data-rmh="${h.id}" aria-label="${esc(T('del'))}">${I.x}</button></div>`).join('')
       : `<p class="lx-note">${esc(T('noNotes'))}</p>`;
   }
   const tab2 = (k, lb, n) => `<button type="button" data-tab="${k}" aria-pressed="${tocTab === k}">${esc(lb)}${n ? ` <small>${n}</small>` : ''}</button>`;
   panel(`<div class="lx-phead"><button type="button" class="lx-ico" data-x="pclose">${I.back}</button><b>${esc(t('lxToc'))}</b></div>
-    <div class="lx-tabs">${tab2('ch', T('tabCh'))}${tab2('bm', T('tabMarks'), marks.length)}${tab2('hl', T('tabNotes'), hls.length)}</div>
+    <div class="lx-tabs">${tab2('ch', T('tabCh'))}${tab2('bm', T('tabMarks'), marks.length)}${tab2('hl', T('tabNotes'), hls.length)}${tab2('lk', T('tabLooks'), lks.length)}</div>
     <div class="lx-plist">${body}</div>`);
+}
+
+const fsize = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+function aboutPanel() {
+  const b = curBook(), m = bk.meta || {}, ref = b && (ver && b.file2 ? b.file2 : b.file);
+  const plain = h => { try { return (new DOMParser().parseFromString(h, 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim(); } catch (e) { return h; } };
+  const rows = [
+    ['aTitle', m.title], ['aAuthor', (m.creators || []).join(', ')], ['aPub', m.publisher], ['aLang', m.lang],
+    ['aDate', (m.date || '').slice(0, 10)], ['aId', (m.ids || []).join('\n')], ['aSubj', (m.subjects || []).join(', ')],
+    ['aDesc', plain(m.description || '')], ['aRights', m.rights], ['aVer', m.version], ['aCh', String(bk.spine.length)],
+    ['aFile', ref && ref.name], ['aSize', bk.size ? fsize(bk.size) : '']
+  ].filter(r => r[1]);
+  panel(`<div class="lx-phead"><button type="button" class="lx-ico" data-x="pclose">${I.back}</button><b>${esc(T('about'))}</b></div>
+    <div class="lx-plist lx-about"><div class="lx-cover" id="lxCov" hidden></div>${rows.length ? rows.map(([k, v]) => `<div class="lx-kv"><small>${esc(T(k))}</small><div>${esc(v)}</div></div>`).join('') : `<p class="lx-note">${esc(T('aNone'))}</p>`}</div>`);
+  aboutCover();
+}
+let covBlob = null, covName = 'cover.jpg';
+async function aboutCover() {
+  const box = $('#lxCov', el), it = bk.cover;
+  if (!box || !it) return;
+  try {
+    const raw = await bk.bin(it.href); if (!raw || !box.isConnected) return;
+    covBlob = new Blob([raw], { type: raw.type || MIME(it.href) });
+    covName = (((curBook() || {}).title || 'cover').replace(/[\\/:*?"<>|]+/g, ' ').trim().slice(0, 60) || 'cover') + '.' + ((it.href.split('.').pop() || 'jpg').toLowerCase());
+    const u = URL.createObjectURL(covBlob);
+    box.innerHTML = `<img alt="" src="${u}"><button type="button" class="lx-covdl" data-x="covsave" aria-label="${esc(T('covSave'))}">${I.dl}</button>`;
+    box.hidden = false;
+  } catch (e) {}
+}
+async function saveCover() {
+  if (!covBlob) return;
+  try {
+    const fo = API.FO && API.FO();
+    if (API.CAP && fo && fo.saveDownload) {
+      const b64 = await new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1] || ''); r.onerror = ko; r.readAsDataURL(covBlob); });
+      await fo.saveDownload({ name: covName, data: b64, mime: covBlob.type || 'image/jpeg' });
+    } else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(covBlob); a.download = covName; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 8000);
+    }
+    toast(T('covSaved'));
+  } catch (e) { toast(T('covBad')); }
+}
+async function shareFile() {
+  const b = curBook(), ref = b && (ver && b.file2 ? b.file2 : b.file);
+  if (!ref) return;
+  const fo = API.FO && API.FO();
+  try {
+    if (ref.uri) {
+      if (!fo) throw new Error('apk');
+      await fo.shareFile({ uri: ref.uri, type: ref.type || 'application/epub+zip', name: ref.name });
+      return;
+    }
+    const blob = await FS.get(ref), f = new File([blob], ref.name, { type: ref.type || 'application/epub+zip' });
+    if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = ref.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 8000);
+  } catch (e) {
+    const m = String(e && (e.message || e));
+    if (/cancel|abort/i.test(m)) return;
+    toast(T(/implement|not available|apk/i.test(m) ? 'needApk' : 'shareBad'));
+  }
+}
+let orientSet = false;
+async function toggleOrient() {
+  const fo = API.FO && API.FO();
+  if (!fo || !fo.setOrientation) { toast(T('needApk')); return; }
+  try { await fo.setOrientation({ mode: innerWidth > innerHeight ? 'portrait' : 'landscape' }); orientSet = true; }
+  catch (e) { toast(T('needApk')); }
+}
+function orientBack() {
+  if (!orientSet) return;
+  orientSet = false;
+  try { const fo = API.FO && API.FO(); if (fo && fo.setOrientation) fo.setOrientation({ mode: 'auto' }); } catch (e) {}
 }
 
 function findPanel() {
@@ -863,6 +1308,7 @@ async function runSearch(q) {
   box.innerHTML = found ? html : `<p class="lx-note">${esc(t('lxNoHits'))}</p>`;
 }
 
+const FGS = ['', '#111111', '#3a3a3a', '#4b3621', '#ffffff', '#e8e4dc', '#bdbdbd', '#e0c27a', '#a8c7a0', '#9db8d9', '#c9a6e3'];
 function setPanel() {
   const seg = (name, opts, val) => `<div class="lx-seg">${opts.map(([v, lb]) =>
     `<button type="button" data-set="${name}" data-v="${v}" aria-pressed="${String(val) === String(v)}">${esc(lb)}</button>`).join('')}</div>`;
@@ -872,23 +1318,32 @@ function setPanel() {
         ${[['light','#fdfcfa','#22202b'],['sepia','#f3e9d6','#3b3222'],['dark','#20202a','#ddd9e4'],['amoled','#000','#cfcbd6']]
           .map(([v,bg,fg])=>`<button type="button" data-set="theme" data-v="${v}" aria-pressed="${P.theme===v}" style="background:${bg};color:${fg}">Aa</button>`).join('')}
       </div></div>
+      <div class="lx-row"><span>${esc(T('lxFg'))}</span><div class="lx-fgs">
+        ${FGS.map(c => `<button type="button" data-set="fg" data-v="${c}" aria-pressed="${(P.fg || '') === c}" aria-label="${esc(c || T('fgAuto'))}" class="${c ? '' : 'auto'}" ${c ? `style="background:${c}"` : ''}>${c ? '' : 'A'}</button>`).join('')}
+      </div></div>
       <div class="lx-row"><span>${esc(t('lxSize'))}</span><div class="lx-range"><input type="range" id="lxFs" min="13" max="30" step="1" value="${P.fs}"><b id="lxFsV">${P.fs}</b></div></div>
       <div class="lx-row"><span>${esc(t('lxLine'))}</span><div class="lx-range"><input type="range" id="lxLh" min="12" max="22" step="1" value="${Math.round(P.lh*10)}"><b id="lxLhV">${P.lh.toFixed(1)}</b></div></div>
       <div class="lx-row"><span>${esc(t('lxMargin'))}</span><div class="lx-range"><input type="range" id="lxPd" min="10" max="46" step="2" value="${P.pad}"><b id="lxPdV">${P.pad}</b></div></div>
-      <div class="lx-row"><span>${esc(t('lxDim'))}</span><div class="lx-range"><input type="range" id="lxDimR" min="0" max="70" step="5" value="${P.dim||0}"><b id="lxDimV">${P.dim||0}%</b></div></div>
+      <div class="lx-row"><span>${esc(T('bright'))}</span><div class="lx-range"><input type="range" id="lxBrR" min="2" max="100" step="1" value="${Math.round((P.bright != null ? P.bright : (curBright != null ? curBright : 0.5)) * 100)}"><b id="lxBrV">${P.bright == null ? esc(T('brAuto')) : Math.round(P.bright * 100) + '%'}</b></div></div>
       <div class="lx-row"><span>${esc(T('lxMode'))}</span>${seg('mode',[['page',T('lxModePage')],['scroll',T('lxModeScroll')]],P.mode)}</div>
+      <div class="lx-row"><span>${esc(T('lxParas'))}</span>${seg('paras',[['indent',T('parInd')],['spaced',T('parSp')]],P.paras === 'spaced' ? 'spaced' : 'indent')}</div>
+      <div class="lx-row" id="lxColsRow"${P.mode === 'page' ? '' : ' hidden'}><span>${esc(T('lxCols'))}</span>${seg('cols',[['2',T('colsTwo')],['1',T('colsOne')]],String(P.cols) === '1' ? 1 : 2)}</div>
       <div class="lx-row" id="lxAnimRow"${P.mode === 'page' ? '' : ' hidden'}><span>${esc(t('lxAnim'))}</span>${seg('anim',[['slide',t('lxAnimSlide')],['curl',T('lxAnimCurl')],['fade',t('lxAnimFade')],['none',t('lxAnimNone')]],P.anim)}</div>
     </div>`);
   const bind = (id, out, fn) => {
     const r = $('#' + id, el); if (!r) return;
-    r.addEventListener('input', () => { fn(+r.value); applyPrefs(); $('#' + out, el).textContent = fn.label(+r.value); });
+    r.addEventListener('input', () => { ensureOff(); fn(+r.value); applyPrefs(); $('#' + out, el).textContent = fn.label(+r.value); });
     r.addEventListener('change', () => { savePrefs(); relayout(true); });
   };
   const mk = (f, l) => { f.label = l; return f; };
   bind('lxFs','lxFsV', mk(v => { P.fs = v; }, v => v));
   bind('lxLh','lxLhV', mk(v => { P.lh = v / 10; }, v => (v / 10).toFixed(1)));
   bind('lxPd','lxPdV', mk(v => { P.pad = v; }, v => v));
-  bind('lxDimR','lxDimV', mk(v => { P.dim = v; }, v => v + '%'));
+  const br = $('#lxBrR', el);
+  if (br) {
+    br.addEventListener('input', () => { setBright(br.value / 100); $('#lxBrV', el).textContent = br.value + '%'; });
+    br.addEventListener('change', savePrefs);
+  }
 }
 
 /* menú de "más" */
@@ -898,10 +1353,27 @@ function menu() {
   const items = [];
   items.push(tts && tts.on ? ['tts', T('stopListen')] : ['tts', T('listen')]);
   items.push(b && b.file2 ? ['delver', T('delVer')] : ['addver', T('addVer')]);
-  m.innerHTML = items.map(([a, lb]) => `<button type="button" data-x="m-${a}">${esc(lb)}</button>`).join('');
+  items.push(['mark', T('markAs') + ' ' + I.chev]);
+  items.push(['about', T('about')]);
+  items.push(['share', T('share')]);
+  m.innerHTML = items.map(([a, lb]) => a === 'mark' ? `<button type="button" class="lx-mk" data-x="m-mark"><span>${esc(T('markAs'))}</span>${I.chev}</button>` : `<button type="button" data-x="m-${a}">${esc(lb)}</button>`).join('');
   m.classList.add('on');
 }
 function hideMenu() { const m = menuEl; if (m) m.classList.remove('on'); }
+/* "Marcar como…": se cierra el menú de los tres puntos y se abre este panelito */
+const STS = [['unread', 'stUnread'], ['reading', 'stReading'], ['read', 'stRead'], ['dropped', 'stDropped']];
+function markMenu() {
+  const b = curBook(); if (!b) return;
+  const now = API.status ? API.status(b) : (API.isRead && API.isRead(b) ? 'read' : 'unread'), m = menuEl;
+  m.innerHTML = STS.map(([k, lb]) => `<button type="button" class="lx-mk${k === now ? ' cur' : ''}" data-x="mk-${k}"><span>${esc(T(lb))}</span>${k === now ? I.chk : ''}</button>`).join('');
+  m.classList.add('on');
+}
+function markAs(k) {
+  const b = curBook(); if (!b || !API.setStatus) return;
+  try { API.setStatus(b, k); } catch (e) { return; }
+  const f = STS.find(x => x[0] === k);
+  toast(T('markedAs', T(f[1])));
+}
 
 /* ---------- leer en voz alta ---------- */
 let tts = null;
@@ -960,7 +1432,7 @@ function ttsGo(k) {
     if (!tts || !tts.on || tts.tok !== my) return;
     if (j >= parts.length) return ttsGo(k + 1);
     const u = new SpeechSynthesisUtterance(parts[j++]);
-    u.lang = (bk.lang || (isEn() ? 'en' : 'es'));
+    u.lang = (bk.lbl || bk.lang || (isEn() ? 'en' : 'es'));
     u.rate = P.rate;
     u.onend = next;
     u.onerror = ev => { if (!ev || (ev.error !== 'interrupted' && ev.error !== 'canceled')) ttsStop(); };
@@ -1021,25 +1493,67 @@ function mapPara(al, from, i, k) {
   let j = 0; while (j < B.length - 1 && cB[j + 1] <= g) j++;
   return clamp(j, g - cB[j]);
 }
+const langCode = v => (((curBook() || {}).vl || [])[v] || (bks[v] && bks[v].lang) || (v ? 'B' : 'A')).toUpperCase();
+/* idioma de verdad: se mira el texto (los metadatos de muchos epub mienten o faltan) y solo si no se distingue se usa el metadato */
+const STOP = {
+  es: 'de la que el en y los se del las un por con no una su para es al lo como más pero sus le ya este sí porque esta entre cuando muy sin sobre también me hasta hay donde quien desde todo nos durante era fue había',
+  en: 'the of and to in that is was he for it with as his on be at by had not are but from or have an they which one you were her all she there would their we him been has when who will more if out so said what up its about into than them can only',
+  fr: 'de la le les et des en un du une que est pour qui dans ce il pas plus par sur se ne au avec son sont mais ou comme nous vous elle était',
+  pt: 'de que e o a do da em um para é com não uma os no se na por mais as dos como mas foi ao ele das tem seu sua ou ser quando muito havia',
+  it: 'di che e la il un per in è non una sono con le si da come ma del lo al più gli suo era',
+  de: 'der die und in den von zu das mit sich des auf für ist im dem nicht ein eine als auch es an werden aus er hat dass sie nach wird bei war',
+  ca: 'de la que el i en a els les un per amb no una és al es del com més però'
+};
+const STOPS = Object.keys(STOP).map(k => [k, new Set(STOP[k].split(' '))]);
+function detectLang(text) {
+  const w = (text.toLowerCase().match(/[a-záéíóúàèìòùâêîôûäëïöüçñãõß']+/g) || []);
+  if (w.length < 80) return '';
+  const sc = STOPS.map(([k, set]) => { let n = 0; for (const x of w) if (set.has(x)) n++; return [k, n / w.length]; }).sort((a, z) => z[1] - a[1]);
+  return sc[0][1] >= 0.1 && sc[0][1] >= sc[1][1] * 1.2 ? sc[0][0] : '';
+}
+async function sampleLang(b) {
+  const n = b.spine.length, tries = [Math.floor(n * 0.4), Math.floor(n * 0.6), 1, 2, Math.floor(n * 0.2)];
+  for (const i of tries) {
+    const it = b.spine[i]; if (!it || (b.w[i] || 0) < 2500) continue;
+    try {
+      const raw = await b.grab(it.href);
+      const txt = raw.replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ');
+      const lg = detectLang(txt.slice(0, 9000)); if (lg) return lg;
+    } catch (e) {}
+  }
+  return '';
+}
+async function labelVers() {
+  const b = curBook(); if (!b) return;
+  const vl = (b.vl || []).slice(0, 2);
+  for (const v of b.file2 ? [0, 1] : [0]) {
+    if (!bks[v] && vl[v] == null) { try { await openVersion(v); } catch (e) { continue; } }
+    const k = bks[v]; if (!k) continue;
+    if (k.lbl === undefined) k.lbl = (await sampleLang(k)) || (k.lang || '');
+    vl[v] = k.lbl;
+  }
+  if (!b.file2) { if (b.vl) { delete b.vl; try { save(); } catch (e) {} } return; }
+  if (JSON.stringify(vl) !== JSON.stringify(b.vl || [])) { b.vl = vl; try { save(); } catch (e) {} }
+  paintLang();
+}
 function paintLang() {
   const b = curBook(), btn = langEl;
   if (!btn) return;
   btn.hidden = !(b && b.file2);
   if (b && b.file2) {
-    const code = v => ((bks[v] && bks[v].lang) || (v ? 'B' : 'A')).toUpperCase();
-    btn.textContent = code(ver);
-    btn.setAttribute('aria-label', code(1 - ver));
+    btn.textContent = langCode(ver);
+    btn.setAttribute('aria-label', langCode(1 - ver));
   }
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-async function switchVer() {
+async function switchVer(anchor) {
   const b = curBook();
   if (!b || !b.file2 || busy) return;
   const to = 1 - ver, move = moveEl;
   ttsStop();
   let al;
   try { al = await getAlign(); await openVersion(to); } catch (e) { toast(T('verBad')); return; }
-  const m = mapPara(al, ver, si, topPara());
+  const m = mapPara(al, ver, si, anchor != null && anchor >= 0 ? anchor : topPara());
   writePos();
   move.style.transition = 'opacity .2s linear'; move.style.opacity = '0';
   await sleep(200);
@@ -1050,6 +1564,20 @@ async function switchVer() {
   move.style.transition = ''; move.style.opacity = '';
   paintLang();
   writePos();
+  flashPara(m.k);
+}
+/* resalta en morado la primera línea del párrafo al que se ha saltado */
+function flashPara(k) {
+  const e = paras()[k]; if (!e || !el) return;
+  const rg = document.createRange(); rg.selectNodeContents(e);
+  const ln = rg.getClientRects()[0], fr = e.getClientRects()[0];
+  if (!ln || !fr) return;
+  const root = el.getBoundingClientRect();
+  const d = document.createElement('div');
+  d.className = 'lx-flash';
+  d.style.cssText = `left:${(fr.left - root.left - 4).toFixed(1)}px;top:${(ln.top - root.top - 1).toFixed(1)}px;width:${(fr.width + 8).toFixed(1)}px;height:${(ln.height + 2).toFixed(1)}px`;
+  el.appendChild(d);
+  setTimeout(() => d.remove(), 1700);
 }
 function pickWeb() {
   return new Promise((ok, ko) => {
@@ -1082,6 +1610,7 @@ async function addVersion() {
   }
   try { save(); } catch (e) {}
   paintLang();
+  labelVers();
   toast(T('verAdded'));
 }
 async function delVersion() {
@@ -1089,7 +1618,7 @@ async function delVersion() {
   if (ver === 1) await switchVer();
   FS.del(b.file2);
   idbPut(alKey(b), null);
-  delete b.file2; bks[1] = null;
+  delete b.file2; delete b.vl; bks[1] = null;
   b.marks = (b.marks || []).filter(m => verOf(m) === 0); if (!b.marks.length) delete b.marks;
   b.hl = (b.hl || []).filter(h => verOf(h) === 0); if (!b.hl.length) delete b.hl;
   try { save(); } catch (e) {}
@@ -1107,15 +1636,21 @@ function onTap(e) {
     if (s.dataset.set === 'mode') {
       const f = frac(); applyPrefs();
       const ar = $('#lxAnimRow', el); if (ar) ar.hidden = P.mode !== 'page';
+      const cr = $('#lxColsRow', el); if (cr) cr.hidden = P.mode !== 'page';
       relayout(false); gotoFrac(f);
     } else applyPrefs();
     if (s.dataset.set === 'anim') curlWarm();
+    if (s.dataset.set === 'cols' || s.dataset.set === 'paras') { ensureOff(); relayout(true); }
     return;
   }
   const tb = e.target.closest('[data-tab]');
   if (tb) return tocPanel(tb.dataset.tab);
   const rm = e.target.closest('[data-rmm]');
   if (rm) { const b = curBook(); b.marks = b.marks.filter(m => m.id !== rm.dataset.rmm); if (!b.marks.length) delete b.marks; try { save(); } catch (e2) {} paintBm(); return tocPanel('bm'); }
+  const rl = e.target.closest('[data-rml]');
+  if (rl) { const b = curBook(); b.looks = (b.looks || []).filter(x => x.id !== rl.dataset.rml); if (!b.looks.length) delete b.looks; try { save(); } catch (e2) {} return tocPanel('lk'); }
+  const rk = e.target.closest('[data-relk]');
+  if (rk) { const x = ((curBook() || {}).looks || []).find(z => z.id === rk.dataset.relk); if (x) lookUp(x.q, x.k); return; }
   const rh = e.target.closest('[data-rmh]');
   if (rh) { const b = curBook(); b.hl = b.hl.filter(h => h.id !== rh.dataset.rmh); if (!b.hl.length) delete b.hl; try { save(); } catch (e2) {} repaintHl(); return tocPanel('hl'); }
   const g = e.target.closest('[data-go]');
@@ -1127,7 +1662,7 @@ function onTap(e) {
       /* un subrayado se ubica por su posición en el texto del capítulo */
       if (h) pct = null, para = { s: h.s };
     }
-    closePanel();
+    uiWas = false; closePanel();
     if (para) return showAtOffset(+g.dataset.go, para.s);
     show(+g.dataset.go, { pct }); return;
   }
@@ -1135,6 +1670,7 @@ function onTap(e) {
   if (!x) { hideMenu(); return; }
   const a = x.dataset.x;
   if (a !== 'more') hideMenu();
+  if (a.slice(0, 3) === 'mk-') return markAs(a.slice(3));
   switch (a) {
     case 'close': return close();
     case 'pclose': return closePanel();
@@ -1145,11 +1681,16 @@ function onTap(e) {
     case 'next': return go(1);
     case 'bm': return toggleBm();
     case 'more': return menu();
-    case 'lang': return switchVer();
+    case 'lang': { const k = selInfo && selInfo.k >= 0 ? selInfo.k : null; if (k != null) { const sl = getSelection(); if (sl) sl.removeAllRanges(); selInfo = null; hideDock(); } return switchVer(k); }
     case 'chprev': return show(si - 1);
     case 'chnext': return show(si + 1);
     case 'm-tts': return tts && tts.on ? ttsStop() : ttsStart();
     case 'm-addver': return addVersion();
+    case 'm-mark': hideMenu(); return setTimeout(markMenu, 130);
+    case 'covsave': return saveCover();
+    case 'm-about': hideMenu(); return aboutPanel();
+    case 'm-share': hideMenu(); return shareFile();
+    case 'orient': return toggleOrient();
     case 'm-delver': return delVersion();
     case 'tpause': if (!tts) return; if (tts.paused) { tts.paused = false; ttsGo(tts.k); } else { tts.paused = true; tts.tok++; try { synth().cancel(); } catch (e2) {} ttsDock(); } return;
     case 'trate': { const rs = [0.8, 1, 1.25, 1.5, 2]; P.rate = rs[(rs.indexOf(P.rate) + 1) % rs.length]; savePrefs(); if (tts && !tts.paused) ttsGo(tts.k); else ttsDock(); return; }
@@ -1167,6 +1708,7 @@ function onTap(e) {
     }
     case 'relink': { const b = curBook(); return API.relink(b).then(ok => { if (ok) open(curBook()); }); }
     case 'dict': return dictionary();
+    case 'tr': return translate();
     case 'copy': return copySel();
   }
 }
@@ -1175,20 +1717,68 @@ async function showAtOffset(i, off) {
   const len = Math.max(1, (colEl.textContent || '').length);
   gotoFrac(off / len);
 }
-/* El diccionario es el del teléfono: se le pasa la palabra por el menú de compartir
-   (muchas apps de diccionario y traducción aparecen ahí) y, si no se puede, se copia. */
-async function dictionary() {
-  const so = selInfo; if (!so) return;
-  const word = so.q.replace(/^[\W_]+|[\W_]+$/g, '');
-  try {
-    if (API.CAP && API.CAP.Share) { await API.CAP.Share.share({ text: word, dialogTitle: T('dict') }); return; }
-    if (navigator.share) { await navigator.share({ text: word }); return; }
-  } catch (e) { if (/cancel|abort/i.test(String(e && (e.message || e.name)))) return; }
-  copyText(word);
+/* Diccionario y traductor: Android muestra las apps del teléfono que aceptan "procesar texto";
+   con "traducir" solo salen los traductores y con "diccionario" el resto. Cada búsqueda queda guardada en el libro. */
+async function lookUp(q, kind) {
+  const text = kind === 'd' ? q.replace(/^[\W_]+|[\W_]+$/g, '') : q.replace(/\s+/g, ' ').trim();
+  if (!text) return;
+  addLook(text, kind);
+  const fo = API.FO && API.FO();
+  if (fo && fo.lookup) {
+    try { await fo.lookup({ text, mode: kind === 't' ? 'translate' : 'define' }); return; }
+    catch (e) {
+      const m = String(e && (e.message || e));
+      if (/cancel|abort/i.test(m)) return;
+      copyText(text, true);
+      toast(T(/no_app/i.test(m) ? (kind === 't' ? 'noTr' : 'noDict') : /implement|not available/i.test(m) ? 'needApk' : 'copied'));
+      return;
+    }
+  }
+  copyText(text);
 }
-function copyText(s) {
-  try { navigator.clipboard.writeText(s).then(() => toast(T('copied'))); }
-  catch (e) { try { document.execCommand('copy'); toast(T('copied')); } catch (e2) {} }
+function addLook(q, k) {
+  const b = curBook(); if (!b) return;
+  const [a] = viewRange();
+  const key = norm(q);
+  const old = (b.looks || []).find(x => x.k === k && norm(x.q) === key);
+  b.looks = (b.looks || []).filter(x => x !== old);
+  b.looks.push({ id: old ? old.id : 'l' + Date.now().toString(36), q: q.slice(0, 160), k, i: si, p: +a.toFixed(4), ts: Date.now(), ...(ver ? { v: 1 } : {}) });
+  if (b.looks.length > 300) b.looks = b.looks.slice(-300);
+  try { save(); } catch (e) {}
+}
+function dictionary() { if (selInfo) lookUp(selInfo.q, 'd'); }
+function translate() { if (selInfo) lookUp(selInfo.q, 't'); }
+
+/* ---------- brillo de la pantalla (real, vía Android; en el navegador se simula con una capa oscura) ---------- */
+let curBright = null, brRaf = 0, brPillT = 0;
+const nativeBr = () => !!(API.CAP && API.FO && API.FO());
+const brightNow = () => P.bright != null ? P.bright : (curBright != null ? curBright : 0.5);
+async function startBright() {
+  if (nativeBr()) {
+    try { const fo = API.FO(); if (P.bright != null) await fo.brightness({ value: P.bright }); const r = await fo.brightness({}); if (r && typeof r.value === 'number' && P.bright == null) curBright = r.value; }
+    catch (e) {}
+  }
+  applyPrefs();
+}
+function setBright(v, pill) {
+  P.bright = v;
+  if (nativeBr()) {
+    if (!brRaf) brRaf = requestAnimationFrame(() => { brRaf = 0; try { API.FO().brightness({ value: P.bright == null ? -1 : P.bright }).catch(() => {}); } catch (e) {} });
+  } else applyPrefs();
+  if (pill) {
+    const b = $('#lxBpill', el); if (!b) return;
+    b.textContent = '☀ ' + Math.round(v * 100) + '%'; b.classList.add('on');
+    clearTimeout(brPillT); brPillT = setTimeout(() => b.classList.remove('on'), 900);
+  }
+}
+function brightBack() {
+  if (P.bright == null || !nativeBr()) return;
+  try { API.FO().brightness({ value: -1 }).catch(() => {}); } catch (e) {}
+}
+function copyText(s, quiet) {
+  const ok = () => { if (!quiet) toast(T('copied')); };
+  try { navigator.clipboard.writeText(s).then(ok, () => {}); }
+  catch (e) { try { document.execCommand('copy'); ok(); } catch (e2) {} }
 }
 function copySel() { if (selInfo) copyText(selInfo.q); }
 
@@ -1212,6 +1802,7 @@ function lockPage(on) {
 }
 function close() {
   clearTimeout(posT);
+  orientBack(); brightBack();
   lockPage(false);
   ttsStop();
   if (bk) writePos();
@@ -1237,12 +1828,12 @@ function loadErr(e) {
 /* ---------- entrada pública ---------- */
 async function open(b) {
   if (!el) build();
-  cur = b.id;
+  cur = b.id; openedAt = performance.now();
   const p0 = b.pos && typeof b.pos.i === 'number' ? b.pos : { i: 0, p: 0 };
   ver = p0.v === 1 && b.file2 ? 1 : 0;
   bks = [null, null]; selInfo = null; hlEdit = null; finAsked = false;
   applyPrefs();
-  titleEl.textContent = b.title || '';
+  titleEl.textContent = b.title || ''; authEl.textContent = b.author || ''; chapEl.textContent = '';
   colEl.innerHTML = '';
   loadEl.hidden = false;
   loadEl.textContent = t('lxLoading');
@@ -1256,8 +1847,11 @@ async function open(b) {
   }
   loadEl.hidden = true;
   paintLang();
-  await show(Math.min(p0.i, bk.spine.length - 1), { pct: p0.p || 0 });
+  await show(Math.min(p0.i, bk.spine.length - 1), { pct: p0.p || 0, noSkip: p0.i > 0 || p0.p > 0 });
+  openedAt = performance.now();
+  startBright();
+  setTimeout(labelVers, 1200);
 }
 
-window.__LECTOR__ = { open, close, isOpen: () => !!(el && el.classList.contains('on')) };
+window.__LECTOR__ = { open, close, back, isOpen: () => !!(el && el.classList.contains('on')) };
 })();
