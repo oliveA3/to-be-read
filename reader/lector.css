@@ -67,11 +67,19 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 /* opción "separados": hueco entre párrafos, sin sangría */
 .lx-col.lx-sp p{margin:0 0 var(--lx-ln);text-indent:0}
 .lx-col :is(h1,h2,h3,h4,h5,h6){font-size:1.18em;font-weight:700;line-height:var(--lx-ln);margin:var(--lx-ln) 0;break-after:avoid}
-.lx-col img,.lx-col svg{max-width:100%;height:auto;display:block;margin:calc(var(--lx-ln) * .5) auto;object-fit:contain;max-height:var(--lx-ch,none);width:auto;break-inside:avoid!important}
+.lx-col img,.lx-col svg{max-width:100%;height:auto;display:block;margin:0 auto;object-fit:contain;max-height:calc(var(--lx-ch,100vh) - 4px);width:auto;break-inside:avoid!important}
 .lx-col svg:not([width]){width:100%}
 /* los saltos de página del epub no se respetan; los párrafos se parten donde acaba la pantalla (con guion si hace falta) */
 .lx-col *{break-inside:auto;break-before:auto!important;break-after:auto!important;page-break-before:auto!important;page-break-after:auto!important;page-break-inside:auto!important}
-.lx-col p,.lx-col div,.lx-col li,.lx-col blockquote{orphans:1;widows:1;break-inside:auto!important}
+.lx-col,.lx-col *{orphans:1;widows:1}
+.lx-col p,.lx-col div,.lx-col li,.lx-col blockquote{break-inside:auto!important}
+.lx-col :is(p,div,li,dd,dt,blockquote,figcaption,pre,td,th,section,article,header,footer,aside,nav,center,address,figure,dl,ul,ol){line-height:var(--lx-ln)}
+/* lo que va dentro de una línea (cursivas, llamadas de nota, versalitas…) no puede hacer más alta la línea:
+   si no, esa página lleva un renglón menos y el párrafo no se parte donde toca */
+.lx-col :is(span,a,b,i,em,strong,small,big,font,u,s,code,tt,abbr,cite,q,var,kbd,samp,del,ins,label,dfn,time){line-height:0}
+.lx-col :is(sup,sub){line-height:0;vertical-align:baseline;position:relative;font-size:.72em}
+.lx-col sup{top:-.45em}
+.lx-col sub{top:.22em}
 .lx-col :is(h1,h2,h3,h4,h5,h6){break-after:avoid!important}
 .lx-col img,.lx-col svg{break-inside:avoid!important}
 .lx-col blockquote{margin:var(--lx-ln) 1.2em;color:var(--lx-soft)}

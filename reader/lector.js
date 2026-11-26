@@ -165,6 +165,7 @@ async function openEpub(blob) {
   const idx = new Map(spine.map((s, i) => [s.href, i]));
   toc.forEach(x => { x.i = idx.has(x.href) ? idx.get(x.href) : -1; });
   toc = toc.filter(x => x.i >= 0);
+  toc.forEach(x => { if (junkLabel(x.label)) x.junk = true; });
 
   const all = n => [...opf.getElementsByTagNameNS('*', n)].map(e => e.textContent.trim()).filter(Boolean);
   /* tamaño de cada hoja del lomo: sirve para repartir el progreso del libro (si no se sabe, todas pesan igual) */
@@ -189,7 +190,12 @@ async function bodyOf(b, item) {
   if (!doc || doc.getElementsByTagName('parsererror').length) doc = new DOMParser().parseFromString(raw, 'text/html');
   const body = doc.body || doc.querySelector('body');
   if (!body) return null;
-  body.querySelectorAll('script,style,link,iframe,object,embed,audio,video,form,input,button').forEach(n => n.remove());
+  body.querySelectorAll('script,style,link,iframe,object,embed,audio,video,form,input,button,noscript,template').forEach(n => n.remove());
+  /* lo que el libro esconde (hidden, display:none) también se quita: al no cargar sus estilos, saldría a la vista
+     (típico: la misma portada otra vez en pequeño, o un marcador para lectores antiguos) */
+  body.querySelectorAll('[hidden],[style]').forEach(n => {
+    if (n.hasAttribute('hidden') || /display\s*:\s*none|visibility\s*:\s*hidden/i.test(n.getAttribute('style') || '')) n.remove();
+  });
   body.querySelectorAll('*').forEach(n => {
     [...n.attributes].forEach(a => {
       const an = a.name.toLowerCase();
@@ -225,6 +231,24 @@ async function chapterHtml(b, item, vid) {
       if (im.tagName.toLowerCase() === 'image') { im.removeAttribute('xlink:href'); im.setAttribute('href', u); }
       else { im.setAttribute('src', u); im.removeAttribute('xlink:href'); im.removeAttribute('href'); im.removeAttribute('srcset'); }
     } catch (e) { im.remove(); }
+  }
+  /* la misma imagen dos veces seguidas, sin texto en medio (grande y otra vez pequeña debajo): se deja una sola */
+  const seen = [...body.querySelectorAll('img,image')].filter(x => x.isConnected);
+  let prev = null;
+  for (const im of seen) {
+    const u = im.getAttribute('src') || im.getAttribute('href');
+    if (prev && prev.u === u && im.isConnected && prev.el.isConnected) {
+      let gap = '';
+      try { const r = body.ownerDocument.createRange(); r.setStartAfter(prev.el); r.setEndBefore(im); gap = r.toString().replace(/\s|&nbsp;|\u00a0/g, ''); } catch (e) { gap = 'x'; }
+      if (!gap) {
+        let rm = im;
+        while (rm.parentElement && rm.parentElement !== body && !rm.parentElement.contains(prev.el) && rm.parentElement.children.length === 1 && !rm.parentElement.textContent.trim()) rm = rm.parentElement;
+        const svg = im.closest('svg');
+        if (svg && !svg.contains(prev.el) && svg.querySelectorAll('image').length === 1) rm = svg.parentElement && svg.parentElement !== body && !svg.parentElement.contains(prev.el) && svg.parentElement.children.length === 1 && !svg.parentElement.textContent.trim() ? svg.parentElement : svg;
+        rm.remove(); continue;
+      }
+    }
+    prev = { u, el: im };
   }
   body.querySelectorAll('a').forEach(a => a.removeAttribute('href'));
   return body.innerHTML;
@@ -366,6 +390,7 @@ function build() {
   });
   let rzT = 0;
   addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => relayout(true), 120); });
+  try { if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (el && el.classList.contains('on') && bk && !busy) { ensureOff(); relayout(true); } }); } catch (e) {}
 }
 
 /* barras superior e inferior: ocultas mientras lees */
@@ -408,15 +433,38 @@ function viewRange() {
 /* El texto se reparte en columnas del ancho de la pantalla y se avanza
    moviendo el carro. Es la forma más barata de paginar: el navegador hace
    el reparto una vez y pasar página es solo un transform. */
+/* Holgura (px) del alto útil: los renglones se colocan con decimales y, tras muchos, el redondeo puede
+   sumar algún píxel; sin esto el último renglón saltaría a la página siguiente y quedaría un hueco. */
+const SLACK = 3;
+/* Las imágenes ocupan un número entero de renglones (con el hueco repartido arriba y abajo).
+   Si no, todo lo que va después en esa página queda descuadrado; y una imagen a la que no le cabe
+   el margen se "parte" entre dos páginas y parece que sale doble. */
+function snapImgs(lhp, ch) {
+  const ims = [...colEl.querySelectorAll('img,svg')].filter(x => x.tagName.toLowerCase() === 'svg' || !x.closest('svg'));
+  ims.forEach(x => { x.style.marginTop = ''; x.style.marginBottom = ''; });
+  if (!lhp || !ims.length) return;
+  const hs = ims.map(x => x.getBoundingClientRect().height);
+  ims.forEach((x, k) => {
+    const h = hs[k];
+    if (!(h > 0)) return;
+    let tot = Math.ceil(h / lhp - 0.02) * lhp;
+    if (tot > ch) tot = h;               /* la imagen llena la página: sin márgenes */
+    const ex = Math.max(0, tot - h);
+    x.style.marginTop = (ex / 2) + 'px'; x.style.marginBottom = (ex / 2) + 'px';
+  });
+}
 function relayout(keepPct) {
   if (!el || !cur || !bk) return;
-  if (chapDone) chapDone();
+  /* solo se corta una animación de capítulo si el relayout viene de fuera (girar, ajustes),
+     no del propio show() que está cargando el capítulo nuevo debajo de la foto */
+  if (chapDone && !busy) chapDone();
   curlDrop();
   const wrap = wrapEl, col = colEl;
   applyPrefs();
   if (P.mode === 'scroll') {
     const f = keepPct === true ? frac() : null;
     col.style.width = ''; col.style.columnWidth = ''; col.style.columnCount = ''; col.style.paddingBottom = ''; col.style.removeProperty('--lx-ch');
+    snapImgs(0, 0);
     pages = 1; page = 0; colsNow = 1;
     moveEl.style.transform = '';
     if (f != null) wrap.scrollTop = f * wrap.scrollHeight;
@@ -444,10 +492,12 @@ function relayout(keepPct) {
   if (res > 0.05) {
     const up = res > lhp * 0.7 && pb - (lhp - res) >= 26;
     /* medio píxel de más: justo lo que falta para que el último renglón no se vaya a la página siguiente */
-    col.style.paddingBottom = Math.max(0, pb + (up ? res - lhp : res) - 0.5) + 'px';
+    col.style.paddingBottom = Math.max(0, pb + (up ? res - lhp : res) - SLACK) + 'px';
   }
   cs = getComputedStyle(col);
-  col.style.setProperty('--lx-ch', Math.max(80, wrap.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)) + 'px');
+  const chpx = Math.max(80, wrap.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom));
+  col.style.setProperty('--lx-ch', chpx + 'px');
+  snapImgs(lhp, chpx - SLACK);
   pages = Math.max(1, Math.round((col.scrollWidth + P.pad) / w));
   if (off != null) { const pg = pageOfOff(off); page = pg != null ? pg : Math.min(pages - 1, Math.round((pct || 0) * pages)); }
   else if (pct != null) page = Math.min(pages - 1, Math.round(pct * pages));
@@ -458,29 +508,65 @@ function relayout(keepPct) {
 let lastBm = null, drag = null, curOff = null, anchorT = 0;
 const ensureOff = () => { if (curOff == null) curOff = anchorOff(); };
 /* posición (en caracteres) de lo primero que se lee en pantalla: sobrevive a cambios de letra, giro o imágenes que cargan */
+/* Ancla de la página: cuántos caracteres del capítulo hay antes del primero que se ve.
+   Se calcula con la posición de cada texto DENTRO de la columna (no con lo que hay bajo un punto de la
+   pantalla), así sale bien aunque la página aún se esté deslizando o doblando. */
+const pageOfRect = (r, cr, ww) => Math.floor((r.left - cr.left) / ww + 0.001);
+function colTexts() {
+  const out = [], w = document.createTreeWalker(colEl, NodeFilter.SHOW_TEXT);
+  let n; while ((n = w.nextNode())) if (n.nodeValue.length) out.push(n);
+  return out;
+}
+function nodePages(n, cr, ww) {
+  const rg = document.createRange(); rg.selectNodeContents(n);
+  const rs = [...rg.getClientRects()].filter(r => r.width > 0 || r.height > 0);
+  if (!rs.length) return null;
+  return [pageOfRect(rs[0], cr, ww), pageOfRect(rs[rs.length - 1], cr, ww)];
+}
 function anchorOff() {
   if (P.mode === 'scroll' || !colEl.firstChild) return null;
   try {
-    const wr = wrapEl.getBoundingClientRect(), cs = getComputedStyle(colEl);
-    const x = wr.left + parseFloat(cs.paddingLeft) + 3, y = wr.top + parseFloat(cs.paddingTop) + (parseFloat(cs.lineHeight) || 24) / 2;
-    const rg = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
-    if (!rg || !colEl.contains(rg.startContainer)) return null;
-    const pre = document.createRange(); pre.selectNodeContents(colEl); pre.setEnd(rg.startContainer, rg.startOffset);
-    return pre.toString().length;
+    const cr = colEl.getBoundingClientRect(), ww = wrapEl.clientWidth;
+    if (!ww) return null;
+    if (page <= 0) return 0;
+    const ns = colTexts();
+    /* primer texto que acaba en esta página o más allá */
+    let lo = 0, hi = ns.length - 1, at = -1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1, pg = nodePages(ns[mid], cr, ww);
+      if (pg && pg[1] >= page) { at = mid; hi = mid - 1; }
+      else if (!pg) {
+        /* texto sin caja (espacios entre bloques): se mira el siguiente que sí tenga */
+        let k = mid + 1, q = null; while (k <= hi && !(q = nodePages(ns[k], cr, ww))) k++;
+        if (q && q[1] >= page) { at = k; hi = mid - 1; } else lo = k + 1;
+      } else lo = mid + 1;
+    }
+    if (at < 0) return null;
+    let acc = 0; for (let k = 0; k < at; k++) acc += ns[k].nodeValue.length;
+    const n = ns[at], len = n.nodeValue.length, rg = document.createRange();
+    /* dentro del texto: primer carácter que cae en esta página */
+    let a = 0, b = len - 1, first = 0;
+    while (a <= b) {
+      const m = (a + b) >> 1; rg.setStart(n, m); rg.setEnd(n, m + 1);
+      const r = [...rg.getClientRects()].find(x => x.width > 0 || x.height > 0);
+      if (r && pageOfRect(r, cr, ww) >= page) { first = m; b = m - 1; } else a = m + 1;
+    }
+    return acc + first;
   } catch (e) { return null; }
 }
 function pageOfOff(off) {
   try {
+    const cr = colEl.getBoundingClientRect(), ww = wrapEl.clientWidth;
     const w = document.createTreeWalker(colEl, NodeFilter.SHOW_TEXT);
     let n, acc = 0;
     while ((n = w.nextNode())) {
       const l = n.nodeValue.length;
-      if (acc + l >= off) {
-        const rg = document.createRange(), k = Math.min(l, off - acc);
+      if (acc + l > off || (acc + l === off && l)) {
+        const rg = document.createRange(), k = Math.max(0, Math.min(l - 1, off - acc));
         rg.setStart(n, k); rg.setEnd(n, Math.min(l, k + 1));
-        const r = rg.getClientRects()[0] || rg.getBoundingClientRect();
-        const wr = wrapEl.getBoundingClientRect(), ww = wrapEl.clientWidth;
-        return Math.max(0, Math.min(pages - 1, Math.floor((r.left - wr.left + page * ww) / ww + 0.001)));
+        const r = [...rg.getClientRects()].find(x => x.width > 0 || x.height > 0);
+        if (!r) { acc += l; continue; }
+        return Math.max(0, Math.min(pages - 1, pageOfRect(r, cr, ww)));
       }
       acc += l;
     }
@@ -609,12 +695,17 @@ let posT = null;
 function savePos() {
   clearTimeout(posT);
   /* guardar toda la biblioteca en cada página sería pesado: se espera a que dejes de pasar páginas */
-  posT = setTimeout(writePos, 5000);
+  posT = setTimeout(writePos, 1200);
 }
 function writePos() {
   const b = curBook();
   if (!b || !bk) return;
   b.pos = { i: si, p: +frac().toFixed(4) };
+  /* ancla: el carácter con el que empieza la página. Al volver a abrir (con otra altura de pantalla,
+     otra barra del sistema…) se vuelve a esa misma frase y no a "la página 7", que puede ser otra */
+  let off = null;
+  if (P.mode === 'page') { off = curOff != null ? curOff : anchorOff(); }
+  if (off != null && off >= 0 && isFinite(off)) b.pos.o = Math.round(off);
   if (ver === 1) b.pos.v = 1;
   try { save(); } catch (e) {}
 }
@@ -690,9 +781,10 @@ async function show(i, o) {
   const pend = [...col.querySelectorAll('img')].filter(i => !i.complete);
   if (pend.length) await Promise.race([Promise.all(pend.map(i => new Promise(r => { i.onload = i.onerror = r; }))), sleep(1800)]);
   relayout();
-  if (o.para != null) gotoPara(o.para);
+  if (o.para != null) { if (o.pf != null) goPoint(o.para, o.pf); else gotoPara(o.para); }
   else if (o.end) gotoFrac(1);
   else if (o.pct != null && o.pct > 0) gotoFrac(o.pct, o.near);
+  if (o.off != null && P.mode === 'page') { const pg = pageOfOff(o.off); if (pg != null) { page = pg; paint(); } }
   void move.offsetWidth;
   move.style.transition = prevTr;
   const ch = bk.toc.filter(x => x.i <= si).pop();
@@ -1165,18 +1257,39 @@ function back() {
 const when = ts => { try { return new Date(ts).toLocaleDateString(isEn() ? 'en' : 'es', { day: 'numeric', month: 'short' }); } catch (e) { return ''; } };
 const chLabel = i => { const ch = bk.toc.filter(x => x.i <= i).pop(); return (ch && ch.label) || t('lxChapter', i + 1, bk.spine.length); };
 
+/* Entradas del índice que no son parte del libro: derechos, créditos, portada, "índice" dentro del índice…
+   Se esconden de la lista de capítulos (el libro sigue teniéndolas y se pueden pasar de página). */
+const JUNK = /^\s*(?:©\s*)?(?:copyright|copy\s*right|derechos(?:\s+de\s+autor)?|todos\s+los\s+derechos|all\s+rights|aviso\s+legal|legal(?:\s+(?:notice|page|information|disclaimer))?|p[aá]gina\s+legal|licen[cs]e|licencia|colof[oó]n|colophon|imprint|cr[eé]ditos?(?:\s+de\s+(?:la\s+)?edici[oó]n)?|credits?|ficha\s+t[eé]cnica|isbn|cover(?:\s+page)?|portada|portadilla|contraportada|back\s+cover|title\s+page|half[\s-]?title|p[aá]gina\s+de\s+t[ií]tulo|t[ií]tulo|table\s+of\s+contents|contents|[ií]ndice|tabla\s+de\s+contenidos?|contenido|about\s+(?:the\s+)?publisher|sobre\s+(?:la|el)\s+editor(?:ial)?|also\s+by|otros\s+(?:t[ií]tulos|libros)\s+de.*|more\s+books\s+by.*|newsletter|ebook\s+edition|edici[oó]n\s+digital|nota\s+legal|publisher|editorial)\s*\.?\s*$/i;
+const junkLabel = lb => JUNK.test(String(lb || '').replace(/\s+/g, ' '));
+/* pistas dentro de la propia hoja: una hoja corta con © o "todos los derechos reservados" no es un capítulo */
+const LEGAL = /©|\bcopyright\b|all\s+rights\s+reserved|todos\s+los\s+derechos|derechos\s+reservados|\bisbn\b|reservados\s+todos/i;
+async function markJunk(b) {
+  if (!b || b.junkDone) return;
+  b.junkDone = true;
+  let changed = false;
+  for (const x of b.toc) {
+    if (x.junk || (b.w[x.i] || 0) > 9000) continue;
+    try {
+      const raw = await b.grab(b.spine[x.i].href);
+      const txt = raw.replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]*>/g, ' ').replace(/&nbsp;|&#160;/g, ' ').replace(/\s+/g, ' ').trim();
+      if (txt.length < 2200 && LEGAL.test(txt)) { x.junk = true; changed = true; }
+    } catch (e) {}
+  }
+  if (changed && panelEl && panelEl.classList.contains('on') && tocTab === 'ch' && bk === b) tocPanel('ch');
+}
 let tocTab = 'ch';
 function tocPanel(tab) {
   tocTab = tab || tocTab;
   const b = curBook();
-  const cuRow = bk.toc.filter(x => x.i <= si).pop();
+  const shown = bk.toc.filter(x => !x.junk), tocList = shown.length ? shown : bk.toc;
+  const cuRow = tocList.filter(x => x.i <= si).pop();
   const marks = ((b && b.marks) || []).filter(m => verOf(m) === ver).sort((a, z) => a.i - z.i || a.p - z.p);
   const hls = ((b && b.hl) || []).filter(h => verOf(h) === ver).sort((a, z) => a.i - z.i || a.s - z.s);
   const lks = ((b && b.looks) || []).slice().sort((a, z) => z.ts - a.ts);
   let body;
   if (tocTab === 'ch') {
-    body = bk.toc.length
-      ? bk.toc.map(x => `<button type="button" class="lx-item ${x === cuRow ? 'cur' : ''}" data-go="${x.i}">${esc(x.label)}</button>`).join('')
+    body = tocList.length
+      ? tocList.map(x => `<button type="button" class="lx-item ${x === cuRow ? 'cur' : ''}" data-go="${x.i}">${esc(x.label)}</button>`).join('')
       : `<p class="lx-note">${esc(t('lxNoToc'))}</p>`;
   } else if (tocTab === 'bm') {
     body = marks.length ? marks.map(m => `<div class="lx-irow"><button type="button" class="lx-item" data-go="${m.i}" data-pct="${m.p}">${esc(m.tx || '…')}<small>${esc(chLabel(m.i))} · ${esc(when(m.ts))}</small></button><button type="button" class="lx-rm" data-rmm="${m.id}" aria-label="${esc(T('del'))}">${I.x}</button></div>`).join('')
@@ -1291,33 +1404,32 @@ function aboutPanel() {
     <div class="lx-plist lx-about"><div class="lx-cover" id="lxCov" hidden></div>${rows.length ? rows.map(([k, v]) => `<div class="lx-kv"><small>${esc(T(k))}</small><div>${esc(v)}</div></div>`).join('') : `<p class="lx-note">${esc(T('aNone'))}</p>`}</div>`);
   aboutCover();
 }
-/* Widget del libro: círculo con la portada (o la inicial si no tiene), del tamaño de un icono */
+/* Widget del libro: la portada tal cual (rectangular, sin borde); si no tiene, un rectángulo morado con la inicial */
 async function widgetCircle() {
-  const b = curBook() || {}, N = 192, cv = document.createElement('canvas');
-  cv.width = cv.height = N;
-  const c = cv.getContext('2d');
-  c.save(); c.beginPath(); c.arc(N / 2, N / 2, N / 2 - 1, 0, Math.PI * 2); c.clip();
-  let drawn = false;
+  const b = curBook() || {}, MAXH = 360, MAXW = 360;
+  let img = null, u = null;
   if (bk && bk.cover) {
     try {
       const raw = await bk.bin(bk.cover.href);
       if (raw) {
-        const u = URL.createObjectURL(new Blob([raw], { type: raw.type || MIME(bk.cover.href) }));
-        const img = await new Promise((ok, ko) => { const im = new Image(); im.onload = () => ok(im); im.onerror = ko; im.src = u; });
-        const r = Math.max(N / img.width, N / img.height), w = img.width * r, h = img.height * r;
-        c.drawImage(img, (N - w) / 2, (N - h) / 2, w, h); drawn = true;
-        URL.revokeObjectURL(u);
+        u = URL.createObjectURL(new Blob([raw], { type: raw.type || MIME(bk.cover.href) }));
+        img = await new Promise((ok, ko) => { const im = new Image(); im.onload = () => ok(im); im.onerror = ko; im.src = u; });
       }
-    } catch (e) { drawn = false; }
+    } catch (e) { img = null; }
   }
-  if (!drawn) {
-    const g = c.createLinearGradient(0, 0, N, N); g.addColorStop(0, '#6a2f8f'); g.addColorStop(1, '#2a1245');
-    c.fillStyle = g; c.fillRect(0, 0, N, N);
-    c.fillStyle = '#fff'; c.font = 'bold 96px Georgia,serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.fillText(((b.title || '?').trim()[0] || '?').toUpperCase(), N / 2, N / 2 + 6);
+  const cv = document.createElement('canvas'), c = cv.getContext('2d');
+  if (img && img.width > 0 && img.height > 0) {
+    const r = Math.min(MAXW / img.width, MAXH / img.height, 1);
+    cv.width = Math.max(1, Math.round(img.width * r)); cv.height = Math.max(1, Math.round(img.height * r));
+    c.drawImage(img, 0, 0, cv.width, cv.height);
+  } else {
+    cv.width = 240; cv.height = 360;
+    const g = c.createLinearGradient(0, 0, cv.width, cv.height); g.addColorStop(0, '#6a2f8f'); g.addColorStop(1, '#2a1245');
+    c.fillStyle = g; c.fillRect(0, 0, cv.width, cv.height);
+    c.fillStyle = '#fff'; c.font = 'bold 130px Georgia,serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(((b.title || '?').trim()[0] || '?').toUpperCase(), cv.width / 2, cv.height / 2 + 8);
   }
-  c.restore();
-  c.lineWidth = 5; c.strokeStyle = 'rgba(255,255,255,.9)'; c.beginPath(); c.arc(N / 2, N / 2, N / 2 - 3, 0, Math.PI * 2); c.stroke();
+  if (u) URL.revokeObjectURL(u);
   return cv.toDataURL('image/png').split(',')[1];
 }
 async function addWidget() {
@@ -1604,44 +1716,273 @@ async function openVersion(v) {
   if (bks[v]) return bks[v];
   if (vOpening[v]) return vOpening[v];
   const b = curBook(), ref = v ? b.file2 : b.file;
-  const pr = (async () => { const k = await openEpub(await FS.get(ref)); if (curBook() === b) bks[v] = k; return k; })();
+  const pr = (async () => { const k = await openEpub(await FS.get(ref)); if (curBook() === b) { bks[v] = k; setTimeout(() => markJunk(k), 900); } return k; })();
   vOpening[v] = pr;
   try { return await pr; } finally { if (vOpening[v] === pr) vOpening[v] = null; }
 }
-/* cuántos párrafos tiene cada capítulo de cada versión; se calcula una vez y se guarda */
-async function getAlign(force) {
-  const b = curBook(), key = alKey(b);
-  if (!force) { const c = await idbGet(key); if (c && c.a && c.b) return c; }
-  const count = async v => {
-    const x = await openVersion(v), out = [];
-    for (let i = 0; i < x.spine.length; i++) {
-      let n = 0;
-      try { const body = await bodyOf(x, x.spine[i]); if (body) n = leafParas(body).length; } catch (e) {}
-      out.push(n);
-      if (i % 5 === 4) await new Promise(r => setTimeout(r, 0));
-    }
+/* ---------- alineación de las dos versiones ----------
+   Una traducción conserva bastante la longitud de cada párrafo (con una proporción casi fija entre los
+   dos idiomas) y deja igual lo que no se traduce: nombres propios, números, diálogos. Con eso se
+   emparejan primero los capítulos (saltando los que solo existen en una versión: prólogos, notas del
+   traductor, índices) y luego los párrafos, aunque una versión parta o junte alguno. Es el método
+   clásico de los alineadores de textos paralelos (Gale y Church), con las anclas como pista extra.
+   Sale una tabla de equivalencias que se calcula una vez por libro y se guarda. */
+const ALV = 'a3';
+const alKey2 = b => alKey(b) + '|' + ALV;
+const nrm = s => String(s || '').replace(/\s+/g, ' ').trim();
+/* Todo el cálculo va autocontenido aquí: se ejecuta en un hilo aparte (Web Worker) para que el lector
+   no se trabe mientras se prepara; si el aparato no deja crear el hilo, se ejecuta en este. */
+function alignKit() {
+  const NC = new Map();
+  const nz = w => { let k = NC.get(w); if (k === undefined) { k = w.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); if (NC.size < 300000) NC.set(w, k); } return k; };
+  const WRE = /[\p{L}\p{N}][\p{L}\p{N}'’]*/gu;
+  const SENT = /(^|[.!?…:;—–―"“«(\[]\s*)$/;
+  const DLG = /^[—–―\-"“«‘']/;
+  function eachWord(s, fn) { WRE.lastIndex = 0; let m; while ((m = WRE.exec(s))) fn(m[0], m.index); }
+  /* nombres propios de una versión: palabras en mayúscula a mitad de frase que casi nunca salen en minúscula */
+  function namesOf(chs) {
+    const cap = new Map(), low = new Map();
+    for (const ps of chs) for (const p of ps) eachWord(p, (w, at) => {
+      if (w.length < 3) return;
+      const c = w.charCodeAt(0); if (c >= 48 && c <= 57) return;
+      const k = nz(w);
+      if (w[0] !== w[0].toLowerCase()) { if (!SENT.test(p.slice(Math.max(0, at - 3), at))) cap.set(k, (cap.get(k) || 0) + 1); }
+      else low.set(k, (low.get(k) || 0) + 1);
+    });
+    const out = new Set();
+    cap.forEach((n, k) => { if (n >= 2 && (low.get(k) || 0) <= n * 0.15) out.add(k); });
     return out;
-  };
-  const al = { a: await count(0), b: await count(1), ts: Date.now() };
-  await idbPut(key, al);
-  return al;
-}
-/* de (capítulo, párrafo) en una versión al equivalente en la otra */
-function mapPara(al, from, i, k) {
-  const A = from === 0 ? al.a : al.b, B = from === 0 ? al.b : al.a;
-  const clamp = (j, kk) => ({ i: j, k: Math.max(0, Math.min(Math.max(0, B[j] - 1), kk)) });
-  /* si las dos versiones tienen los mismos capítulos con texto, se emparejan uno a uno */
-  const ca = A.map((c, x) => c >= 3 ? x : -1).filter(x => x >= 0), cb = B.map((c, x) => c >= 3 ? x : -1).filter(x => x >= 0);
-  if (ca.length === cb.length && ca.length > 1) {
-    const pos = ca.indexOf(i);
-    if (pos >= 0) return clamp(cb[pos], Math.round(k / Math.max(1, A[i]) * B[cb[pos]]));
   }
-  /* si no, se reparte proporcionalmente por todo el libro */
-  const cum = arr => { let s = 0; return arr.map(n => (s += n) - n); };
-  const cA = cum(A), cB = cum(B), tA = A.reduce((s, n) => s + n, 0) || 1, tB = B.reduce((s, n) => s + n, 0) || 1;
-  const g = Math.round((cA[Math.min(i, cA.length - 1)] + k) / tA * tB);
-  let j = 0; while (j < B.length - 1 && cB[j + 1] <= g) j++;
-  return clamp(j, g - cB[j]);
+  const numKey = w => { const d = w.replace(/\D/g, ''); return d.length >= 2 ? '#' + d : null; };
+  function numsOf(chs) {
+    const s = new Set();
+    for (const ps of chs) for (const p of ps) eachWord(p, w => { const c = w.charCodeAt(0); if (c >= 48 && c <= 57) { const k = numKey(w); if (k) s.add(k); } });
+    return s;
+  }
+  /* anclas de un texto: solo las que existen en las dos versiones (dict) */
+  function anchorsOf(p, dict) {
+    const out = [];
+    eachWord(p, w => {
+      const c = w.charCodeAt(0);
+      const k = c >= 48 && c <= 57 ? numKey(w) : (w.length >= 3 ? nz(w) : null);
+      if (k == null) return;
+      const id = dict.get(k);
+      if (id != null && out.indexOf(id) < 0) out.push(id);
+    });
+    return out;
+  }
+  /* Programación dinámica: empareja X[0..n) con Y[0..m) en "cuentas" de 1-1, 1-0, 0-1, 2-1, 1-2 o 2-2.
+     Solo se miran las casillas cerca de "cen" (el camino que marca la longitud acumulada del texto). */
+  const MV = [[1, 1], [1, 0], [0, 1], [2, 1], [1, 2], [2, 2]];
+  function dpAlign(n, m, cost, cen, band) {
+    if (!n || !m) {
+      const out = [];
+      for (let i = 0; i < n; i++) out.push([i, 1, m, 0]);
+      for (let j = 0; j < m; j++) out.push([n, 0, j, 1]);
+      return out;
+    }
+    const lo = new Int32Array(n + 1), hi = new Int32Array(n + 1), off = new Int32Array(n + 2);
+    for (let i = 0; i <= n; i++) {
+      const c = cen ? cen[i] : Math.round(i * m / n);
+      lo[i] = band ? Math.max(0, c - band) : 0; hi[i] = band ? Math.min(m, c + band) : m;
+      if (i === n) hi[i] = m;
+      if (i === 0) lo[i] = 0;
+      off[i + 1] = off[i] + Math.max(0, hi[i] - lo[i] + 1);
+    }
+    const at = (i, j) => (j < lo[i] || j > hi[i]) ? -1 : off[i] + j - lo[i];
+    const D = new Float64Array(off[n + 1]).fill(Infinity), Bk = new Uint8Array(off[n + 1]);
+    D[at(0, 0)] = 0;
+    for (let i = 0; i <= n; i++) for (let j = lo[i]; j <= hi[i]; j++) {
+      if (!i && !j) continue;
+      let best = Infinity, bm = 0;
+      for (let q = 0; q < 6; q++) {
+        const di = MV[q][0], dj = MV[q][1];
+        if (i < di || j < dj) continue;
+        const y = at(i - di, j - dj); if (y < 0) continue;
+        const p = D[y]; if (p === Infinity) continue;
+        const c = p + cost(i - di, di, j - dj, dj);
+        if (c < best) { best = c; bm = q; }
+      }
+      const x = at(i, j); D[x] = best; Bk[x] = bm;
+    }
+    const e = at(n, m);
+    if (e < 0 || D[e] === Infinity) return null;
+    const out = []; let i = n, j = m;
+    while (i > 0 || j > 0) { const q = Bk[at(i, j)]; i -= MV[q][0]; j -= MV[q][1]; out.push([i, MV[q][0], j, MV[q][1]]); }
+    return out.reverse();
+  }
+  /* coste de emparejar párrafos: longitud parecida (en proporción), anclas en común, diálogo con diálogo */
+  function parCost(X, Y, r) {
+    const lr = Math.log(r), LX = X.map(p => Math.log(p.n + 25)), LY = Y.map(p => Math.log(p.n + 25));
+    return (i, di, j, dj) => {
+      if (!di) return 4.6 + Math.min(4, Y[j].n / 400);
+      if (!dj) return 4.6 + Math.min(4, X[i].n / 400);
+      let g;
+      if (di === 1 && dj === 1) g = LY[j] - LX[i] - lr;
+      else { const la = di === 1 ? X[i].n : X[i].n + X[i + 1].n, lb = dj === 1 ? Y[j].n : Y[j].n + Y[j + 1].n; g = Math.log((lb + 25) / (r * (la + 25))); }
+      let c = g * g * 5.5556;               /* = g²/(2·0,3²): la traducción varía ±30 % por párrafo */
+      if (di + dj === 3) c += 2.3; else if (di + dj === 4) c += 4.4;
+      const xa = X[i].a, ya = Y[j].a, xb = di === 2 ? X[i + 1].a : null, yb = dj === 2 ? Y[j + 1].a : null;
+      const na = xa.length + (xb ? xb.length : 0), nb = ya.length + (yb ? yb.length : 0);
+      if (na || nb) {
+        let mm = 0;
+        for (let t = 0; t < 2; t++) {
+          const src = t ? xb : xa; if (!src) continue;
+          for (let q = 0; q < src.length; q++) { const v = src[q]; if (ya.indexOf(v) >= 0 || (yb && yb.indexOf(v) >= 0)) mm++; }
+        }
+        const un = Math.max(0, na + nb - 2 * mm);
+        c += -1.1 * Math.min(4, mm) + 0.5 * Math.min(4, un);
+      }
+      if (di === 1 && dj === 1 && X[i].d !== Y[j].d) c += 0.7;
+      return c;
+    };
+  }
+  /* coste de emparejar capítulos: longitud total y nombres que salen en cada uno */
+  function chCost(X, Y, r) {
+    const uni = (Z, i, d) => { if (d === 1) return Z[i].s; const s = new Set(Z[i].s); Z[i + 1].s.forEach(v => s.add(v)); return s; };
+    return (i, di, j, dj) => {
+      const la = di ? X[i].n + (di === 2 ? X[i + 1].n : 0) : 0, lb = dj ? Y[j].n + (dj === 2 ? Y[j + 1].n : 0) : 0;
+      if (!di) return lb < 300 ? 0.2 : 1.5 + Math.min(8, lb / 1500);
+      if (!dj) return la < 300 ? 0.2 : 1.5 + Math.min(8, la / 1500);
+      const g = Math.log((lb + 300) / (r * (la + 300)));
+      let c = g * g * 12.5;                 /* = g²/(2·0,2²) */
+      if (di + dj === 3) c += 2; else if (di + dj === 4) c += 4;
+      const A = uni(X, i, di), B = uni(Y, j, dj);
+      if (A.size >= 3 && B.size >= 3) { let mm = 0; A.forEach(v => { if (B.has(v)) mm++; }); c += 3 * (1 - mm / (A.size + B.size - mm)); }
+      return c;
+    };
+  }
+  /* el camino que marca la longitud: para cada párrafo de X, el de Y que está a la misma altura del texto */
+  function lenCenter(X, Y, r) {
+    const n = X.length, m = Y.length, cen = new Int32Array(n + 1);
+    let px = 0, py = 0, j = 0;
+    for (let i = 0; i <= n; i++) {
+      const want = px * r;
+      while (j < m && py + Y[j].n / 2 < want) { py += Y[j].n; j++; }
+      cen[i] = j;
+      if (i < n) px += X[i].n;
+    }
+    cen[0] = 0; cen[n] = m;
+    return cen;
+  }
+  function build(tx, ty) {
+    const nx = namesOf(tx), ny = namesOf(ty), kx = numsOf(tx), ky = numsOf(ty);
+    const dict = new Map(), an = [];
+    nx.forEach(k => { if (ny.has(k)) { dict.set(k, an.length); an.push(k); } });
+    kx.forEach(k => { if (ky.has(k)) { dict.set(k, an.length); an.push(k); } });
+    const items = chs => chs.map(ps => ps.map(p => ({ n: p.length || 1, a: anchorsOf(p, dict), d: DLG.test(p) })));
+    const IX = items(tx), IY = items(ty);
+    const cum = I => { const c = [0]; I.forEach(ps => c.push(c[c.length - 1] + ps.length)); return c; };
+    const ca = cum(IX), cb = cum(IY), la = [], lb = [];
+    IX.forEach(ps => ps.forEach(p => la.push(p.n))); IY.forEach(ps => ps.forEach(p => lb.push(p.n)));
+    const tA = la.reduce((s, n) => s + n, 0) || 1, tB = lb.reduce((s, n) => s + n, 0) || 1;
+    /* 1) capítulos */
+    const chs = I => I.map(ps => { const s = new Set(); let n = 0; ps.forEach(p => { n += p.n; p.a.forEach(v => s.add(v)); }); return { n, s }; });
+    const CX = chs(IX), CY = chs(IY);
+    const cbd = dpAlign(CX.length, CY.length, chCost(CX, CY, tB / tA), null, 0) || [[0, CX.length, 0, CY.length]];
+    /* proporción real entre los dos idiomas, medida solo en los capítulos emparejados */
+    let mA = 0, mB = 0;
+    cbd.forEach(([i, di, j, dj]) => { if (di && dj) { for (let q = 0; q < di; q++) mA += CX[i + q].n; for (let q = 0; q < dj; q++) mB += CY[j + q].n; } });
+    const r = mA && mB ? mB / mA : tB / tA;
+    /* 2) párrafos, dentro de cada pareja de capítulos */
+    const bd = [];
+    for (const [i, di, j, dj] of cbd) {
+      const X = [], Y = [];
+      for (let q = 0; q < di; q++) X.push(...IX[i + q]);
+      for (let q = 0; q < dj; q++) Y.push(...IY[j + q]);
+      const a0 = ca[i], b0 = cb[j];
+      if (!X.length || !Y.length) { bd.push(a0, X.length, b0, Y.length); continue; }
+      const N = Math.max(X.length, Y.length), cost = parCost(X, Y, r), cen = lenCenter(X, Y, r);
+      let pb = null;
+      for (const band of [Math.max(25, Math.min(120, Math.ceil(0.04 * N))), Math.max(60, Math.ceil(0.2 * N)), 0]) {
+        pb = dpAlign(X.length, Y.length, cost, band ? cen : null, band);
+        if (pb) break;
+      }
+      if (!pb) pb = [[0, X.length, 0, Y.length]];
+      for (const [x, dx, y, dy] of pb) bd.push(a0 + x, dx, b0 + y, dy);
+    }
+    return { ca, cb, la, lb, bd, an, r };
+  }
+  return { build, anchorsOf, eachWord, nz };
+}
+const AK = alignKit();
+/* el cálculo en un hilo aparte; si no se puede (o falla), aquí mismo */
+function alignAway(tx, ty) {
+  return new Promise((ok, ko) => {
+    let w = null, done = false;
+    const end = (f, v) => { if (done) return; done = true; clearTimeout(tm); try { if (w) w.terminate(); } catch (e) {} f(v); };
+    const tm = setTimeout(() => end(ko, new Error('tiempo')), 120000);
+    try {
+      const src = alignKit.toString() + '\nconst K = alignKit();\nonmessage = e => { try { postMessage({ ok: K.build(e.data.tx, e.data.ty) }); } catch (er) { postMessage({ err: String((er && er.message) || er) }); } };';
+      const u = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+      w = new Worker(u);
+      setTimeout(() => { try { URL.revokeObjectURL(u); } catch (e) {} }, 10000);
+    } catch (e) { return end(ko, e); }
+    w.onmessage = e => { const d = e.data || {}; if (d.ok) end(ok, d.ok); else end(ko, new Error(d.err || 'worker')); };
+    w.onerror = ev => { try { ev.preventDefault(); } catch (e) {} end(ko, new Error('worker')); };
+    w.postMessage({ tx, ty });
+  });
+}
+/* todo el texto de una versión, párrafo a párrafo, capítulo a capítulo (los mismos párrafos que se ven al leer) */
+async function bookTexts(x) {
+  const out = [];
+  for (let i = 0; i < x.spine.length; i++) {
+    let ps = [];
+    try { const body = await bodyOf(x, x.spine[i]); if (body) ps = leafParas(body).map(e => nrm(e.textContent)); } catch (e) {}
+    out.push(ps);
+    if (i % 2 === 1) await sleep(0);
+  }
+  return out;
+}
+let alWhere = '';
+async function buildAlign() {
+  const tx = await bookTexts(await openVersion(0)), ty = await bookTexts(await openVersion(1));
+  let core;
+  try { core = await alignAway(tx, ty); alWhere = 'hilo'; }
+  catch (e) { await sleep(0); core = AK.build(tx, ty); alWhere = 'principal'; }
+  return Object.assign({ v: ALV, ts: Date.now() }, core);
+}
+let alP = null, alFor = '';
+async function getAlign(force) {
+  const b = curBook(), key = alKey2(b);
+  if (!force && alP && alFor === key) return alP;
+  alFor = key;
+  const pr = (async () => {
+    if (!force) { const c = await idbGet(key); if (c && c.v === ALV && c.bd) return c; }
+    const al = await buildAlign();
+    await idbPut(key, al);
+    return al;
+  })();
+  alP = pr;
+  try { return await pr; } catch (e) { if (alP === pr) alP = null; throw e; }
+}
+/* De (capítulo, párrafo, punto dentro del párrafo) en una versión al mismo sitio en la otra.
+   Dentro de cada pareja de párrafos se reparte por caracteres, así que también acierta a mitad de párrafo. */
+function alPos(al, from, i, k, f) {
+  const SC = from ? al.cb : al.ca, TC = from ? al.ca : al.cb, SL = from ? al.lb : al.la, TL = from ? al.la : al.lb;
+  const bd = al.bd, nb = bd.length / 4, so = from ? 2 : 0, to = from ? 0 : 2;
+  const totS = SC[SC.length - 1], totT = TC[TC.length - 1];
+  if (!nb || !totT) return { i: 0, k: 0, f: 0 };
+  const g = Math.max(0, Math.min(totS - 1, SC[Math.max(0, Math.min(i, SC.length - 2))] + Math.max(0, k)));
+  let lo = 0, hi = nb - 1, b = 0;
+  while (lo <= hi) { const mid = (lo + hi) >> 1; if (bd[mid * 4 + so] <= g) { b = mid; lo = mid + 1; } else hi = mid - 1; }
+  while (b > 0 && !(g < bd[b * 4 + so] + bd[b * 4 + so + 1])) b--;
+  const sS = bd[b * 4 + so], sN = bd[b * 4 + so + 1], tS = bd[b * 4 + to], tN = bd[b * 4 + to + 1];
+  let tot = 0, before = 0;
+  for (let x = 0; x < sN; x++) { const l = SL[sS + x] || 1; if (sS + x < g) before += l; else if (sS + x === g) before += l * (f || 0); tot += l; }
+  const fr = tot ? before / tot : 0;
+  let tg = Math.min(tS, totT - 1), tf = 0;
+  if (tN > 0) {
+    let T = 0; for (let x = 0; x < tN; x++) T += TL[tS + x] || 1;
+    const want = fr * T; let acc = 0;
+    for (let x = 0; x < tN; x++) {
+      const l = TL[tS + x] || 1;
+      if (acc + l > want || x === tN - 1) { tg = tS + x; tf = Math.max(0, Math.min(0.999, (want - acc) / l)); break; }
+      acc += l;
+    }
+  }
+  let j = 0; while (j < TC.length - 2 && TC[j + 1] <= tg) j++;
+  return { i: j, k: tg - TC[j], f: tf };
 }
 const langCode = v => (((curBook() || {}).vl || [])[v] || (bks[v] && bks[v].lang) || (v ? 'B' : 'A')).toUpperCase();
 /* idioma de verdad: se mira el texto (los metadatos de muchos epub mienten o faltan) y solo si no se distingue se usa el metadato */
@@ -1698,46 +2039,228 @@ function paintLang() {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 /* preparar la alineación puede tardar: sin esto, dos toques seguidos lanzan dos cambios a la vez
    y la versión y el texto acaban descolocados */
-let swapping = false;
-async function switchVer(anchor) {
+let swapping = false, lastSwap = null;
+/* dónde empieza cada párrafo de la columna (en caracteres del texto del capítulo) */
+function paraMap() {
+  const list = paras(), idx = new Map(list.map((e, k) => [e, k]));
+  const st = new Array(list.length).fill(-1), ln = new Array(list.length).fill(0);
+  let acc = 0;
+  for (const n of colTexts()) {
+    let p = n.parentNode; while (p && p !== colEl && !idx.has(p)) p = p.parentNode;
+    if (p && idx.has(p)) { const k = idx.get(p); if (st[k] < 0) st[k] = acc; ln[k] += n.nodeValue.length; }
+    acc += n.nodeValue.length;
+  }
+  return { list, st, ln };
+}
+/* el punto de partida: el principio de lo seleccionado o, si no hay nada, el principio de la página */
+function herePos(selS) {
+  const pm = paraMap(), n = pm.list.length;
+  if (!n) return { k: 0, f: 0 };
+  let off = selS;
+  if (off == null && P.mode !== 'scroll') off = anchorOff();
+  if (off == null) {
+    const k = topPara(), e = pm.list[k];
+    let f = 0;
+    if (e && P.mode === 'scroll') { const r = e.getBoundingClientRect(), wr = wrapEl.getBoundingClientRect(); if (r.height > 0) f = Math.max(0, Math.min(0.999, (wr.top - r.top) / r.height)); }
+    return { k, f };
+  }
+  for (let k = 0; k < n; k++) {
+    if (pm.st[k] < 0) continue;
+    if (off < pm.st[k]) return { k, f: 0 };
+    if (off < pm.st[k] + pm.ln[k]) return { k, f: (off - pm.st[k]) / Math.max(1, pm.ln[k]) };
+  }
+  return { k: n - 1, f: 0.999 };
+}
+function offOfPara(k, f) {
+  const pm = paraMap(); if (!pm.list.length) return null;
+  k = Math.max(0, Math.min(pm.list.length - 1, k));
+  if (pm.st[k] < 0) return null;
+  return pm.st[k] + Math.min(Math.max(0, pm.ln[k] - 1), Math.floor((f || 0) * pm.ln[k]));
+}
+/* la caja del carácter número "off" de la columna */
+function rectAt(off) {
+  const w = document.createTreeWalker(colEl, NodeFilter.SHOW_TEXT); let n, acc = 0;
+  while ((n = w.nextNode())) {
+    const l = n.nodeValue.length;
+    if (acc + l > off) {
+      const rg = document.createRange(), k = Math.max(0, off - acc);
+      rg.setStart(n, k); rg.setEnd(n, Math.min(l, k + 1));
+      const r = [...rg.getClientRects()].find(x => x.width > 0 || x.height > 0);
+      if (r) return r;
+    }
+    acc += l;
+  }
+  return null;
+}
+/* lleva la vista a un punto concreto de un párrafo (no solo a su principio) */
+function goPoint(k, f) {
+  const off = offOfPara(k, f);
+  if (off == null) { gotoPara(k); return null; }
+  if (P.mode === 'scroll') {
+    const r = rectAt(off);
+    if (r) { wrapEl.scrollTop += r.top - wrapEl.getBoundingClientRect().top - 24; paint(); } else gotoPara(k);
+    return off;
+  }
+  const pg = pageOfOff(off);
+  if (pg != null) { page = pg; paint(); } else gotoPara(k);
+  return off;
+}
+/* resalta en morado la línea a la que se ha saltado */
+function flashAt(off) {
+  if (off == null || !el) return;
+  const r = rectAt(off); if (!r) return;
+  const pm = paraMap(); let fr = null;
+  for (let k = 0; k < pm.list.length && !fr; k++) {
+    if (pm.st[k] < 0 || off < pm.st[k] || off >= pm.st[k] + pm.ln[k]) continue;
+    fr = [...pm.list[k].getClientRects()].find(q => r.left >= q.left - 2 && r.right <= q.right + 2 && r.top >= q.top - 2 && r.bottom <= q.bottom + 2) || null;
+  }
+  const L = fr ? fr.left : r.left, Wd = fr ? fr.width : Math.max(40, r.width);
+  const root = el.getBoundingClientRect();
+  const d = document.createElement('div');
+  d.className = 'lx-flash';
+  d.style.cssText = `left:${(L - root.left - 4).toFixed(1)}px;top:${(r.top - root.top - 1).toFixed(1)}px;width:${(Wd + 8).toFixed(1)}px;height:${(r.height + 2).toFixed(1)}px`;
+  el.appendChild(d);
+  setTimeout(() => d.remove(), 1700);
+}
+/* ---- afinado con internet (solo con texto seleccionado y si hay conexión) ----
+   Se traduce SOLO el trozo seleccionado (o su frase) con MyMemory y se busca en los párrafos vecinos
+   cuál dice lo mismo. Si no hay conexión o tarda, se queda lo que calculó la alineación. */
+const isoOf = v => {
+  const b = curBook() || {}, x = String(((b.vl || [])[v]) || (bks[v] && (bks[v].lbl || bks[v].lang)) || '').toLowerCase().slice(0, 2);
+  return /^[a-z]{2}$/.test(x) ? x : '';
+};
+const TRC = new Map();
+async function webTr(q, from, to) {
+  if (!q || !from || !to || from === to || navigator.onLine === false || typeof fetch !== 'function') return null;
+  const s = q.slice(0, 480), key = from + '|' + to + '|' + s;
+  if (TRC.has(key)) return TRC.get(key);
+  const ac = typeof AbortController === 'function' ? new AbortController() : null;
+  const tm = setTimeout(() => { try { if (ac) ac.abort(); } catch (e) {} }, 4000);
+  try {
+    const r = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(s) + '&langpair=' + from + '|' + to, ac ? { signal: ac.signal } : {});
+    if (!r.ok) return null;
+    const j = await r.json();
+    const out = j && j.responseData && +j.responseStatus === 200 ? String(j.responseData.translatedText || '') : '';
+    if (!out || /MYMEMORY WARNING|QUERY LENGTH|INVALID/i.test(out)) return null;
+    TRC.set(key, out);
+    return out;
+  } catch (e) { return null; } finally { clearTimeout(tm); }
+}
+/* la frase que contiene la selección, para traducir algo con sentido si se seleccionó poco */
+function sentAround(t, s, e) {
+  let a = Math.max(0, s), z = Math.max(a, e);
+  while (a > 0 && !/[.!?…]/.test(t[a - 1])) a--;
+  while (z < t.length && !/[.!?…]/.test(t[z])) z++;
+  return t.slice(a, Math.min(t.length, z + 1)).trim();
+}
+const STN = new Map();
+const stopOf = lg => { if (!STN.has(lg)) { const x = STOPS.find(s => s[0] === lg); STN.set(lg, x ? new Set([...x[1]].map(w => norm(w))) : null); } return STN.get(lg); };
+/* palabras con contenido (raíz de 5 letras, para que "relojes" y "reloj" cuenten igual) */
+function keysOf(s, lg) {
+  const st = stopOf(lg), out = new Set();
+  AK.eachWord(s, w => { const k = norm(w); if (k.length >= 4 && !(st && st.has(k))) out.add(k.slice(0, 5)); });
+  return out;
+}
+/* cuánto de la traducción aparece junto en un párrafo, y dónde */
+function overlapAt(t, W, lg) {
+  const st = stopOf(lg), toks = [];
+  AK.eachWord(t, (w, at) => { const k = norm(w); if (k.length >= 4 && !(st && st.has(k))) toks.push([k.slice(0, 5), at]); });
+  if (!toks.length || !W.size) return { ov: 0, f: null };
+  const L = Math.max(4, W.size + 3);
+  let bc = 0, bi = 0;
+  for (let i = 0; i < toks.length; i++) {
+    if (!W.has(toks[i][0])) continue;
+    const got = new Set();
+    for (let j = i; j < Math.min(toks.length, i + L); j++) if (W.has(toks[j][0])) got.add(toks[j][0]);
+    if (got.size > bc) { bc = got.size; bi = i; }
+  }
+  return { ov: bc / W.size, f: bc ? toks[bi][1] / Math.max(1, t.length) : null };
+}
+/* con texto seleccionado: entre los párrafos vecinos del calculado, el que de verdad dice lo mismo.
+   Pistas: los nombres y números de lo seleccionado y, si hay, su traducción. Sin una mejora clara no se mueve. */
+function refineSel(al, m, q, tr, lgT) {
+  const list = paras(); if (!list.length) return m;
+  if (!al._d) { al._d = new Map(); (al.an || []).forEach((k, i) => al._d.set(k, i)); }
+  const dict = al._d, sa = AK.anchorsOf(q, dict), W = tr ? keysOf(tr, lgT) : null;
+  const k0 = Math.max(0, Math.min(list.length - 1, m.k)), cand = [];
+  for (let c = Math.max(0, k0 - 5); c <= Math.min(list.length - 1, k0 + 5); c++) {
+    const t = list[c].textContent || '';
+    let am = 0;
+    if (sa.length) { const ca = AK.anchorsOf(t, dict); for (const v of sa) if (ca.indexOf(v) >= 0) am++; }
+    const o = W && W.size >= 2 ? overlapAt(t, W, lgT) : { ov: 0, f: null };
+    cand.push({ c, am, ov: o.ov, f: o.f, d: Math.abs(c - k0) });
+  }
+  const sc = x => 6 * x.ov + 1.5 * x.am - 0.3 * x.d;
+  const me = cand.find(x => x.c === k0);
+  let best = me;
+  for (const x of cand) if (sc(x) > sc(best)) best = x;
+  if (best !== me && (best.ov - me.ov) * 6 + (best.am - me.am) * 1.5 < 0.9) best = me;
+  /* dentro del párrafo: donde aparece la traducción; si no, el punto calculado */
+  const f = best.f != null && best.ov >= 0.3 ? best.f : (best === me ? m.f : 0);
+  return { i: m.i, k: best.c, f };
+}
+/* Cambiar de versión. Sin selección: el sitio equivalente al principio de la página.
+   Con selección: el párrafo equivalente a lo seleccionado (afinado con internet si hay). */
+async function switchVer(sel) {
   const b = curBook();
   if (!b || !b.file2 || busy || swapping) return;
-  const to = 1 - ver, move = moveEl;
+  const from = ver, to = 1 - ver, move = moveEl;
   swapping = true;
   if (chapDone) chapDone();
   ttsStop();
   try {
+    const here = herePos(sel ? sel.s : null), src = { i: si, k: here.k, f: here.f };
+    /* si no te moviste desde el último cambio, se vuelve al punto exacto de antes (ida y vuelta sin derivas) */
+    const back = !sel && lastSwap && lastSwap.to === from && lastSwap.si === si && lastSwap.page === page && lastSwap.mode === P.mode ? lastSwap.back : null;
+    /* con selección: se pide la traducción ya, mientras se prepara todo lo demás */
+    let trP = null, q = '';
+    const lgT = isoOf(to);
+    if (sel && sel.q) {
+      const pe = paras()[here.k];
+      q = sel.q;
+      if (pe && q.split(/\s+/).length < 4) {
+        const pm = paraMap(), st = pm.st[here.k] >= 0 ? pm.st[here.k] : 0;
+        q = sentAround(pe.textContent || '', sel.s - st, sel.e - st) || q;
+      }
+      trP = webTr(nrm(q), isoOf(from), lgT);
+    }
+    const slow = setTimeout(() => toast(T('verPrep')), 500);
     let al;
-    try { al = await getAlign(); await openVersion(to); } catch (e) { toast(T('verBad')); return; }
+    try { al = await getAlign(); await openVersion(to); } catch (e) { clearTimeout(slow); toast(T('verBad')); return; }
+    clearTimeout(slow);
     if (!curBook() || curBook() !== b || !b.file2) return;   /* se cerró el libro o se quitó la versión */
-    const m = mapPara(al, ver, si, anchor != null && anchor >= 0 ? anchor : topPara());
+    const m = back || alPos(al, from, si, here.k, here.f);
     writePos();
     move.style.transition = 'opacity .2s linear'; move.style.opacity = '0';
     await sleep(200);
     ver = to; bk = bks[to];
-    await show(m.i, { para: m.k });
+    await show(m.i, { para: m.k, pf: m.f });
+    let land = m, late = false;
+    if (sel && !back) {
+      /* la traducción se pidió al principio: se le da un momento (sin dejar la pantalla en blanco más de
+         la cuenta); si llega después, se corrige sola, pero solo si no has pasado página */
+      const tr = trP ? await Promise.race([trP, sleep(600).then(() => undefined)]) : null;
+      if (tr === undefined) late = true;
+      const r2 = refineSel(al, m, q || sel.q, tr || null, lgT);
+      if (r2.k !== m.k || Math.abs(r2.f - m.f) > 0.04) { land = r2; goPoint(r2.k, r2.f); }
+    }
     move.style.opacity = '1';
     await sleep(210);
     paintLang();
     writePos();
-    flashPara(m.k);
+    flashAt(offOfPara(land.k, land.f));
+    lastSwap = { to, si, page, mode: P.mode, back: src };
+    if (late) trP.then(tr => {
+      if (!tr || ver !== to || !lastSwap || lastSwap.si !== si || lastSwap.page !== page || busy || swapping) return;
+      const r3 = refineSel(al, land, q || sel.q, tr, lgT);
+      if (r3.k === land.k) return;
+      goPoint(r3.k, r3.f); lastSwap.page = page; writePos();
+      flashAt(offOfPara(r3.k, r3.f));
+    });
   } finally {
     move.style.transition = ''; move.style.opacity = '';
     swapping = false;
   }
-}
-/* resalta en morado la primera línea del párrafo al que se ha saltado */
-function flashPara(k) {
-  const e = paras()[k]; if (!e || !el) return;
-  const rg = document.createRange(); rg.selectNodeContents(e);
-  const ln = rg.getClientRects()[0], fr = e.getClientRects()[0];
-  if (!ln || !fr) return;
-  const root = el.getBoundingClientRect();
-  const d = document.createElement('div');
-  d.className = 'lx-flash';
-  d.style.cssText = `left:${(fr.left - root.left - 4).toFixed(1)}px;top:${(ln.top - root.top - 1).toFixed(1)}px;width:${(fr.width + 8).toFixed(1)}px;height:${(ln.height + 2).toFixed(1)}px`;
-  el.appendChild(d);
-  setTimeout(() => d.remove(), 1700);
 }
 function pickWeb() {
   return new Promise((ok, ko) => {
@@ -1777,7 +2300,7 @@ async function delVersion() {
   const b = curBook(); if (!b || !b.file2 || swapping) return;
   if (ver === 1) { await switchVer(); if (ver === 1) return; }
   FS.del(b.file2);
-  idbPut(alKey(b), null);
+  idbPut(alKey(b), null); idbPut(alKey2(b), null); alP = null; lastSwap = null;
   delete b.file2; delete b.vl; bks[1] = null;
   b.marks = (b.marks || []).filter(m => verOf(m) === 0); if (!b.marks.length) delete b.marks;
   b.hl = (b.hl || []).filter(h => verOf(h) === 0); if (!b.hl.length) delete b.hl;
@@ -1846,7 +2369,7 @@ function onTap(e) {
     case 'next': return go(1);
     case 'bm': return toggleBm();
     case 'more': return menu();
-    case 'lang': { const k = selInfo && selInfo.k >= 0 ? selInfo.k : null; if (k != null) { const sl = getSelection(); if (sl) sl.removeAllRanges(); selInfo = null; hideDock(); } return switchVer(k); }
+    case 'lang': { const sv = selInfo && selInfo.k >= 0 ? { s: selInfo.s, e: selInfo.e, q: selInfo.q, k: selInfo.k } : null; if (sv) { const sl = getSelection(); if (sl) sl.removeAllRanges(); selInfo = null; hideDock(); } return switchVer(sv); }
     case 'chprev': return show(si - 1);
     case 'chnext': return show(si + 1);
     case 'm-tts': return tts && tts.on ? ttsStop() : ttsStart();
@@ -1998,8 +2521,11 @@ function close() {
 /* si el archivo no se puede abrir: aviso y, si el enlace se perdió, botón para elegirlo otra vez */
 function loadErr(e) {
   const gone = /gone/.test(String(e && e.message)), ld = loadEl;
+  const m = String((e && e.message) || e || '').slice(0, 160);
+  /* el motivo técnico, en pequeño: sin él no hay forma de saber qué falló en otro aparato */
+  const det = !gone && m ? `<br><small style="opacity:.7;font-size:12px;word-break:break-word">${esc(m)}</small>` : '';
   ld.hidden = false;
-  ld.innerHTML = `<div>${esc(gone ? t('fileGone') : t('lxBad'))}${gone && API.relink ? `<br><button type="button" class="lx-dbtn pri" data-x="relink" style="margin-top:14px">${esc(T('relink'))}</button>` : ''}</div>`;
+  ld.innerHTML = `<div>${esc(gone ? t('fileGone') : t('lxBad'))}${det}${gone && API.relink ? `<br><button type="button" class="lx-dbtn pri" data-x="relink" style="margin-top:14px">${esc(T('relink'))}</button>` : ''}</div>`;
 }
 
 /* ---------- entrada pública ---------- */
@@ -2008,7 +2534,7 @@ async function open(b) {
   cur = b.id; openedAt = performance.now();
   const p0 = b.pos && typeof b.pos.i === 'number' ? b.pos : { i: 0, p: 0 };
   ver = p0.v === 1 && b.file2 ? 1 : 0;
-  bks = [null, null]; selInfo = null; hlEdit = null; finAsked = false;
+  bks = [null, null]; selInfo = null; hlEdit = null; finAsked = false; lastSwap = null; alP = null; alFor = '';
   applyPrefs();
   titleEl.textContent = b.title || ''; authEl.textContent = b.author || ''; chapEl.textContent = '';
   colEl.innerHTML = '';
@@ -2023,12 +2549,23 @@ async function open(b) {
     else { loadErr(e); return; }
   }
   loadEl.hidden = true;
-  paintLang();
-  await show(Math.min(p0.i, bk.spine.length - 1), { pct: p0.p || 0, noSkip: p0.i > 0 || p0.p > 0 });
+  /* si algo falla al pintar, el aviso sale DENTRO del lector (con el motivo), no en una pantalla en blanco */
+  try {
+    paintLang();
+    const sameVer = (p0.v === 1 ? 1 : 0) === ver;
+    await show(Math.min(p0.i, bk.spine.length - 1), { pct: p0.p || 0, off: sameVer && typeof p0.o === 'number' ? p0.o : null, noSkip: p0.i > 0 || p0.p > 0 || !!p0.o });
+  } catch (e) { busy = false; loadErr(e); return; }
   openedAt = performance.now();
   startBright();
   setTimeout(labelVers, 1200);
+  setTimeout(() => { if (bk) markJunk(bk); }, 900);
+  /* la tabla de equivalencias entre versiones se prepara sola al rato, para que el primer cambio sea al instante */
+  const bid = b.id;
+  setTimeout(() => { const cb = curBook(); if (cb && cb.file2 && cur === bid && el && el.classList.contains('on')) getAlign().catch(() => {}); }, 6000);
 }
 
-window.__LECTOR__ = { open, close, back, isOpen: () => !!(el && el.classList.contains('on')) };
+/* guardar ya (la app se va a segundo plano o la quitan de recientes) */
+function saveNow() { if (el && el.classList.contains('on') && bk) { clearTimeout(posT); writePos(); } }
+window.__LECTOR__ = { open, close, back, save: saveNow, isOpen: () => !!(el && el.classList.contains('on')) };
+if (window.__LXTEST__) window.__LXTEST__.lx = { where: () => alWhere, getAlign, alPos, herePos, paraMap, refineSel, isoOf, webTr, state: () => ({ ver, si, page, pages }) };
 })();

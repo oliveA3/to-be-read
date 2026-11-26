@@ -31,7 +31,11 @@ body{
 }
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0;padding:0}
-.app{max-width:520px;margin:0 auto;padding:18px 16px calc(132px + env(safe-area-inset-bottom,0px))}
+:root{--w:520px}
+/* pantallas anchas (tableta): la columna crece en vez de quedarse del tamaño de un teléfono */
+@media (min-width:700px){:root{--w:720px}}
+@media (min-width:1000px){:root{--w:860px}}
+.app{max-width:var(--w);margin:0 auto;padding:18px 16px calc(132px + env(safe-area-inset-bottom,0px))}
 
 /* Cabecera */
 .head .top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:6px}
@@ -154,11 +158,11 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 /* Vista a pantalla completa (Ajustes, Estadísticas): entra desde abajo y ocupa todo.
    No tiene arrastre para cerrar; se sale con la flecha, con Escape o con el botón atrás. */
 .view{position:fixed;inset:0;z-index:25;background:linear-gradient(170deg,#f8f1fd 0%,#efe2fa 55%,#e7d7f6 100%);overflow:auto;overscroll-behavior:contain;
-  padding:0 18px calc(18px + min(env(safe-area-inset-bottom,0px),24px));
+  --vp:max(18px,calc((100vw - var(--w)) / 2 + 18px));padding:0 var(--vp) calc(18px + min(env(safe-area-inset-bottom,0px),24px));
   transform:translate3d(0,100%,0);visibility:hidden;will-change:transform;backface-visibility:hidden;
   transition:transform .24s cubic-bezier(.4,0,.2,1),visibility 0s .24s}
 .view.on{transform:translate3d(0,0,0);visibility:visible;transition:transform .24s cubic-bezier(.4,0,.2,1)}
-.view .vhero{position:sticky;top:0;z-index:2;margin:0 -18px 6px;padding:calc(10px + env(safe-area-inset-top,0px)) 18px 16px;color:#fbf4fe;overflow:hidden;
+.view .vhero{position:sticky;top:0;z-index:2;margin:0 calc(-1 * var(--vp)) 6px;padding:calc(10px + env(safe-area-inset-top,0px)) var(--vp) 16px;color:#fbf4fe;overflow:hidden;
   background:radial-gradient(circle at 85% -20%,rgba(255,255,255,.28),transparent 45%),linear-gradient(135deg,var(--plum2),var(--plum) 70%,#43195d)}
 .view .vhrow{display:flex;align-items:center;gap:12px;min-width:0}
 .vback{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fbf4fe;display:flex;align-items:center;justify-content:center;padding:0}
@@ -171,7 +175,7 @@ body.nostrike .read .btitle,body.nostrike .read .bauth{text-decoration:none}
 @media (prefers-reduced-motion:reduce){.view{transition:visibility 0s .01s}.view.on{transition:none}}
 .back{position:fixed;inset:0;background:rgba(35,15,50,.5);z-index:30;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility 0s .22s}
 .back.on{opacity:1;visibility:visible;transition:opacity .22s ease}
-.sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:92%;overflow:auto;z-index:31;
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:var(--w);margin:0 auto;max-height:92%;overflow:auto;z-index:31;
   background:var(--parch2);border-radius:18px 18px 0 0;padding:0 18px calc(22px + env(safe-area-inset-bottom,0px));
   transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.3,1);box-shadow:0 -8px 24px rgba(35,15,50,.35)}
 .sheet{contain:layout paint;overscroll-behavior:contain;will-change:transform;backface-visibility:hidden}
@@ -366,7 +370,7 @@ body.dragging{cursor:grabbing}
 .openb{color:var(--plum);border-color:var(--lilac);background:#f3e9fa}
 .gchips .chip.more{border-style:dashed;color:var(--ink2);background:transparent;border-color:var(--line)}
 .gchips{gap:6px}
-.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 84px 1fr;align-items:end;
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:var(--w);margin:0 auto;display:grid;grid-template-columns:1fr 84px 1fr;align-items:end;
   padding:6px 12px calc(8px + min(env(safe-area-inset-bottom,0px),24px));background:var(--parch2);border-top:1px solid var(--line);
   box-shadow:0 -6px 16px -6px rgba(60,25,85,.22);border-radius:18px 18px 0 0}
 .nb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 4px;font-size:11.5px;font-weight:600;color:var(--ink2);border-radius:12px;letter-spacing:.2px}
@@ -481,7 +485,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.19.0',BUILD=101;
+const VERSION='0.19.8',BUILD=109;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -761,7 +765,7 @@ function migrate(o){o.universes=Array.isArray(o.universes)?o.universes:[];o.saga
     if(b.pages)delete b.pagesNo;
     /* posición de lectura del lector integrado */
     if(b.pos){const i=Math.round(Number(b.pos.i)),q=Number(b.pos.p);
-      if(i>=0&&isFinite(i)){const v1=Number(b.pos.v)===1;b.pos={i,p:q>=0&&q<1&&isFinite(q)?q:0};if(v1)b.pos.v=1}else delete b.pos}
+      if(i>=0&&isFinite(i)){const v1=Number(b.pos.v)===1,oo=Math.round(Number(b.pos.o));b.pos={i,p:q>=0&&q<1&&isFinite(q)?q:0};if(oo>=0&&isFinite(oo))b.pos.o=oo;if(v1)b.pos.v=1}else delete b.pos}
     /* segunda versión del libro (modo bilingüe), marcadores y subrayados del lector: se validan al cargar */
     if(b.file2&&!(typeof b.file2==='object'&&(b.file2.uri||b.file2.idb)))delete b.file2;
     if(!b.file2&&b.pos&&b.pos.v)delete b.pos.v;
@@ -837,7 +841,10 @@ async function bootStore(){
   rdrPatchApply();
   idbReady=true;if(dirty)flush();
 }
-addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush();else rdrPatchApply()});
+const rdrSaveNow=()=>{try{const L=window.__LECTOR__;if(L&&L.save)L.save()}catch(e){}};
+addEventListener('pagehide',()=>{rdrSaveNow();flush()});document.addEventListener('visibilitychange',()=>{if(document.hidden){rdrSaveNow();flush()}else rdrPatchApply()});
+/* en Android la vista web no siempre avisa de que la app se va: el aviso fiable es el de Capacitor */
+try{if(CAP&&CAP.App&&CAP.App.addListener){CAP.App.addListener('pause',()=>{rdrSaveNow();flush()});CAP.App.addListener('resume',()=>rdrPatchApply())}}catch(e){}
 /* ---- lo que guardó la ventana aparte del lector ----
    Esa ventana nunca reescribe la lista (hay dos copias en memoria y se pisarían): deja los cambios
    en una clave por libro y la app los aplica a su copia al volver. */
@@ -1342,9 +1349,11 @@ function rdrBridge(){window.TBR={FS,lib,book,save,t,esc,norm,toast,CFG,saveCfg,I
 async function rdrLoad(){
   if(window.__LECTOR__)return window.__LECTOR__;
   rdrBridge();
-  if(CAP&&CAP.Filesystem&&CFG.rdrVer){
+  /* el plugin de archivos, igual que FO: si no aparece en Capacitor.Plugins se pide por su nombre */
+  const FSP=(()=>{try{return (CAP&&CAP.Filesystem)||(window.Capacitor&&window.Capacitor.registerPlugin?window.Capacitor.registerPlugin('Filesystem'):null)}catch(e){return null}})();
+  if(FSP&&FSP.readFile&&CFG.rdrVer){
     /* el módulo descargado vive fuera del APK: se lee y se ejecuta desde un blob */
-    const rd=async n=>(await CAP.Filesystem.readFile({path:RDR_DIR+'/'+n,directory:'DATA',encoding:'utf8'})).data;
+    const rd=async n=>(await FSP.readFile({path:RDR_DIR+'/'+n,directory:'DATA',encoding:'utf8'})).data;
     const css=await rd('lector.css'),js=await rd('lector.js');
     const st=document.createElement('style');st.id='lxCss';st.textContent=css;document.head.appendChild(st);
     const u=URL.createObjectURL(new Blob([js],{type:'text/javascript'}));

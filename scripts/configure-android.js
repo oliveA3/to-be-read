@@ -114,14 +114,26 @@ fs.writeFileSync(gradlePath, g);
     fs.writeFileSync(mp, m);
     console.log('Manifiesto: pantalla del lector (ventana aparte) añadida');
   }
-  // Android 11+: para poder ver qué diccionarios y traductores hay instalados (procesar texto)
+  // Android 11+: para poder ver qué diccionarios y traductores hay instalados.
+  // Sin declararlo, Android esconde las demás apps y la lista sale vacía. Se declaran los avisos que usan los diccionarios:
+  // "procesar texto", ColorDict/GoldenDict, Aard2, búsqueda de Android y "compartir texto".
   m = fs.readFileSync(mp, 'utf8');
-  if (!/android\.intent\.action\.PROCESS_TEXT/.test(m)) {
-    m = m.replace(/<application\b/, '<queries>\n        <intent>\n            <action android:name="android.intent.action.PROCESS_TEXT" />\n            <data android:mimeType="text/plain" />\n        </intent>\n    </queries>\n    <application');
+  const qItems = {
+    'android.intent.action.PROCESS_TEXT': '        <intent>\n            <action android:name="android.intent.action.PROCESS_TEXT" />\n            <data android:mimeType="text/plain" />\n        </intent>\n',
+    'colordict.intent.action.SEARCH': '        <intent>\n            <action android:name="colordict.intent.action.SEARCH" />\n        </intent>\n',
+    'aard2.lookup': '        <intent>\n            <action android:name="aard2.lookup" />\n        </intent>\n',
+    'android.intent.action.SEARCH': '        <intent>\n            <action android:name="android.intent.action.SEARCH" />\n        </intent>\n',
+    'android.intent.action.SEND': '        <intent>\n            <action android:name="android.intent.action.SEND" />\n            <data android:mimeType="text/plain" />\n        </intent>\n'
+  };
+  const missing = Object.keys(qItems).filter(k => m.indexOf('"' + k + '"') < 0);
+  if (missing.length) {
+    const add = missing.map(k => qItems[k]).join('');
+    if (/<\/queries>/.test(m)) m = m.replace('</queries>', add + '    </queries>');
+    else m = m.replace(/<application\b/, '<queries>\n' + add + '    </queries>\n    <application');
     fs.writeFileSync(mp, m);
-    console.log('Manifiesto: consulta de apps de diccionario/traducción añadida');
+    console.log('Manifiesto: consultas de apps de diccionario/traducción (' + missing.length + ') añadidas');
   }
-  // Widget de un libro (círculo con la portada y el título) para la pantalla de inicio
+  // Widget de un libro (portada y título) para la pantalla de inicio
   m = fs.readFileSync(mp, 'utf8');
   if (!/\.BookWidget/.test(m)) {
     const rcv = '        <receiver android:name=".BookWidget" android:exported="false">\n'
@@ -165,6 +177,8 @@ fs.writeFileSync(gradlePath, g);
     'import android.content.pm.PackageManager;',
     'import android.content.pm.ResolveInfo;',
     'import android.os.Parcelable;',
+    'import android.app.SearchManager;',
+    'import java.util.HashSet;',
     'import java.util.ArrayList;',
     'import android.content.Intent;',
     'import android.database.Cursor;',
@@ -664,7 +678,7 @@ fs.writeFileSync(gradlePath, g);
     '        }',
     '    }',
     '',
-    '    /** Widget de un libro: guarda título y portada (PNG redondo) y pide a Android que lo ponga en la pantalla de inicio. */',
+    '    /** Widget de un libro: guarda título y portada (PNG) y pide a Android que lo ponga en la pantalla de inicio. */',
     '    @PluginMethod',
     '    public void pinWidget(PluginCall call) {',
     '        String id = call.getString("id");',
@@ -777,6 +791,34 @@ fs.writeFileSync(gradlePath, g);
     '        } });',
     '    }',
     '',
+    '    /** Apps que responden a un aviso: se añaden como destino directo (sin repetir). Con onlyDict, solo las que parecen diccionarios. */',
+    '    private static void addTargets(PackageManager pm, Intent probe, ArrayList<Intent> out, HashSet<String> seen, String me, boolean onlyDict) {',
+    '        try {',
+    '            List<ResolveInfo> l = pm.queryIntentActivities(probe, 0);',
+    '            for (ResolveInfo ri : l) {',
+    '                if (ri.activityInfo == null || !ri.activityInfo.exported) continue;',
+    '                String pkg = ri.activityInfo.packageName == null ? "" : ri.activityInfo.packageName;',
+    '                if (pkg.equals(me)) continue;',
+    '                String key = pkg + "/" + ri.activityInfo.name;',
+    '                if (seen.contains(key)) continue;',
+    '                if (onlyDict) {',
+    '                    String low = pkg.toLowerCase() + " " + String.valueOf(ri.loadLabel(pm)).toLowerCase();',
+    '                    if (!(low.contains("dict") || low.contains("diccion") || low.contains("dicion") || low.contains("wiktionary")',
+    '                        || low.contains("oxford") || low.contains("merriam") || low.contains("webster") || low.contains("collins")',
+    '                        || low.contains("cambridge") || low.contains("longman") || low.contains("wordweb") || low.contains("lexico")',
+    '                        || low.contains("larousse") || low.contains("linguee") || low.contains("thesaur") || low.contains("rae")',
+    '                        || low.contains("vocab") || low.contains("lexic") || low.contains("goldendict") || low.contains("aard"))) continue;',
+    '                }',
+    '                seen.add(key);',
+    '                Intent t = new Intent(probe);',
+    '                t.setClassName(ri.activityInfo.packageName, ri.activityInfo.name);',
+    '                out.add(t);',
+    '            }',
+    '        } catch (Exception e) {',
+    '            // si una consulta falla, se sigue con las demás',
+    '        }',
+    '    }',
+    '',
     '    /** Diccionario o traductor: apps que aceptan "procesar texto". Con mode=translate solo los traductores; con define, el resto. */',
     '    @PluginMethod',
     '    public void lookup(PluginCall call) {',
@@ -793,22 +835,43 @@ fs.writeFileSync(gradlePath, g);
     '            boolean wantTr = "translate".equals(mode);',
     '            ArrayList<Intent> picks = new ArrayList<Intent>();',
     '            ArrayList<Intent> rest = new ArrayList<Intent>();',
+    '            HashSet<String> seen = new HashSet<String>();',
+    '            String me = getContext().getPackageName();',
     '            for (ResolveInfo ri : all) {',
     '                if (ri.activityInfo == null) continue;',
     '                String pkg = ri.activityInfo.packageName == null ? "" : ri.activityInfo.packageName.toLowerCase();',
-    '                if (pkg.equals(getContext().getPackageName())) continue;',
+    '                if (pkg.equals(me)) continue;',
     '                String lb = String.valueOf(ri.loadLabel(pm)).toLowerCase();',
     '                boolean tr = pkg.contains("translat") || pkg.contains("deepl") || pkg.contains("papago") || pkg.contains("reverso")',
     '                    || lb.contains("translat") || lb.contains("traduc") || lb.contains("tradu");',
     '                Intent t = new Intent(base);',
     '                t.setClassName(ri.activityInfo.packageName, ri.activityInfo.name);',
+    '                seen.add(ri.activityInfo.packageName + "/" + ri.activityInfo.name);',
     '                if (tr == wantTr) picks.add(t); else rest.add(t);',
+    '            }',
+    '            if (!wantTr) {',
+    '                // Muchos diccionarios NO aceptan "procesar texto" y usan sus propios avisos: ColorDict/GoldenDict, Aard2,',
+    '                // la búsqueda de Android o "compartir texto". Se buscan todos y se ofrecen junto a los demás.',
+    '                Intent cd = new Intent("colordict.intent.action.SEARCH");',
+    '                cd.putExtra("EXTRA_QUERY", text);',
+    '                cd.putExtra("EXTRA_FULLSCREEN", false);',
+    '                addTargets(pm, cd, picks, seen, me, false);',
+    '                Intent ad = new Intent("aard2.lookup");',
+    '                ad.putExtra("query", text);',
+    '                ad.putExtra(SearchManager.QUERY, text);',
+    '                addTargets(pm, ad, picks, seen, me, false);',
+    '                Intent sr = new Intent(Intent.ACTION_SEARCH);',
+    '                sr.putExtra(SearchManager.QUERY, text);',
+    '                addTargets(pm, sr, picks, seen, me, false);',
+    '                Intent sd = new Intent(Intent.ACTION_SEND);',
+    '                sd.setType("text/plain");',
+    '                sd.putExtra(Intent.EXTRA_TEXT, text);',
+    '                addTargets(pm, sd, picks, seen, me, true);',
     '            }',
     '            // si no hay de ese tipo, se ofrecen las otras (mejor eso que nada)',
     '            if (picks.isEmpty()) picks = rest;',
     '            Intent go;',
     '            if (picks.isEmpty()) {',
-    '                if (all.isEmpty() && !wantTr) { call.reject("no_app"); return; }',
     '                if (wantTr) {',
     '                    // sin apps de "procesar texto": se prueba a mandarlo como texto compartido a un traductor',
     '                    Intent send = new Intent(Intent.ACTION_SEND);',
@@ -816,7 +879,10 @@ fs.writeFileSync(gradlePath, g);
     '                    send.putExtra(Intent.EXTRA_TEXT, text);',
     '                    go = Intent.createChooser(send, null);',
     '                } else {',
-    '                    go = Intent.createChooser(base, null);',
+    '                    // ningún diccionario instalado que se deje llamar: búsqueda en la web (navegador o buscador)',
+    '                    Intent web = new Intent(Intent.ACTION_WEB_SEARCH);',
+    '                    web.putExtra(SearchManager.QUERY, "define " + text);',
+    '                    go = web;',
     '                }',
     '            } else if (picks.size() == 1) {',
     '                go = picks.get(0);',
@@ -910,7 +976,7 @@ fs.writeFileSync(gradlePath, g);
     ''
   ].join('\n'));
 
-  // Widget de un libro: círculo con la portada y el título debajo, del tamaño de un icono (1x1)
+  // Widget de un libro: la portada (rectangular, sin borde) y el título debajo, del tamaño de un icono (1x1)
   fs.writeFileSync(path.join(javaDir, 'BookWidget.java'), [
     'package ' + appId + ';',
     '',
@@ -1029,9 +1095,10 @@ fs.writeFileSync(gradlePath, g);
       '    android:padding="2dp">',
       '    <ImageView',
       '        android:id="@+id/bw_cover"',
-      '        android:layout_width="52dp"',
-      '        android:layout_height="52dp"',
-      '        android:scaleType="centerCrop"',
+      '        android:layout_width="match_parent"',
+      '        android:layout_height="0dp"',
+      '        android:layout_weight="1"',
+      '        android:scaleType="fitCenter"',
       '        android:contentDescription="@null" />',
       '    <TextView',
       '        android:id="@+id/bw_title"',

@@ -16,6 +16,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f8f3f8;color:#2a1d33;
 body.dk{background:#1d1626;color:#e8deef}
 #st{position:fixed;inset:0;display:grid;place-items:center;padding:28px;text-align:center;font-size:15px;line-height:1.5}
 #st[hidden]{display:none}
+#st pre{white-space:pre-wrap;word-break:break-word;text-align:left;font:11.5px/1.45 ui-monospace,Menlo,Consolas,monospace;opacity:.72;margin:14px 0 0;max-height:38vh;overflow:auto;-webkit-user-select:text;user-select:text}
 #st button{margin-top:16px;padding:11px 18px;border:0;border-radius:12px;background:#5b2a7a;color:#fff;font:inherit;font-weight:600}
 body.dk #st button{background:#c9a6e3;color:#1d1626}
 #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,18px);opacity:0;pointer-events:none;max-width:86%;
@@ -32,10 +33,22 @@ body.dk #st button{background:#c9a6e3;color:#1d1626}
 'use strict';
 const KEY='por-leer-v2',SKEY='por-leer-ajustes',TSKEY='por-leer-ts',REFKEY='por-leer-refs',PKEY='por-leer-rdr-patch',CK='por-leer-lector';
 const RDR_DIR='lector',MAXMETA=24*1024*1024;
+/* versión del APK: sale en el diagnóstico para ver si el APK y el lector descargado van a la par */
+const VER='0.19.8';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
+const capNow=()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}};
+let CAP=capNow();
+/* La ventana del lector se abre a la vez que arranca la app, y a veces la página carga ANTES de que
+   Android termine de enganchar el puente (en aparatos lentos o al abrir en frío). Si no está todavía,
+   se espera un momento en vez de dar el libro por imposible. */
+const nativeOrigin=()=>location.protocol==='capacitor:'||location.hostname==='localhost';
+async function capWait(){
+  if(CAP||!nativeOrigin())return CAP;
+  for(let i=0;i<20&&!CAP;i++){await new Promise(r=>setTimeout(r,100));CAP=capNow()}
+  return CAP;
+}
 const FO=()=>(CAP&&CAP.FileOpener)||(window.Capacitor&&window.Capacitor.registerPlugin?window.Capacitor.registerPlugin('FileOpener'):null);
 
 /* ---- textos: SOLO los que el modulo del lector le pide a la app (generados desde index.html) ---- */
@@ -50,6 +63,7 @@ const I18N={
   lxAnimNone:"Ninguna",
   lxAnimSlide:"Deslizar",
   lxBad:"No pude leer este epub",
+  lxNoMod:"El lector no está instalado en este dispositivo. Ábrelo desde la app: Ajustes → Lector integrado → descargar",
   lxChapter:(a,b)=>`Capítulo ${a} de ${b}`,
   lxEmptyCh:"(capítulo vacío)",
   lxFind:"Buscar en el libro",
@@ -75,6 +89,7 @@ const I18N={
   lxAnimNone:"None",
   lxAnimSlide:"Slide",
   lxBad:"Couldn’t read this epub",
+  lxNoMod:"The reader isn’t installed on this device. Open the app: Settings → Built-in reader → download",
   lxChapter:(a,b)=>`Chapter ${a} of ${b}`,
   lxEmptyCh:"(empty chapter)",
   lxFind:"Find in book",
@@ -97,7 +112,8 @@ let CFG=(()=>{const d={lang:(navigator.language||'es').toLowerCase().startsWith(
 function saveCfg(){try{const o=JSON.parse(localStorage.getItem(SKEY)||'{}');localStorage.setItem(SKEY,JSON.stringify(Object.assign(o,CFG)))}catch(e){}}
 function t(k,...a){const v=(I18N[CFG.lang]||I18N.es)[k];return typeof v==='function'?v(...a):(v==null?k:v)}
 let tt;function toast(m){const x=$('#toast');x.textContent=m;x.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>x.classList.remove('on'),2600)}
-const say=(m,btn,fn)=>{const e=$('#st');if(!e)return;e.hidden=false;e.innerHTML=`<div><p>${esc(m)}</p></div>`;
+const say=(m,btn,fn,det)=>{const e=$('#st');if(!e)return;e.hidden=false;
+  e.innerHTML=`<div><p>${esc(m)}</p>${det?`<pre>${esc(det)}</pre>`:''}</div>`;
   if(btn){const b=document.createElement('button');b.type='button';b.textContent=btn;b.onclick=fn;e.firstChild.appendChild(b)}};
 /* el fondo se pone del color del tema guardado para que no pegue un fogonazo blanco al abrir de noche */
 try{const th=(JSON.parse(localStorage.getItem(CK)||'{}')||{}).theme;
@@ -178,9 +194,16 @@ function writePatch(){
 }
 /* se escribe al instante: es un parche pequeño de un solo libro, y si Android congela la ventana al salir, un temporizador no llegaría a ejecutarse */
 const save=()=>writePatch();
-const flush=()=>writePatch();
+/* antes de dejar el parche, el lector anota la página exacta (si no, se guardaría la de hace un rato) */
+const flush=()=>{try{const L=window.__LECTOR__;if(L&&L.save)L.save()}catch(e){}writePatch()};
 addEventListener('pagehide',flush);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
+/* al ir a recientes o quitar la app de recientes, Android avisa con "pause" (la vista web a veces no) */
+let wired=false;
+function wireApp(){if(wired)return;try{if(CAP&&CAP.App&&CAP.App.addListener){wired=true;
+  CAP.App.addListener('pause',flush);CAP.App.addListener('appStateChange',s=>{if(s&&s.isActive===false)flush()});
+  CAP.App.addListener('backButton',()=>{const L=window.__LECTOR__;try{if(L&&L.back&&L.back())return}catch(e){}closeWin()})}}catch(e){}}
+wireApp();
 
 /* ---- cerrar la ventana (cierra la pantalla de Android, no solo la vista) ---- */
 let closing=false;
@@ -196,27 +219,49 @@ function closeWin(){
 try{history.pushState({lx:1},'')}catch(e){}
 addEventListener('popstate',()=>{closeWin()});
 /* con el boton "atras" del telefono: primero se cierra lo que haya encima (panel, menu, seleccion) y luego el libro */
-try{if(CAP&&CAP.App&&CAP.App.addListener)CAP.App.addListener('backButton',()=>{const L=window.__LECTOR__;try{if(L&&L.back&&L.back())return}catch(e){}closeWin()})}catch(e){}
+wireApp();
 
 /* ---- el modulo del lector: el mismo archivo que usa la app ---- */
+/* Si algo falla al abrir, en pantalla sale el rastro de lo que se intentó: así se sabe
+   en qué paso se rompió sin tener el aparato delante. */
+const DIAG=[];const dg=(k,v)=>DIAG.push(k+(v==null?'':'='+v));
+/* el plugin de archivos, igual que FO: si no está en Capacitor.Plugins se pide por su nombre */
+const FSP=()=>{try{return (CAP&&CAP.Filesystem)||(window.Capacitor&&window.Capacitor.registerPlugin?window.Capacitor.registerPlugin('Filesystem'):null)}catch(e){return null}};
+/* el lector descargado (vive fuera del APK, en los datos de la app) */
+async function fromData(){
+  const fs=FSP();dg('plugin',fs?'si':'NO');
+  if(!fs||!fs.readFile)throw new Error('sin plugin de archivos');
+  const rd=async n=>(await fs.readFile({path:RDR_DIR+'/'+n,directory:'DATA',encoding:'utf8'})).data;
+  const css=await rd('lector.css'),js=await rd('lector.js');
+  dg('css',(css||'').length);dg('js',(js||'').length);
+  if(!js||js.length<5000)throw new Error('lector.js incompleto ('+((js||'').length)+')');
+  const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+  const u=URL.createObjectURL(new Blob([js],{type:'text/javascript'}));
+  try{await import(u)}finally{setTimeout(()=>URL.revokeObjectURL(u),4000)}
+}
+/* respaldo: la carpeta lector/ junto a la página (pruebas y vista previa) */
+async function fromApp(){
+  const l=document.createElement('link');l.rel='stylesheet';l.href=RDR_DIR+'/lector.css';document.head.appendChild(l);
+  await import(new URL(RDR_DIR+'/lector.js',document.baseURI).href);
+}
 async function loadModule(){
   if(window.__LECTOR__)return window.__LECTOR__;
-  if(CAP&&CAP.Filesystem&&CFG.rdrVer){
-    const rd=async n=>(await CAP.Filesystem.readFile({path:RDR_DIR+'/'+n,directory:'DATA',encoding:'utf8'})).data;
-    const css=await rd('lector.css'),js=await rd('lector.js');
-    const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
-    const u=URL.createObjectURL(new Blob([js],{type:'text/javascript'}));
-    try{await import(u)}finally{setTimeout(()=>URL.revokeObjectURL(u),4000)}
-  }else{
-    const l=document.createElement('link');l.rel='stylesheet';l.href=RDR_DIR+'/lector.css';document.head.appendChild(l);
-    await import(new URL(RDR_DIR+'/lector.js',document.baseURI).href);
+  dg('app',VER);dg('lector',CFG.rdrVer||'-');dg('nativo',CAP?'si':'no');dg('pantalla',innerWidth+'x'+innerHeight);
+  const descargado=!!(CAP&&CFG.rdrVer);
+  try{await (descargado?fromData():fromApp())}
+  catch(e){
+    dg('fallo1',why(e));
+    /* si una vía falla se prueba la otra antes de rendirse */
+    try{await (descargado?fromApp():fromData())}catch(e2){dg('fallo2',why(e2));throw e}
   }
+  dg('modulo',window.__LECTOR__?'si':'NO');
   return window.__LECTOR__;
 }
 
 /* ---- arranque ---- */
 const id=new URLSearchParams(location.search).get('b')||'';
 say(t('lxLoading'));
+await capWait();wireApp();
 const S=await loadState();
 B=(S.books||[]).find(b=>b&&b.id===id)||null;
 if(B){
@@ -235,11 +280,11 @@ if(!B||!B.file){say(t('fileGone'),t('back'),closeWin);
     setStatus:(b,st)=>{b.status=st;b.read=st==='read';readFlag=st==='read';stFlag=true;flush()},
     markRead:b=>{b.status='read';b.read=true;readFlag=true;stFlag=true;flush()}};
   let L=null;
-  try{L=await loadModule()}catch(e){}
-  if(!L||!L.open){say(t('lxBad'),t('back'),closeWin)}
+  try{L=await loadModule()}catch(e){dg('error',why(e))}
+  if(!L||!L.open){say(!CFG.rdrVer&&!window.__LECTOR__?t('lxNoMod'):t('lxBad'),t('back'),closeWin,DIAG.join('\n'))}
   else{
     $('#st').hidden=true;
-    try{await L.open(B)}catch(e){say(t('lxBad'),t('back'),closeWin);return}
+    try{await L.open(B)}catch(e){dg('abrir',why(e));say(t('lxBad'),t('back'),closeWin,DIAG.join('\n'));return}
     /* cuando el lector se cierra (su boton de volver), se cierra la ventana entera */
     const el=document.querySelector('.lx');
     if(el)new MutationObserver(()=>{if(!el.classList.contains('on'))closeWin()}).observe(el,{attributes:true,attributeFilter:['class']});
