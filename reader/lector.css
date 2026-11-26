@@ -42,9 +42,11 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx-trk::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;margin-top:-.5px;background:var(--lx-soft);opacity:.35}
 .lx.ui .lx-trk::before{display:none}
 .lx.ui .lx-trk{height:34px;touch-action:none;cursor:pointer}
-.lx-segs{position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;display:none;gap:2px}
-.lx.ui .lx-segs{display:flex}
-.lx-segs i{display:block;height:100%;min-width:1px;border-radius:2px;background:var(--lx-line)}
+.lx-segs{position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;display:none;--lx-sgap:2px}
+.lx.ui .lx-segs{display:block}
+/* cada tramo va colocado en su sitio exacto (no repartido por flex): así el final de lo leído
+   cae justo bajo el puntito, que se coloca con ese mismo porcentaje */
+.lx-segs i{position:absolute;top:0;height:100%;min-width:1px;border-radius:2px;background:var(--lx-line)}
 .lx-segs i.done{background:var(--lx-ac)}
 .lx-segs i.part{background:linear-gradient(90deg,var(--lx-ac) var(--p),var(--lx-line) var(--p))}
 .lx-trk b{position:absolute;top:50%;left:0;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;
@@ -52,7 +54,7 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx.ui .lx-trk b{width:18px;height:18px;margin:-9px 0 0 -9px;box-shadow:0 1px 6px rgba(0,0,0,.3)}
 
 /* zona de texto: columnas del ancho de la pantalla, se avanza moviendo el carro */
-.lx-wrap{flex:1;position:relative;overflow:hidden;contain:strict;touch-action:pan-x}
+.lx-wrap{flex:1;position:relative;overflow:hidden;contain:strict;touch-action:none}
 .lx-move{position:absolute;inset:0;backface-visibility:hidden}
 .lx-col{height:100%;box-sizing:border-box;padding:calc(12px + env(safe-area-inset-top,0px)) var(--lx-pad,22px) calc(42px + min(env(safe-area-inset-bottom,0px),24px));
   column-fill:auto;column-gap:var(--lx-gap,44px);
@@ -210,9 +212,12 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx-menu button:active{background:var(--lx-sel)}
 
 /* ---- botón ES/EN ---- */
+/* con las barras visibles sube por encima del pie, para no taparse con el botón de girar la pantalla */
+.lx.ui .lx-lang{bottom:calc(92px + min(env(safe-area-inset-bottom,0px),24px))}
 .lx-lang{position:absolute;right:14px;bottom:calc(44px + min(env(safe-area-inset-bottom,0px),24px));z-index:6;min-width:44px;height:36px;padding:0 10px;
   border-radius:18px;border:1px solid var(--lx-line);background:var(--lx-bar);color:var(--lx-fg);font:700 13px var(--lx-ui);
   letter-spacing:.5px;box-shadow:0 3px 12px rgba(0,0,0,.2);cursor:pointer;opacity:.92}
+.lx-lang{transition:bottom .18s cubic-bezier(.4,0,.2,1)}
 .lx-lang[hidden]{display:none}
 
 /* ---- modo desplazar ---- */
@@ -334,3 +339,43 @@ html.lx-open,html.lx-open body{overflow:hidden!important;overscroll-behavior:non
 .lx-qmeta{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--lx-fg)}
 .lx-qact{display:flex;gap:10px}
 .lx-qact .lx-dbtn{min-width:120px;min-height:42px}
+
+/* ---- barra de navegación entre resultados de búsqueda ---- */
+.lx-srb{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(44px + min(env(safe-area-inset-bottom,0px),24px));z-index:6;display:flex;align-items:center;gap:0;padding:3px 4px;border-radius:24px;background:var(--lx-bar);border:1px solid var(--lx-line);box-shadow:0 3px 12px rgba(0,0,0,.22);font:700 13px var(--lx-ui);color:var(--lx-fg);transition:bottom .18s cubic-bezier(.4,0,.2,1)}
+.lx.ui .lx-srb{bottom:calc(92px + min(env(safe-area-inset-bottom,0px),24px))}
+.lx-srb[hidden]{display:none}
+.lx-srb .lx-ico{width:38px;height:38px}
+.lx-srn{min-width:50px;text-align:center;letter-spacing:.3px}
+.lx-item.cur{background:var(--lx-sel)}
+::highlight(lx-sr){background:rgba(127,71,163,.42);color:inherit}
+.lx-srm{background:rgba(127,71,163,.42);color:inherit;border-radius:3px}
+
+.lx-tm{display:flex;align-items:center;gap:8px}
+.lx-tm i{font-style:normal;color:var(--lx-soft)}
+.lx-tm input[type=time]{font:600 14px var(--lx-ui);color:var(--lx-fg);background:var(--lx-sel);border:1px solid var(--lx-line);border-radius:10px;padding:6px 8px}
+
+/* ---- felicitación al terminar ---- */
+.lx-fin{position:relative;min-height:100%;padding:34px 20px 30px;text-align:center;overflow:hidden;font-family:var(--lx-ui)}
+.lx-fin h2{margin:0;font:700 26px var(--lx-ui);color:var(--lx-ac)}
+.lx-fsub{margin:4px 0 14px;color:var(--lx-soft);font-size:14px}
+.lx-fcov{width:min(46%,190px);margin:0 auto 14px}
+.lx-fcov img{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 8px 26px rgba(0,0,0,.32)}
+.lx-fcl{aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;border-radius:6px;background:linear-gradient(135deg,#6a2f8f,#2a1245);color:#fff;font:700 54px var(--lx-ui);box-shadow:0 8px 26px rgba(0,0,0,.32)}
+.lx-ftit{font:600 17px var(--lx-ui);color:var(--lx-fg);margin-bottom:14px}
+.lx-ftit small{display:block;font-weight:400;font-size:13px;color:var(--lx-soft);margin-top:2px}
+.lx-ftiles{display:flex;gap:8px;justify-content:center;margin:0 auto 16px;max-width:430px}
+.lx-ftiles div{flex:1;min-width:0;padding:10px 4px;border-radius:12px;background:var(--lx-sel);border:1px solid var(--lx-line)}
+.lx-ftiles b{display:block;font:700 19px var(--lx-ui);color:var(--lx-ac)}
+.lx-ftiles span{display:block;font-size:10px;letter-spacing:.3px;text-transform:uppercase;color:var(--lx-soft);margin-top:2px}
+.lx-frate{margin:6px 0 12px}
+.lx-frate>span{display:block;font-size:12px;color:var(--lx-soft);margin-bottom:4px}
+.lx-fst{display:inline-flex}
+.lx-st{position:relative;display:inline-block;width:40px;height:40px;font-size:36px;line-height:40px;color:var(--lx-line)}
+.lx-st b{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:#e8b84a;font-weight:400}
+.lx-st button{position:absolute;top:0;width:50%;height:100%;border:0;background:none;padding:0;cursor:pointer}
+.lx-st button:first-of-type{left:0}.lx-st button:last-of-type{right:0}
+.lx-fin textarea{display:block;width:100%;max-width:430px;margin:0 auto 14px;box-sizing:border-box;padding:10px 12px;border-radius:12px;border:1px solid var(--lx-line);background:var(--lx-sel);color:var(--lx-fg);font:15px/1.4 var(--lx-ui);resize:none}
+.lx-fdone{min-width:140px}
+.lx-conf{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;overflow:hidden}
+.lx-conf i{position:absolute;top:-14px;width:8px;height:13px;border-radius:2px;opacity:0;animation:lxConf 2.6s ease-in 1 both}
+@keyframes lxConf{0%{opacity:1;transform:translate3d(0,0,0) rotate(var(--r))}100%{opacity:0;transform:translate3d(18px,520px,0) rotate(calc(var(--r) + 540deg))}}

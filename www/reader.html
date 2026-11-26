@@ -34,7 +34,7 @@ body.dk #st button{background:#c9a6e3;color:#1d1626}
 const KEY='por-leer-v2',SKEY='por-leer-ajustes',TSKEY='por-leer-ts',REFKEY='por-leer-refs',PKEY='por-leer-rdr-patch',CK='por-leer-lector';
 const RDR_DIR='lector',MAXMETA=24*1024*1024;
 /* versión del APK: sale en el diagnóstico para ver si el APK y el lector descargado van a la par */
-const VER='0.19.8';
+const VER='0.19.13';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -170,7 +170,7 @@ async function loadState(){
 }
 const pkey=id=>PKEY+':'+id;
 const readPatch=id=>{try{return JSON.parse(localStorage.getItem(pkey(id))||'null')}catch(e){return null}};
-const PFIELDS=['pos','marks','hl','file','file2','looks','vl'];
+const PFIELDS=['pos','marks','hl','file','file2','looks','vl','rt','rating','note'],OPT=['rating','note'],touched=new Set();
 let B=null,readFlag=false,stFlag=false;
 const stOf=b=>b.status||(b.read?'read':'unread');
 
@@ -185,7 +185,7 @@ function writePatch(){
   if(!B)return;
   try{
     const p=readPatch(B.id)||{};
-    PFIELDS.forEach(k=>{p[k]=B[k]===undefined?null:B[k]});
+    PFIELDS.forEach(k=>{if(OPT.indexOf(k)>=0&&!touched.has(k))return;p[k]=B[k]===undefined?null:B[k]});
     if(readFlag)p.read=true;else delete p.read;
     if(stFlag)p.st=B.status||'unread';
     p.t=Date.now();
@@ -273,7 +273,7 @@ if(B){
 if(!B||!B.file){say(t('fileGone'),t('back'),closeWin);
 }else if(!CAP&&!window.__LECTOR__&&!location.protocol.startsWith('http')){say(t('lxBad'),t('back'),closeWin);
 }else{
-  window.TBR={FS,lib,book:x=>(B&&B.id===x?B:null),save,t,esc,norm,toast,CFG,saveCfg,I18N,CAP,FO,
+  window.TBR={FS,lib,book:x=>(B&&B.id===x?B:null),save,touch:k=>touched.add(k),t,esc,norm,toast,CFG,saveCfg,I18N,CAP,FO,
     relink:async b=>{try{const {ref}=await FS.pickNative();b.file=ref;flush();toast(t('fileRelinked'));return true}catch(e){return false}},
     isRead:b=>stOf(b)==='read',
     status:b=>stOf(b),

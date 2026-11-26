@@ -31,10 +31,9 @@ body{
 }
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0;padding:0}
-:root{--w:520px}
-/* pantallas anchas (tableta): la columna crece en vez de quedarse del tamaño de un teléfono */
-@media (min-width:700px){:root{--w:720px}}
-@media (min-width:1000px){:root{--w:860px}}
+:root{--w:min(100vw,1400px)}
+/* pantallas anchas (tableta): la columna se ajusta a la pantalla en vez de quedarse del tamaño de un
+   teléfono con un borde vacío a los lados */
 .app{max-width:var(--w);margin:0 auto;padding:18px 16px calc(132px + env(safe-area-inset-bottom,0px))}
 
 /* Cabecera */
@@ -485,7 +484,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const KEY='por-leer-v2',SKEY='por-leer-ajustes';
 /* Versión semántica MAYOR.MENOR.PARCHE · BUILD = versionCode de Android (sube +1 en cada actualización) */
-const VERSION='0.19.8',BUILD=109;
+const VERSION='0.19.13',BUILD=114;
 /* App instalada (Capacitor): plugins nativos para compartir, guardar archivos y botón atrás */
 const CAP=(()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C.Plugins:null}catch(e){return null}})();
 async function nativeShareFile(name,text){
@@ -598,7 +597,7 @@ const I18N={
   storage:'Los datos se guardan solo en este dispositivo.',
   genres:'Géneros',genreOther:'Otro género',genreAdd:'Añadir',genreNone:'Sin género',genrePh:'Escribe un género',suggAuthor:'¿Es de…?',magic:'Fondo mágico',magicD:'Degradado diagonal morado con brillos y tarjetas semitransparentes (en teléfonos muy lentos viene apagado)',fileBig:'Archivo grande: se enlazó sin leer portada ni datos',updT:'Actualizaciones',updCheck:'Buscar actualización',updInst:v=>`Versión instalada: ${v}`,updChecking:'Buscando…',updNone:'Ya tienes la última versión',updNew:(v,b)=>`Nueva versión ${v} (build ${b})`,updGet:'Toca para descargar e instalar',updWeb:'Toca para abrir la página de descargas',updGetBtn:'Instalar',updOpenBtn:'Abrir',updDl:'Descargando…',updNeedPerm:'Activa «Permitir de esta fuente» y toca de nuevo',updFail:'No pude buscar actualizaciones',updDlFail:'No pude descargar la actualización',updOffline:'Sin conexión a internet',updNotify:'Avisar de nuevas versiones',updNotifyD:'Al abrir la app comprueba (una vez al día, con internet)',updAvail:v=>`Hay una nueva versión (${v}). Ajustes → Actualizaciones`,suggGenres:'Géneros sugeridos:',strike:'Tachar libros leídos',strikeD:'Quita la línea sobre título y autor; se mantiene el tono apagado',groupSortL:'Orden sin número manual',groupSortD:'Si un libro o serie agrupado no tiene un número de Orden puesto, se ordena por esto',innerGen:'Géneros en libros agrupados',innerGenD:'Los libros dentro de una serie o universo también muestran su género',autoSaga:'Crear series autodetectadas',autoSagaD:'Activado: si la serie no existe, la crea. Apagado: solo la usa si ya la tienes.',sType:'Por tipo (libros, series, universos)',scanIsbn:'Escanear ISBN',scanT:'Apunta al código de barras del libro',scanManual:'O escribe el ISBN',needNet:'Necesitas conexión a internet para escanear un ISBN',isbnLook:'Buscando libro…',isbnNone:'No encontré ese ISBN',isbnBad:'ISBN no válido',camDenied:'No pude usar la cámara. Escribe el ISBN.',ok:'OK',
   g_fantasy:'Fantasía',g_scifi:'Ciencia ficción',g_romance:'Romance',g_mystery:'Policiaco',g_thriller:'Suspenso',g_horror:'Terror',g_historical:'Histórica',g_ya:'Juvenil',g_classic:'Clásico',g_dystopia:'Distopía',g_action:'Acción',g_drama:'Drama',g_nonfic:'No ficción',g_bio:'Biografía',g_selfhelp:'Desarrollo personal',g_comic:'Cómic y manga',g_poetry:'Poesía',g_adventure:'Aventura',
-  statsT:'Estadísticas',statsSub:'Tu lectura de un vistazo',stRead:'Leídos',stPending:'Pendientes',stAvg:'Nota media',stYear:'Este año',stRatings:'Tus notas',stGenres:'Por género',stAuthors:'Autores con más libros',stMonths:'Leídos por mes',stNoGenres:'Añade géneros a tus libros para ver aquí cuáles lees más.',stNoDates:'Desde ahora se guarda la fecha en que marcas un libro como leído; aquí verás tu ritmo por mes.',stEmpty:'Aún no hay libros. Añade alguno y aquí verás tus estadísticas.',stLegend:'Oscuro = leídos · claro = pendientes',stUnrated:'Sin nota',stClose:'Cerrar',
+  statsT:'Estadísticas',rtT:'Tiempo de lectura',rtToday:'Hoy',rtWeek:'7 días',rtTotal:'Total',rtDays:'Últimos 7 días',rtBooks:'Libros a los que más tiempo has dedicado',rtNone:'Aún no hay tiempo registrado. Se cuenta mientras lees dentro del lector.',rtLess:'<1 min',statsSub:'Tu lectura de un vistazo',stRead:'Leídos',stPending:'Pendientes',stAvg:'Nota media',stYear:'Este año',stRatings:'Tus notas',stGenres:'Por género',stAuthors:'Autores con más libros',stMonths:'Leídos por mes',stNoGenres:'Añade géneros a tus libros para ver aquí cuáles lees más.',stNoDates:'Desde ahora se guarda la fecha en que marcas un libro como leído; aquí verás tu ritmo por mes.',stEmpty:'Aún no hay libros. Añade alguno y aquí verás tus estadísticas.',stLegend:'Oscuro = leídos · claro = pendientes',stUnrated:'Sin nota',stClose:'Cerrar',
   st_unread:'Por leer',st_reading:'Leyendo',st_read:'Leído',st_dropped:'Abandonado',
   stD_unread:'Aún no lo empiezo',stD_reading:'Lo estoy leyendo ahora',stD_read:'Lo terminé',stD_dropped:'Lo dejé a medias y no pienso terminarlo',
   statusT:'Estado del libro',statusSub:'¿En qué punto está?',readingF:'Leyendo',droppedF:'Abandonados',stateL:'Estado',stateHint:'Puedes elegir varios a la vez',
@@ -693,7 +692,7 @@ const I18N={
   storage:'Your data is stored only on this device.',
   genres:'Genres',genreOther:'Other genre',genreAdd:'Add',genreNone:'No genre',genrePh:'Type a genre',suggAuthor:'Is it by…?',magic:'Magic background',magicD:'Diagonal purple gradient with sparkles and translucent cards',fileBig:'Large file: linked without reading cover or details',updT:'Updates',updCheck:'Check for updates',updInst:v=>`Installed version: ${v}`,updChecking:'Checking…',updNone:'You have the latest version',updNew:(v,b)=>`New version ${v} (build ${b})`,updGet:'Tap to download and install',updWeb:'Tap to open the downloads page',updGetBtn:'Install',updOpenBtn:'Open',updDl:'Downloading…',updNeedPerm:'Turn on “Allow from this source” and tap again',updFail:'Couldn’t check for updates',updDlFail:'Couldn’t download the update',updOffline:'No internet connection',updNotify:'Notify about new versions',updNotifyD:'When the app opens it checks (once a day, online)',updAvail:v=>`A new version is available (${v}). Settings → Updates`,suggGenres:'Suggested genres:',strike:'Strike through read books',strikeD:'Removes the line over title and author; keeps the faded look',groupSortL:'Order without a manual number',groupSortD:'If a grouped book or series has no manual Order number set, this decides how it sorts',innerGen:'Genres on grouped books',innerGenD:'Books inside a series or universe also show their genres',autoSaga:'Create auto-detected series',autoSagaD:'On: creates the detected series if it doesn’t exist. Off: only uses it if you already have it.',sType:'By type (books, series, universes)',scanIsbn:'Scan ISBN',scanT:'Point at the book’s barcode',scanManual:'Or type the ISBN',needNet:'You need an internet connection to scan an ISBN',isbnLook:'Looking up the book…',isbnNone:'I couldn’t find that ISBN',isbnBad:'Invalid ISBN',camDenied:'Couldn’t use the camera. Type the ISBN.',ok:'OK',
   g_fantasy:'Fantasy',g_scifi:'Sci-fi',g_romance:'Romance',g_mystery:'Crime',g_thriller:'Thriller',g_horror:'Horror',g_historical:'Historical',g_ya:'Juvenile',g_classic:'Classic',g_dystopia:'Dystopia',g_action:'Action',g_drama:'Drama',g_nonfic:'Non-fiction',g_bio:'Biography',g_selfhelp:'Self-help',g_comic:'Comics & manga',g_poetry:'Poetry',g_adventure:'Adventure',
-  statsT:'Statistics',statsSub:'Your reading at a glance',stRead:'Read',stPending:'To read',stAvg:'Avg rating',stYear:'This year',stRatings:'Your ratings',stGenres:'By genre',stAuthors:'Most-read authors',stMonths:'Read per month',stNoGenres:'Add genres to your books to see which ones you read most.',stNoDates:'From now on the date you mark a book as read is saved; you’ll see your monthly pace here.',stEmpty:'No books yet. Add some and your statistics will show up here.',stLegend:'Dark = read · light = to read',stUnrated:'Unrated',stClose:'Close',
+  statsT:'Statistics',rtT:'Reading time',rtToday:'Today',rtWeek:'7 days',rtTotal:'Total',rtDays:'Last 7 days',rtBooks:'Books you spent the most time on',rtNone:'No time recorded yet. It is counted while you read inside the reader.',rtLess:'<1 min',statsSub:'Your reading at a glance',stRead:'Read',stPending:'To read',stAvg:'Avg rating',stYear:'This year',stRatings:'Your ratings',stGenres:'By genre',stAuthors:'Most-read authors',stMonths:'Read per month',stNoGenres:'Add genres to your books to see which ones you read most.',stNoDates:'From now on the date you mark a book as read is saved; you’ll see your monthly pace here.',stEmpty:'No books yet. Add some and your statistics will show up here.',stLegend:'Dark = read · light = to read',stUnrated:'Unrated',stClose:'Close',
   st_unread:'To read',st_reading:'Reading',st_read:'Read',st_dropped:'Dropped',
   stD_unread:'Haven’t started it',stD_reading:'Reading it right now',stD_read:'Finished it',stD_dropped:'Stopped halfway and won’t finish it',
   statusT:'Book status',statusSub:'Where are you with it?',readingF:'Reading',droppedF:'Dropped',stateL:'Status',stateHint:'You can pick several at once',
@@ -848,7 +847,7 @@ try{if(CAP&&CAP.App&&CAP.App.addListener){CAP.App.addListener('pause',()=>{rdrSa
 /* ---- lo que guardó la ventana aparte del lector ----
    Esa ventana nunca reescribe la lista (hay dos copias en memoria y se pisarían): deja los cambios
    en una clave por libro y la app los aplica a su copia al volver. */
-const PKEY='por-leer-rdr-patch',PFIELDS=['pos','marks','hl','file','file2','looks','vl'];
+const PKEY='por-leer-rdr-patch',PFIELDS=['pos','marks','hl','file','file2','looks','vl','rt','rating','note'];
 function rdrPatchApply(){
   let keys=[];
   try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(PKEY+':')===0)keys.push(k)}}catch(e){return false}
@@ -2693,6 +2692,24 @@ function statsForm(){
       <div class="mwrap"><div class="myrhead"><div class="myrlabel" id="myrlabel">${statsYear}</div><div class="myrsum" id="myrsum">${yearSum(statsYear)}</div></div><div id="mgrid">${monthsGrid(statsYear)}</div></div>
       <button type="button" class="yarr" id="ynext" aria-label="${t('yearNext')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>`:`<p class="note">${t('stNoDates')}</p>`;
+  /* tiempo de lectura: sale del lector (cada libro guarda los segundos por día) */
+  const fmtT=sec=>{const m=Math.round(sec/60);if(sec<30)return t('rtLess');return m<60?m+' min':Math.floor(m/60)+' h'+(m%60?' '+(m%60)+' min':'')};
+  const dk=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const dayTot={};B.forEach(b=>{if(b.rt)for(const k in b.rt)dayTot[k]=(dayTot[k]||0)+(+b.rt[k]||0)});
+  const totAll=Object.values(dayTot).reduce((a,v)=>a+v,0);
+  const timeSec=(()=>{
+    if(totAll<20)return `<p class="note">${t('rtNone')}</p>`;
+    const wd=new Intl.DateTimeFormat(CFG.lang,{weekday:'narrow'}),last=[];
+    for(let i=6;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()-i);last.push({d,s:dayTot[dk(d)]||0})}
+    const wk=last.reduce((a,x)=>a+x.s,0),mx=Math.max(1,...last.map(x=>x.s));
+    const tb=B.filter(b=>b.rt&&Object.keys(b.rt).length).map(b=>({b,s:Object.values(b.rt).reduce((a,v)=>a+(+v||0),0)})).filter(x=>x.s>=20).sort((a,z)=>z.s-a.s).slice(0,5),tmx=tb.length?tb[0].s:1;
+    return `<div class="tiles" style="grid-template-columns:repeat(3,1fr)">
+        <div class="tile"><b>${fmtT(last[6].s)}</b><span>${t('rtToday')}</span></div>
+        <div class="tile"><b>${fmtT(wk)}</b><span>${t('rtWeek')}</span></div>
+        <div class="tile"><b>${fmtT(totAll)}</b><span>${t('rtTotal')}</span></div></div>
+      <div class="months" style="margin-top:12px">${last.map(x=>`<div class="${x.s?'':'z'}"><span>${x.s?Math.round(x.s/60):''}</span><i style="height:${x.s?Math.max(8,Math.round(x.s/mx*62)):3}px"></i><span>${esc(wd.format(x.d))}</span></div>`).join('')}</div>
+      ${tb.length?`<div class="sec">${t('rtBooks')}</div>`+tb.map(x=>`<div class="bar"><span class="bn">${esc(x.b.title||'')}</span><span class="bt2"><i style="width:${Math.max(4,Math.round(x.s/tmx*100))}%"><b style="width:100%"></b></i></span><span class="bv" style="white-space:nowrap">${fmtT(x.s)}</span></div>`).join(''):''}`;
+  })();
   openView(medal(I_ST),t('statsT'),t('statsSub'),`
     <div class="tiles">
       <div class="tile"><b>${readB.length}</b><span>${t('stRead')}</span></div>
@@ -2701,6 +2718,7 @@ function statsForm(){
       <div class="tile"><b>${nDropped}</b><span>${t('stDropped')}</span></div>
     </div>
     <div class="sec">${t('stMonths')}</div>${months}
+    <div class="sec">${t('rtT')}</div>${timeSec}
     <div class="sec">${t('stGenres')}</div>
     ${gl.length?gl.map(([g,o])=>bar(gname(g),o.t,o.r,gmax,gvars(g))).join(''):`<p class="note">${t('stNoGenres')}</p>`}
     <div class="sec">${t('stAuthors')}</div>

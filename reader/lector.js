@@ -16,6 +16,7 @@ const I = {
   back: SVG('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
   toc:  SVG('<path d="M3 6h11M3 12h11M3 18h11"/><circle cx="19" cy="6" r=".9" fill="currentColor"/><circle cx="19" cy="12" r=".9" fill="currentColor"/><circle cx="19" cy="18" r=".9" fill="currentColor"/>'),
   find: SVG('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
+  findbk: SVG('<path d="M2.5 9.5c2.1-.9 4.4-.9 6.3.4V21c-1.9-1.2-4.2-1.2-6.3-.3z"/><path d="M8.8 9.9c1.9-1.3 4.1-1.4 6-.6V20c-2-.8-4.1-.7-6 .9"/><circle cx="16" cy="8" r="4.3" fill="var(--lx-bar,#fff)"/><path d="M19.2 11.2l3 3"/>', 20),
   aa:   SVG('<path d="M3 6c2.6-1 5.4-1 8 .6V20c-2.6-1.6-5.4-1.6-8-.6z"/><path d="M11 6.6c2-1.2 4-1.4 6-.9"/><path d="M20.5 9.5l-7.7 7.7-3 .6.6-3 7.7-7.7a1.4 1.4 0 0 1 2 0l.4.4a1.4 1.4 0 0 1 0 2z" fill="var(--lx-bar,#fff)"/><path d="M17.4 8.6l2.1 2.1"/>'),
   rot:  SVG('<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3 9a8 8 0 0 1 3-4M21 15a8 8 0 0 1-3 4"/>'),
   bm:   SVG('<path d="M6 3h12v18l-6-4.5L6 21z"/>'),
@@ -46,7 +47,7 @@ const X = {
     note: 'Nota', notePh: 'Escribe una nota…', save: 'Guardar', del: 'Eliminar', edit: 'Editar',
     dict: 'Diccionario', copy: 'Copiar', copied: 'Copiado', hlDel: 'Quitar',
     c_y: 'Amarillo', c_g: 'Verde', c_b: 'Azul', c_p: 'Rosa',
-    relink: 'Elegir el archivo otra vez', finished: 'Llegaste al final del libro', markRead: 'Marcar como leído', notNow: 'Ahora no', markedRead: 'Marcado como leído', prevCh: 'Capítulo anterior', nextCh: 'Capítulo siguiente', speed: 'Velocidad', speaking: 'Leyendo en voz alta',
+    relink: 'Elegir el archivo otra vez', finished: 'Llegaste al final del libro', markRead: 'Marcar como leído', notNow: 'Ahora no', finT: '¡Felicidades!', finSub: 'Terminaste este libro', finTime: 'Tiempo leído', finDaysAll: 'Días en total', finDaysRd: 'Días leyendo', finHl: 'Subrayados', finRate: 'Tu valoración', finNotePh: 'Un comentario sobre el libro (opcional)', finDone: 'Listo', finHr: 'h', finLess: '<1 min', schT: 'Modo según la hora', schOff: 'Apagado', schSys: 'Del sistema', schTime: 'Horario', schFrom: 'De noche, desde / hasta', schNight: 'Tema de noche', schBr: 'Brillo de noche', schNoBr: 'sin cambios', schHint: 'De día vuelve a tu tema y brillo de siempre.', srPrev: 'Resultado anterior', srNext: 'Resultado siguiente', srList: 'Volver a la lista de resultados', srExit: 'Salir de la búsqueda', markedRead: 'Marcado como leído', prevCh: 'Capítulo anterior', nextCh: 'Capítulo siguiente', speed: 'Velocidad', speaking: 'Leyendo en voz alta',
     ver: n => n === 0 ? 'Versión 1' : 'Versión 2',
   },
   en: {
@@ -64,7 +65,7 @@ const X = {
     note: 'Note', notePh: 'Write a note…', save: 'Save', del: 'Delete', edit: 'Edit',
     dict: 'Dictionary', copy: 'Copy', copied: 'Copied', hlDel: 'Remove',
     c_y: 'Yellow', c_g: 'Green', c_b: 'Blue', c_p: 'Pink',
-    relink: 'Pick the file again', finished: 'You reached the end of the book', markRead: 'Mark as read', notNow: 'Not now', markedRead: 'Marked as read', prevCh: 'Previous chapter', nextCh: 'Next chapter', speed: 'Speed', speaking: 'Reading aloud',
+    relink: 'Pick the file again', finished: 'You reached the end of the book', markRead: 'Mark as read', notNow: 'Not now', finT: 'Congratulations!', finSub: 'You finished this book', finTime: 'Time read', finDaysAll: 'Days in total', finDaysRd: 'Days reading', finHl: 'Highlights', finRate: 'Your rating', finNotePh: 'A comment about the book (optional)', finDone: 'Done', finHr: 'h', finLess: '<1 min', schT: 'Mode by time of day', schOff: 'Off', schSys: 'System', schTime: 'Schedule', schFrom: 'Night, from / to', schNight: 'Night theme', schBr: 'Night brightness', schNoBr: 'unchanged', schHint: 'By day it goes back to your usual theme and brightness.', srPrev: 'Previous result', srNext: 'Next result', srList: 'Back to the results list', srExit: 'Leave search', markedRead: 'Marked as read', prevCh: 'Previous chapter', nextCh: 'Next chapter', speed: 'Speed', speaking: 'Reading aloud',
     ver: n => n === 0 ? 'Version 1' : 'Version 2',
   }
 };
@@ -75,7 +76,7 @@ const T = (k, ...a) => {
   return typeof v === 'function' ? v(...a) : v;
 };
 
-const DEF = { theme:'light', fs:18, lh:1.55, pad:22, anim:'slide', dim:0, mode:'page', rate:1, cols:2, bright:null, paras:'indent', fg:'', font:'serif' };
+const DEF = { theme:'light', fs:18, lh:1.55, pad:22, anim:'slide', dim:0, mode:'page', rate:1, cols:2, bright:null, paras:'indent', fg:'', font:'serif', sch:'off', schA:'20:00', schB:'07:00', schTh:'dark', schBr:25, schS:'', dayTh:'', dayBr:null };
 const CK = 'por-leer-lector';
 let P = (() => { try { return Object.assign({}, DEF, JSON.parse(localStorage.getItem(CK) || '{}')); } catch (e) { return { ...DEF }; } })();
 const savePrefs = () => { try { localStorage.setItem(CK, JSON.stringify(P)); } catch (e) {} };
@@ -256,7 +257,7 @@ async function chapterHtml(b, item, vid) {
 
 /* ---------- estado ---------- */
 let el = null, bk = null, bks = [null, null], ver = 0, cur = null, si = 0, page = 0, pages = 1;
-let busy = false, curling = false, searchTok = 0, chapHtml = '', selInfo = null, hlEdit = null, finAsked = false;
+let busy = false, curling = false, searchTok = 0, sr = null, lastS = null, srEl = null, srHl = false, chapHtml = '', selInfo = null, hlEdit = null, finAsked = false;
 /* referencias fijas: se buscan una sola vez al construir la vista, no en cada cuadro */
 let wrapEl, moveEl, colEl, dimEl, loadEl, panelEl, authEl, chapEl, pgEl, pctEl, trkEl, segsEl, dotEl, dockEl, menuEl, titleEl, bmEl, ribEl, langEl, navEl, cvEl, cviEl, csEl, flapEl, flapIn, fshEl;
 let trkW = 0, fadeA = null;
@@ -294,6 +295,13 @@ function build() {
       <div class="lx-bpill" id="lxBpill"></div>
     </div>
     <button type="button" class="lx-lang" id="lxLang" data-x="lang" hidden></button>
+    <div class="lx-srb" id="lxSr" hidden>
+      <button type="button" class="lx-ico" data-x="srprev" aria-label="${esc(T('srPrev'))}">${SVG('<path d="M15 6l-6 6 6 6"/>', 22)}</button>
+      <span class="lx-srn" id="lxSrN"></span>
+      <button type="button" class="lx-ico" data-x="srnext" aria-label="${esc(T('srNext'))}">${SVG('<path d="M9 6l6 6-6 6"/>', 22)}</button>
+      <button type="button" class="lx-ico" data-x="srlist" aria-label="${esc(T('srList'))}">${I.findbk}</button>
+      <button type="button" class="lx-ico" data-x="srx" aria-label="${esc(T('srExit'))}">${I.x}</button>
+    </div>
     <div class="lx-dock" id="lxDock"></div>
     <div class="lx-foot">
       <div class="lx-fi"><span id="lxPg"></span><span class="lx-sep">·</span><span id="lxPct"></span>
@@ -308,9 +316,11 @@ function build() {
   authEl = $('#lxAuthor', el); chapEl = $('#lxChap', el); pgEl = $('#lxPg', el); pctEl = $('#lxPct', el);
   trkEl = $('#lxTrk', el); segsEl = $('#lxSegs', el); dotEl = $('#lxDot', el); wireTrack();
   dockEl = $('#lxDock', el); menuEl = $('#lxMenu', el); titleEl = $('#lxTitle', el);
-  bmEl = $('#lxBm', el); ribEl = $('#lxRib', el); langEl = $('#lxLang', el);
+  bmEl = $('#lxBm', el); ribEl = $('#lxRib', el); langEl = $('#lxLang', el); srEl = $('#lxSr', el);
   navEl = $('#lxNav', el); cvEl = $('#lxCv', el); cviEl = $('#lxCvi', el); csEl = $('#lxCs', el); flapEl = $('#lxCf', el); flapIn = $('#lxCfi', el); fshEl = $('#lxFsh', el);
   el.addEventListener('click', onTap);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && el.classList.contains('on')) { schTick(); rtLast = Date.now(); } });
+  try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (P.sch === 'sys' && el.classList.contains('on')) schTick(); }); } catch (e) {}
   document.addEventListener('visibilitychange', () => { if (document.hidden && el.classList.contains('on') && bk) { clearTimeout(posT); writePos(); } });
 
   const w = wrapEl;
@@ -330,9 +340,9 @@ function build() {
     tapY = null;
   });
   /* deslizar para pasar página. Con "pasar hoja" la hoja sigue al dedo mientras arrastras */
-  let x0 = null, y0 = null, lx = 0, lt = 0, vx = 0, drag = false, bz = null;
+  let x0 = null, y0 = null, lx = 0, lt = 0, vx = 0, drag = false, bz = null, sd = null;
   w.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) { if (drag) { drag = false; curlSettle(false); } x0 = null; return; }
+    if (e.touches.length !== 1) { if (drag) { drag = false; curlSettle(false); } if (sd) slideEnd(0, true); x0 = null; return; }
     const tch = e.touches[0]; x0 = tch.clientX; y0 = tch.clientY; lx = x0; lt = performance.now(); vx = 0; drag = false;
     bz = null;
   }, { passive: true });
@@ -346,9 +356,23 @@ function build() {
       }
       if (bz) { setBright(Math.max(0.02, Math.min(1, bz.v0 - (tch.clientY - bz.y0) / (w.clientHeight * 0.8))), true); return; }
     }
-    if (P.mode === 'scroll' || P.anim !== 'curl' || hasSel()) return;
+    if (P.mode === 'scroll' || hasSel() || (P.anim !== 'curl' && P.anim !== 'slide')) return;
     const tch = e.touches[0], dx = tch.clientX - x0, dy = tch.clientY - y0, now = performance.now();
     vx = (tch.clientX - lx) / Math.max(1, now - lt) * 0.6 + vx * 0.4; lx = tch.clientX; lt = now;
+    /* "deslizar": la página sigue al dedo; al soltar se completa o vuelve */
+    if (P.anim === 'slide') {
+      if (!sd) {
+        if (busy || curling || Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+        ttsStop(); hideUi();
+        let b0 = -page * wrapEl.clientWidth;
+        try { const m = new DOMMatrix(getComputedStyle(moveEl).transform); if (isFinite(m.m41)) b0 = m.m41; } catch (e2) {}
+        sd = { b: b0, w: wrapEl.clientWidth };
+        moveEl.style.transition = 'none';
+      }
+      const d = dx < 0 ? 1 : -1, n = page + d;
+      moveEl.style.transform = `translate3d(${(sd.b + ((n < 0 || n >= pages) ? dx * 0.3 : dx)).toFixed(1)}px,0,0)`;
+      return;
+    }
     if (!drag) {
       if (busy || Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
       const d = dx < 0 ? 1 : -1, n = page + d;
@@ -359,12 +383,13 @@ function build() {
     }
     curlDragMove(dx, dy);
   }, { passive: true });
-  w.addEventListener('touchcancel', () => { if (drag) { drag = false; curlSettle(false); } if (bz) { bz = null; savePrefs(); } x0 = null; }, { passive: true });
+  w.addEventListener('touchcancel', () => { if (drag) { drag = false; curlSettle(false); } if (sd) slideEnd(0, true); if (bz) { bz = null; savePrefs(); } x0 = null; }, { passive: true });
   w.addEventListener('touchend', e => {
     if (x0 == null) return;
     if (bz) { bz = null; x0 = null; savePrefs(); return; }
     const tch = e.changedTouches[0], dx = tch.clientX - x0, dy = tch.clientY - y0;
     x0 = null;
+    if (sd) { slideEnd(dx, false, vx); return; }
     if (drag) {
       drag = false;
       const g = cg;
@@ -374,6 +399,19 @@ function build() {
     if (P.mode === 'scroll' || hasSel()) return;
     if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.6) { dx < 0 ? go(1) : go(-1); }
   }, { passive: true });
+  /* suelta la página arrastrada: si pasó de cierta distancia (o fue un gesto rápido) se completa con la animación normal; si no, vuelve */
+  function slideEnd(dx, cancel, v) {
+    const s = sd; sd = null; if (!s) return;
+    const base = -page * wrapEl.clientWidth, d = dx < 0 ? 1 : -1, n = page + d;
+    moveEl.style.transition = '';
+    if (!cancel && n >= 0 && n < pages && (Math.abs(dx) > s.w * 0.18 || (Math.abs(v || 0) > 0.4 && Math.abs(dx) > 12 && (v < 0) === (d > 0)))) { go(d, true); return; }
+    if (!cancel && (n < 0 || n >= pages) && Math.abs(dx) > 48) {
+      /* en el borde del capítulo: se deja la página en su sitio y sigue el cambio de capítulo normal */
+      moveEl.style.transition = 'none'; moveEl.style.transform = `translate3d(${base}px,0,0)`; void moveEl.offsetWidth; moveEl.style.transition = '';
+      go(d); return;
+    }
+    moveEl.style.transform = `translate3d(${base}px,0,0)`;
+  }
   /* modo desplazar: el avance se calcula al mover el scroll */
   let raf = 0;
   w.addEventListener('scroll', () => {
@@ -452,6 +490,74 @@ function snapImgs(lhp, ch) {
     const ex = Math.max(0, tot - h);
     x.style.marginTop = (ex / 2) + 'px'; x.style.marginBottom = (ex / 2) + 'px';
   });
+}
+/* Algunos epub traen la misma ilustración dos veces seguidas (grande y pequeña, o la portada repetida).
+   Se ven las dos porque el lector no carga los estilos del libro, que escondían una. Como pueden ser
+   archivos distintos con el mismo dibujo, no basta comparar el nombre: se comparan las imágenes de
+   verdad, reducidas a 8x8 en blanco y negro, y si son la misma se deja solo la grande. */
+const AH = new Map();
+function aHash(im) {
+  const k = im.currentSrc || im.src || '';
+  if (k && AH.has(k)) return AH.get(k);
+  let h = null;
+  try {
+    const n = 8, cv = document.createElement('canvas');
+    cv.width = n; cv.height = n;
+    const c = cv.getContext('2d', { willReadFrequently: true });
+    c.drawImage(im, 0, 0, n, n);
+    const d = c.getImageData(0, 0, n, n).data, g = [];
+    for (let i = 0; i < n * n; i++) {
+      const al = d[i * 4 + 3] / 255;
+      /* lo transparente cuenta como blanco: si no, dos dibujos distintos con fondo claro se parecerían */
+      const v = (d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114) * al + 255 * (1 - al);
+      g.push(v);
+    }
+    /* el corte es el valor de en medio (no la media): en un dibujo a línea sobre blanco la media
+       se va hacia el blanco y la huella sale casi vacía */
+    const so = g.slice().sort((a, z) => a - z), mid = (so[31] + so[32]) / 2;
+    h = g.map(v => v > mid ? 1 : 0);
+    /* una imagen casi lisa (un color de fondo) se parecería a cualquier otra: no sirve para comparar */
+    if (so[63] - so[0] < 25) h = null;
+  } catch (e) { h = null; }
+  if (k) AH.set(k, h);
+  return h;
+}
+const hDist = (a, z) => { let n = 0; for (let i = 0; i < a.length; i++) if (a[i] !== z[i]) n++; return n; };
+/* ¿hay texto de verdad entre estas dos imágenes? */
+function textBetween(a, z) {
+  try { const r = document.createRange(); r.setStartAfter(a); r.setEndBefore(z); return !!r.toString().replace(/[\s ]/g, ''); }
+  catch (e) { return true; }
+}
+/* la imagen y, si está sola dentro, su envoltorio (para no dejar un hueco en blanco) */
+function dropImg(im) {
+  let rm = im;
+  while (rm.parentElement && rm.parentElement !== colEl && rm.parentElement.children.length === 1 && !rm.parentElement.textContent.trim()) rm = rm.parentElement;
+  rm.remove();
+}
+let twins = null;
+const imgsOf = root => [...root.querySelectorAll('img')];
+/* se busca una vez por capítulo (ya cargadas las imágenes) y se recuerda cuáles sobran */
+function findTwins() {
+  const ims = imgsOf(colEl);
+  twins = new Set();
+  for (let i = 0; i + 1 < ims.length; i++) {
+    const a = ims[i], b = ims[i + 1];
+    if (!a.isConnected || !b.isConnected) continue;
+    if (!a.naturalWidth || !b.naturalWidth) continue;
+    if (textBetween(a, b)) continue;
+    const ra = a.naturalWidth / a.naturalHeight, rb = b.naturalWidth / b.naturalHeight;
+    if (Math.abs(ra - rb) > Math.max(ra, rb) * 0.08) continue;
+    const ha = aHash(a), hb = aHash(b);
+    if (!ha || !hb || hDist(ha, hb) > 10) continue;
+    /* se queda la de más resolución */
+    const small = a.naturalWidth * a.naturalHeight >= b.naturalWidth * b.naturalHeight ? i + 1 : i;
+    twins.add(small);
+  }
+  applyTwins();
+}
+function applyTwins() {
+  if (!twins || !twins.size) return;
+  imgsOf(colEl).forEach((im, i) => { if (twins.has(i)) dropImg(im); });
 }
 function relayout(keepPct) {
   if (!el || !cur || !bk) return;
@@ -598,7 +704,7 @@ function paint() {
   paintBm();
   /* el ancla se calcula con calma (obliga a maquetar): no en el cuadro en que se pasa la página */
   curOff = null; clearTimeout(anchorT); anchorT = setTimeout(() => { curOff = anchorOff(); }, 160);
-  savePos();
+  rtMark(); savePos();
 }
 /* texto y barra de capítulos (solo con las barras visibles) */
 function showProgress(f) {
@@ -614,9 +720,15 @@ function paintSegs(f) {
     segsFor = bk;
     let st = [...new Set(bk.toc.map(x => x.i))].sort((a, z) => a - z);
     if (!st.length || st[0] > 0) st.unshift(0);
-    if (st.length > 140) { const k = Math.ceil(st.length / 140); st = st.filter((_, i) => i % k === 0); }
+    /* con muchos capítulos los tramos quedarían de un pelo: se agrupan para que se vean */
+    if (st.length > 60) { const k = Math.ceil(st.length / 60); st = st.filter((_, i) => i % k === 0); }
     segStart = st;
-    segsEl.innerHTML = st.map((a, i) => { const z = i + 1 < st.length ? bk.cum[st[i + 1]] : bk.W; return `<i style="flex:${Math.max(1, z - bk.cum[a])} 1 0"></i>`; }).join('');
+    const W = bk.W || 1;
+    segsEl.style.setProperty('--lx-sgap', (st.length > 40 ? 1 : 2) + 'px');
+    segsEl.innerHTML = st.map((a, i) => {
+      const z = i + 1 < st.length ? bk.cum[st[i + 1]] : bk.W, x = bk.cum[a];
+      return `<i style="left:${(x / W * 100).toFixed(3)}%;width:calc(${((z - x) / W * 100).toFixed(3)}% - var(--lx-sgap))"></i>`;
+    }).join('');
     segNodes = [...segsEl.children];
   }
   const pos = f * bk.W;
@@ -648,8 +760,8 @@ function wireTrack() {
     dotEl.style.transform = `translate3d(${(f * trkW).toFixed(1)}px,0,0)`;
     showProgress(f);
   };
-  /* un toque corto pasa la página (a la izquierda del punto, atrás; a la derecha, adelante);
-     si se mantiene apretado o se arrastra, el punto sigue al dedo y salta al soltar */
+  /* un toque suelto en la barra no hace nada (antes pasaba página sin querer al tocar el pie);
+     para moverse hay que arrastrar el punto o mantener apretado */
   let tap = null;
   const grab = e => { if (!tap) return; clearTimeout(tap.tm); tap = null; drag = { f: 0 }; move(at(e)); };
   trkEl.addEventListener('pointerdown', e => {
@@ -664,15 +776,7 @@ function wireTrack() {
     if (drag) move(at(e));
   });
   const end = e => {
-    if (tap) {
-      clearTimeout(tap.tm); const x = tap.x; tap = null;
-      if (e.type === 'pointercancel') return;
-      const r = dotEl.getBoundingClientRect(), c = r.left + r.width / 2;
-      if (Math.abs(x - c) < 14) return;
-      const d = x < c ? -1 : 1;
-      Promise.resolve(go(d, true)).then(() => setTimeout(() => { if (!drag && el.classList.contains('ui')) showProgress(gdone()); }, 40));
-      return;
-    }
+    if (tap) { clearTimeout(tap.tm); tap = null; return; }
     if (!drag) return;
     const f = drag.f, here = drag.here; drag = null;
     if (e.type === 'pointercancel') { paint(); return; }
@@ -692,6 +796,24 @@ async function jumpTo(f) {
 }
 
 let posT = null;
+/* ---------- tiempo de lectura ----------
+   Cada página pasada (o desplazamiento) suma el rato desde la anterior, con un máximo de 2 minutos:
+   si dejas el teléfono, no se sigue contando. Se guarda por día dentro del libro: b.rt = { 'AAAA-MM-DD': segundos }. */
+const RT_CAP = 120000;
+let rtLast = 0, rtSv = 0;
+const dayKey = d => { const x = d || new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+function rtMark(end) {
+  const now = Date.now(), b = curBook();
+  if (!b || !el || !el.classList.contains('on')) { rtLast = 0; return; }
+  if (!rtLast) { rtLast = end ? 0 : now; return; }
+  const secs = Math.min(now - rtLast, RT_CAP) / 1000;
+  rtLast = end ? 0 : now;
+  if (secs < 0.5) return;
+  const rt = b.rt || (b.rt = {}), k = dayKey();
+  rt[k] = +((rt[k] || 0) + secs).toFixed(1);
+  if (now - rtSv > 20000) { rtSv = now; try { save(); } catch (e) {} }
+}
+const rtTotal = b => { let n = 0; const rt = b && b.rt; if (rt) for (const k in rt) n += +rt[k] || 0; return n; };
 function savePos() {
   clearTimeout(posT);
   /* guardar toda la biblioteca en cada página sería pesado: se espera a que dejes de pasar páginas */
@@ -773,6 +895,7 @@ async function show(i, o) {
   move.style.transition = 'none';
   if (fadeA) { fadeA.cancel(); fadeA = null; }
   col.innerHTML = chapHtml;
+  twins = null;
   col.lang = (bk.meta && bk.meta.lang) || bk.lang || (isEn() ? 'en' : 'es');
   applyHl();
   page = 0; curOff = null;
@@ -780,6 +903,7 @@ async function show(i, o) {
   /* con imágenes, se espera a que carguen para contar bien las páginas */
   const pend = [...col.querySelectorAll('img')].filter(i => !i.complete);
   if (pend.length) await Promise.race([Promise.all(pend.map(i => new Promise(r => { i.onload = i.onerror = r; }))), sleep(1800)]);
+  findTwins();
   relayout();
   if (o.para != null) { if (o.pf != null) goPoint(o.para, o.pf); else gotoPara(o.para); }
   else if (o.end) gotoFrac(1);
@@ -1162,6 +1286,7 @@ function repaintHl() {
   const col = colEl, p = P.mode === 'scroll' ? wrapEl.scrollTop : 0;
   col.innerHTML = chapHtml;
   applyHl();
+  applyTwins();
   curlDrop();
   relayout(false);
   if (P.mode === 'scroll') wrapEl.scrollTop = p;
@@ -1305,6 +1430,64 @@ function tocPanel(tab) {
   panel(`<div class="lx-phead"><button type="button" class="lx-ico" data-x="pclose">${I.back}</button><b>${esc(t('lxToc'))}</b></div>
     <div class="lx-tabs">${tab2('ch', T('tabCh'))}${tab2('bm', T('tabMarks'), marks.length)}${tab2('hl', T('tabNotes'), hls.length)}${tab2('lk', T('tabLooks'), lks.length)}</div>
     <div class="lx-plist">${body}</div>`);
+}
+
+/* ---------- pantalla de felicitación al terminar un libro ----------
+   Sale solo al marcar como leído desde el aviso del final. La valoración y el comentario se guardan al momento. */
+let finCovU = null, finNoteT = 0;
+const fmtDur = sec => { const m = Math.round(sec / 60); if (sec < 30) return T('finLess'); return m < 60 ? m + ' min' : Math.floor(m / 60) + ' ' + T('finHr') + (m % 60 ? ' ' + (m % 60) + ' min' : ''); };
+function finStars(v) {
+  let h = '';
+  for (let i = 0; i < 5; i++) {
+    const f = Math.max(0, Math.min(1, v - i));
+    h += `<span class="lx-st"><span>★</span><b style="width:${f * 100}%">★</b><button type="button" data-fv="${i + .5}" aria-label="${i + .5}"></button><button type="button" data-fv="${i + 1}" aria-label="${i + 1}"></button></span>`;
+  }
+  return h;
+}
+function finSave(b, k, v) {
+  if (v === '' || v == null || v === 0) delete b[k]; else b[k] = v;
+  try { API.touch && API.touch(k); save(); } catch (e) {}
+}
+async function celebrate(b) {
+  const rt = b.rt || {}, keys = Object.keys(rt).sort(), tot = rtTotal(b);
+  const first = keys.length ? new Date(keys[0] + 'T00:00:00') : null;
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  const span = first && !isNaN(first) ? Math.max(1, Math.round((t0 - first) / 864e5) + 1) : 0;
+  const nh = (b.hl || []).length, tiles = [];
+  if (tot >= 30) tiles.push([fmtDur(tot), T('finTime')]);
+  if (span > 1) tiles.push([span, T('finDaysAll')]); else if (keys.length) tiles.push([keys.length, T('finDaysRd')]);
+  if (nh) tiles.push([nh, T('finHl')]); else if (span > 1 && keys.length && keys.length !== span) tiles.push([keys.length, T('finDaysRd')]);
+  let cov = '';
+  if (finCovU) { try { URL.revokeObjectURL(finCovU); } catch (e) {} finCovU = null; }
+  if (bk && bk.cover) {
+    try { const raw = await bk.bin(bk.cover.href); if (raw) finCovU = URL.createObjectURL(new Blob([raw], { type: raw.type || MIME(bk.cover.href) })); } catch (e) { finCovU = null; }
+  }
+  cov = finCovU ? `<img src="${finCovU}" alt="">` : `<div class="lx-fcl">${esc((b.title || '?').trim().charAt(0).toUpperCase())}</div>`;
+  const cols = ['#e8b84a', '#c9a6e3', '#7fc4a0', '#f08a9f', '#8ab4e8'];
+  const conf = REDUCE ? '' : Array.from({ length: 22 }, (_, i) => `<i style="left:${(i * 4.7 + (i % 3) * 3).toFixed(1)}%;background:${cols[i % 5]};animation-delay:${((i * 0.13) % 1.1).toFixed(2)}s;animation-duration:${(2 + (i % 4) * 0.35).toFixed(2)}s;--r:${(i * 47) % 360}deg"></i>`).join('');
+  panel(`<div class="lx-fin"><div class="lx-conf">${conf}</div>
+    <h2>${esc(T('finT'))}</h2><p class="lx-fsub">${esc(T('finSub'))}</p>
+    <div class="lx-fcov">${cov}</div>
+    <div class="lx-ftit">${esc(b.title || '')}${b.author ? `<small>${esc(b.author)}</small>` : ''}</div>
+    ${tiles.length ? `<div class="lx-ftiles">${tiles.map(([v, l]) => `<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join('')}</div>` : ''}
+    <div class="lx-frate"><span>${esc(T('finRate'))}</span><div id="lxFst" class="lx-fst">${finStars(+b.rating || 0)}</div></div>
+    <textarea id="lxFnote" rows="3" placeholder="${esc(T('finNotePh'))}">${esc(b.note || '')}</textarea>
+    <button type="button" class="lx-dbtn pri lx-fdone" data-x="finx">${esc(T('finDone'))}</button></div>`);
+  const st = $('#lxFst', el), ta = $('#lxFnote', el);
+  st.addEventListener('click', e => {
+    const bt = e.target.closest('[data-fv]'); if (!bt) return;
+    const v = +bt.dataset.fv; const nv = (+b.rating || 0) === v ? 0 : v;
+    finSave(b, 'rating', nv); st.innerHTML = finStars(nv);
+  });
+  ta.addEventListener('input', () => { clearTimeout(finNoteT); finNoteT = setTimeout(() => finSave(b, 'note', ta.value.trim()), 500); });
+  toast(T('markedRead'));
+}
+function finClose() {
+  const b = curBook(), ta = $('#lxFnote', el);
+  clearTimeout(finNoteT);
+  if (b && ta) finSave(b, 'note', ta.value.trim());
+  closePanel();
+  setTimeout(() => { if (finCovU) { try { URL.revokeObjectURL(finCovU); } catch (e) {} finCovU = null; } }, 400);
 }
 
 /* ---------- tarjeta de cita: el subrayado como imagen para compartir ---------- */
@@ -1505,12 +1688,15 @@ function orientBack() {
   try { const fo = API.FO && API.FO(); if (fo && fo.setOrientation) fo.setOrientation({ mode: 'auto' }); } catch (e) {}
 }
 
-function findPanel() {
+function findPanel(restore) {
   panel(`<div class="lx-phead"><button type="button" class="lx-ico" data-x="pclose">${I.back}</button><b>${esc(t('lxFind'))}</b></div>
     <div class="lx-sbox"><input id="lxQ" type="search" autocomplete="off" placeholder="${esc(t('lxFindPh'))}"></div>
     <div class="lx-plist" id="lxR"><p class="lx-note">${esc(t('lxFindHint'))}</p></div>`);
   const q = $('#lxQ', el);
-  q.focus();
+  if (restore && lastS) {
+    q.value = lastS.q; const bx = $('#lxR', el); bx.innerHTML = lastS.html || bx.innerHTML; srMarkCur();
+    const c = bx.querySelector('.cur'); if (c) c.scrollIntoView({ block: 'center' });
+  } else q.focus();
   let tm = null;
   q.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => runSearch(q.value.trim()), 350); });
   q.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(tm); runSearch(q.value.trim()); } });
@@ -1526,8 +1712,10 @@ async function runSearch(q) {
   box.innerHTML = `<p class="lx-note">${esc(t('lxSearching'))}</p>`;
   const nq = norm(q), mine = bk;
   let found = 0, html = '';
+  const S0 = lastS = { q, items: [], html: '', done: false, cur: -1 };
+  const put = h => { S0.html = h; const bx = $('#lxR', el); if (tok === searchTok && bx && lastS === S0) { bx.innerHTML = h; if (sr === S0) srMarkCur(); } };
   for (let i = 0; i < mine.spine.length; i++) {
-    if (tok !== searchTok) return;
+    if (tok !== searchTok || bk !== mine || !el || !el.classList.contains('on')) return;
     let text = '';
     try {
       const raw = await mine.grab(mine.spine[i].href);
@@ -1544,17 +1732,109 @@ async function runSearch(q) {
       const a = Math.max(0, at - 48), b = Math.min(text.length, at + nq.length + 64);
       const frag = (a > 0 ? '… ' : '') + esc(text.slice(a, at)) + '<mark>' + esc(text.slice(at, at + nq.length)) + '</mark>' + esc(text.slice(at + nq.length, b)) + (b < text.length ? ' …' : '');
       const ch = mine.toc.filter(x => x.i <= i).pop();
-      html += `<button type="button" class="lx-item" data-go="${i}" data-pct="${(at / Math.max(1, text.length)).toFixed(4)}">${frag}<small>${esc((ch && ch.label) || t('lxChapter', i + 1, mine.spine.length))}</small></button>`;
+      S0.items.push({ i, n: hits, pct: +(at / Math.max(1, text.length)).toFixed(4) });
+      if (sr === S0) srPaint();
+      html += `<button type="button" class="lx-item" data-sr="${S0.items.length - 1}" data-go="${i}" data-pct="${(at / Math.max(1, text.length)).toFixed(4)}">${frag}<small>${esc((ch && ch.label) || t('lxChapter', i + 1, mine.spine.length))}</small></button>`;
       from = at + nq.length; hits++; found++;
     }
-    if (found && (i % 3 === 0 || found >= 120)) box.innerHTML = html;
+    if (found && (i % 3 === 0 || found >= 120)) put(html);
     if (found >= 120) break;
     /* respiro para que la interfaz no se congele en libros largos */
     if (i % 4 === 3) await new Promise(r => setTimeout(r, 0));
   }
+  S0.done = true; if (sr === S0) srPaint();
   if (tok !== searchTok) return;
-  box.innerHTML = found ? html : `<p class="lx-note">${esc(t('lxNoHits'))}</p>`;
+  put(found ? html : `<p class="lx-note">${esc(t('lxNoHits'))}</p>`);
 }
+
+/* ---------- navegar entre los resultados de la búsqueda ---------- */
+const srFold1 = c => { const d = c.normalize('NFD')[0] || c; return d.toLowerCase()[0] || d; };
+function srFoldStr(str) { let o = '', sp = true; for (let j = 0; j < str.length; j++) { const c = str[j]; if (/\s/.test(c)) { if (!sp) { o += ' '; sp = true; } } else { o += srFold1(c); sp = false; } } return o.trim(); }
+/* busca en el texto ya pintado la aparición número "n" (la misma que contó la búsqueda) */
+function srFind(q, n, pct) {
+  const fq = srFoldStr(q); if (!fq) return null;
+  const w = document.createTreeWalker(colEl, NodeFilter.SHOW_TEXT);
+  let s = '', map = [], acc = 0, sp = true, node;
+  while ((node = w.nextNode())) {
+    const d = node.nodeValue;
+    for (let j = 0; j < d.length; j++) {
+      const c = d[j];
+      if (/\s/.test(c)) { if (!sp) { s += ' '; map.push(acc + j); sp = true; } }
+      else { s += srFold1(c); map.push(acc + j); sp = false; }
+    }
+    acc += d.length;
+  }
+  const at = []; let f = 0, x;
+  while ((x = s.indexOf(fq, f)) >= 0 && at.length < 400) { at.push(x); f = x + Math.max(1, fq.length); }
+  if (!at.length) return null;
+  let a = at[n];
+  if (a == null) { const tg = (pct || 0) * s.length; a = at.reduce((m, v) => Math.abs(v - tg) < Math.abs(m - tg) ? v : m, at[0]); }
+  return { s: map[a], e: map[Math.min(map.length - 1, a + fq.length - 1)] + 1 };
+}
+function srRange(s0, e0) {
+  const w = document.createTreeWalker(colEl, NodeFilter.SHOW_TEXT), rg = document.createRange();
+  let n, acc = 0, a = false;
+  while ((n = w.nextNode())) {
+    const l = n.nodeValue.length;
+    if (!a && acc + l > s0) { rg.setStart(n, s0 - acc); a = true; }
+    if (a && acc + l >= e0) { rg.setEnd(n, e0 - acc); return rg; }
+    acc += l;
+  }
+  return a ? rg : null;
+}
+function srUnmark() {
+  if (srHl) { try { CSS.highlights.delete('lx-sr'); } catch (e) {} srHl = false; }
+  if (colEl) colEl.querySelectorAll('mark.lx-srm').forEach(m => { const p = m.parentNode; if (!p) return; while (m.firstChild) p.insertBefore(m.firstChild, m); p.removeChild(m); });
+}
+/* respaldo para WebView antiguos sin resaltado por rangos: se envuelve el texto en un <mark> */
+function srWrap(s0, e0) {
+  for (const o of textNodes(colEl)) {
+    if (o.e <= s0 || o.s >= e0) continue;
+    let n = o.n; const a = Math.max(s0, o.s) - o.s, b = Math.min(e0, o.e) - o.s;
+    if (!n.data.slice(a, b).trim()) continue;
+    if (a > 0) n = n.splitText(a);
+    if (b - a < n.data.length) n.splitText(b - a);
+    const m = document.createElement('mark'); m.className = 'lx-srm';
+    n.parentNode.insertBefore(m, n); m.appendChild(n);
+  }
+}
+function srMarkAt(h) {
+  srUnmark(); if (!h) return;
+  let ok = false;
+  try { const rg = srRange(h.s, h.e); if (rg && window.CSS && CSS.highlights && window.Highlight) { CSS.highlights.set('lx-sr', new Highlight(rg)); srHl = true; ok = true; } } catch (e) {}
+  if (!ok) { try { srWrap(h.s, h.e); } catch (e) {} }
+  flashAt(h.s);
+}
+function srPaint() {
+  if (!srEl) return;
+  if (!sr) { srEl.hidden = true; return; }
+  srEl.hidden = false;
+  const n = $('#lxSrN', el); if (n) n.textContent = `${sr.cur + 1}/${sr.items.length}${sr.done ? '' : '+'}`;
+}
+function srMarkCur() {
+  const bx = $('#lxR', el); if (!bx || !sr) return;
+  bx.querySelectorAll('.cur').forEach(b => b.classList.remove('cur'));
+  const b = bx.querySelector(`[data-sr="${sr.cur}"]`); if (b && lastS === sr) b.classList.add('cur');
+}
+let srBusy = false;
+async function srGo(k, fromList) {
+  if (srBusy) return;
+  const S = fromList ? lastS : sr;
+  if (!S || !S.items.length) return;
+  srBusy = true;
+  try { await srGo2(S, k, fromList); } finally { srBusy = false; }
+}
+async function srGo2(S, k, fromList) {
+  k = Math.max(0, Math.min(S.items.length - 1, k));
+  const it = S.items[k]; if (!it) return;
+  sr = S; S.cur = k; srPaint();
+  if (fromList) { uiWas = false; closePanel(); }
+  if (it.i !== si) await show(it.i, { pct: it.pct });
+  const h = srFind(S.q, it.n, it.pct);
+  if (h) { const p = herePos(h.s); goPoint(p.k, p.f); srMarkAt(h); }
+  else if (it.i === si) gotoFrac(it.pct);
+}
+function srExit() { sr = null; srUnmark(); srPaint(); }
 
 const FONTS = {
   serif: "Georgia,'Times New Roman',serif", book: "'Noto Serif','Droid Serif',Cambria,serif",
@@ -1583,6 +1863,16 @@ function setPanel() {
       <div class="lx-row"><span>${esc(t('lxLine'))}</span><div class="lx-range"><input type="range" id="lxLh" min="12" max="22" step="1" value="${Math.round(P.lh*10)}"><b id="lxLhV">${P.lh.toFixed(1)}</b></div></div>
       <div class="lx-row"><span>${esc(t('lxMargin'))}</span><div class="lx-range"><input type="range" id="lxPd" min="10" max="46" step="2" value="${P.pad}"><b id="lxPdV">${P.pad}</b></div></div>
       <div class="lx-row"><span>${esc(T('bright'))}</span><div class="lx-range"><input type="range" id="lxBrR" min="2" max="100" step="1" value="${Math.round((P.bright != null ? P.bright : (curBright != null ? curBright : 0.5)) * 100)}"><b id="lxBrV">${P.bright == null ? esc(T('brAuto')) : Math.round(P.bright * 100) + '%'}</b></div></div>
+      <div class="lx-row"><span>${esc(T('schT'))}</span>${seg('sch',[['off',T('schOff')],['sys',T('schSys')],['time',T('schTime')]],P.sch)}</div>
+      <div id="lxSchBox"${P.sch === 'off' ? ' hidden' : ''}>
+        <div class="lx-row" id="lxSchTm"${P.sch === 'time' ? '' : ' hidden'}><span>${esc(T('schFrom'))}</span><div class="lx-tm"><input type="time" id="lxSchA" value="${esc(P.schA)}"><i>→</i><input type="time" id="lxSchB" value="${esc(P.schB)}"></div></div>
+        <div class="lx-row"><span>${esc(T('schNight'))}</span><div class="lx-th">
+          ${[['dark','#20202a','#ddd9e4'],['amoled','#000','#cfcbd6'],['sepia','#f3e9d6','#3b3222']]
+            .map(([v,bg,fg])=>`<button type="button" data-set="schTh" data-v="${v}" aria-pressed="${P.schTh===v}" style="background:${bg};color:${fg}">Aa</button>`).join('')}
+        </div></div>
+        <div class="lx-row"><span>${esc(T('schBr'))}</span><div class="lx-range"><input type="range" id="lxSchBr" min="0" max="100" step="5" value="${P.schBr}"><b id="lxSchBrV">${P.schBr > 0 ? P.schBr + '%' : esc(T('schNoBr'))}</b></div></div>
+        <p class="lx-note" style="margin:2px 0 6px">${esc(T('schHint'))}</p>
+      </div>
       <div class="lx-row"><span>${esc(T('lxMode'))}</span>${seg('mode',[['page',T('lxModePage')],['scroll',T('lxModeScroll')]],P.mode)}</div>
       <div class="lx-row"><span>${esc(T('lxParas'))}</span>${seg('paras',[['indent',T('parInd')],['spaced',T('parSp')]],P.paras === 'spaced' ? 'spaced' : 'indent')}</div>
       <div class="lx-row" id="lxColsRow"${P.mode === 'page' ? '' : ' hidden'}><span>${esc(T('lxCols'))}</span>${seg('cols',[['2',T('colsTwo')],['1',T('colsOne')]],String(P.cols) === '1' ? 1 : 2)}</div>
@@ -1597,6 +1887,12 @@ function setPanel() {
   bind('lxFs','lxFsV', mk(v => { P.fs = v; }, v => v));
   bind('lxLh','lxLhV', mk(v => { P.lh = v / 10; }, v => (v / 10).toFixed(1)));
   bind('lxPd','lxPdV', mk(v => { P.pad = v; }, v => v));
+  const sa = $('#lxSchA', el), sb = $('#lxSchB', el), sbr = $('#lxSchBr', el);
+  [[sa, 'schA'], [sb, 'schB']].forEach(([inp, k]) => inp && inp.addEventListener('change', () => { if (/^\d{1,2}:\d{2}$/.test(inp.value)) { P[k] = inp.value; savePrefs(); schTick(true); } }));
+  if (sbr) {
+    sbr.addEventListener('input', () => { P.schBr = +sbr.value; $('#lxSchBrV', el).textContent = P.schBr > 0 ? P.schBr + '%' : T('schNoBr'); });
+    sbr.addEventListener('change', () => { savePrefs(); if (P.schS === 'night') schTick(true); });
+  }
   const br = $('#lxBrR', el);
   if (br) {
     br.addEventListener('input', () => { setBright(br.value / 100); $('#lxBrV', el).textContent = br.value + '%'; });
@@ -2202,6 +2498,7 @@ function refineSel(al, m, q, tr, lgT) {
 /* Cambiar de versión. Sin selección: el sitio equivalente al principio de la página.
    Con selección: el párrafo equivalente a lo seleccionado (afinado con internet si hay). */
 async function switchVer(sel) {
+  srExit();
   const b = curBook();
   if (!b || !b.file2 || busy || swapping) return;
   const from = ver, to = 1 - ver, move = moveEl;
@@ -2322,6 +2619,8 @@ function onTap(e) {
       const cr = $('#lxColsRow', el); if (cr) cr.hidden = P.mode !== 'page';
       relayout(false); gotoFrac(f);
     } else applyPrefs();
+    if (s.dataset.set === 'sch') { const bx = $('#lxSchBox', el); if (bx) bx.hidden = P.sch === 'off'; const tm = $('#lxSchTm', el); if (tm) tm.hidden = P.sch !== 'time'; schTick(true); }
+    if (s.dataset.set === 'schTh') schTick(true);
     if (s.dataset.set === 'anim') curlWarm();
     if (s.dataset.set === 'cols' || s.dataset.set === 'paras' || s.dataset.set === 'font') { ensureOff(); relayout(true); }
     return;
@@ -2336,6 +2635,8 @@ function onTap(e) {
   if (rk) { const x = ((curBook() || {}).looks || []).find(z => z.id === rk.dataset.relk); if (x) lookUp(x.q, x.k); return; }
   const rh = e.target.closest('[data-rmh]');
   if (rh) { const b = curBook(); b.hl = b.hl.filter(h => h.id !== rh.dataset.rmh); if (!b.hl.length) delete b.hl; try { save(); } catch (e2) {} repaintHl(); return tocPanel('hl'); }
+  const sg = e.target.closest('[data-sr]');
+  if (sg) { srGo(+sg.dataset.sr, true); return; }
   const g = e.target.closest('[data-go]');
   if (g) {
     let pct = g.dataset.pct != null ? +g.dataset.pct : null;
@@ -2364,6 +2665,10 @@ function onTap(e) {
     case 'pclose': return closePanel();
     case 'toc': return tocPanel('ch');
     case 'find': return findPanel();
+    case 'srprev': return sr && srGo((sr.cur - 1 + sr.items.length) % sr.items.length);
+    case 'srnext': return sr && srGo((sr.cur + 1) % sr.items.length);
+    case 'srlist': return findPanel(true);
+    case 'srx': return srExit();
     case 'set': return setPanel();
     case 'prev': return go(-1);
     case 'next': return go(1);
@@ -2394,7 +2699,8 @@ function onTap(e) {
     case 'trate': { const rs = [0.8, 1, 1.25, 1.5, 2]; P.rate = rs[(rs.indexOf(P.rate) + 1) % rs.length]; savePrefs(); if (tts && !tts.paused) ttsGo(tts.k); else ttsDock(); return; }
     case 'tstop': return ttsStop();
     case 'dockx': hlEdit = null; return hideDock();
-    case 'finyes': { const b = curBook(); if (b) { API.markRead(b); toast(T('markedRead')); } return hideDock(); }
+    case 'finyes': { const b = curBook(); hideDock(); if (b) { API.markRead(b); celebrate(b); } return; }
+    case 'finx': return finClose();
     case 'finish': return askFinish(true);
     case 'hl': return addHl(x.dataset.c, '');
     case 'hlc': { const b = curBook(); if (hlEdit) { hlEdit.c = x.dataset.c; try { save(); } catch (e2) {} repaintHl(); openHlEditor(hlEdit.id); } return; }
@@ -2473,6 +2779,34 @@ function brightBack() {
   if (P.bright == null || !nativeBr()) return;
   try { API.FO().brightness({ value: -1 }).catch(() => {}); } catch (e) {}
 }
+/* ---------- modo y brillo según la hora ---------- */
+let schT = 0;
+function schWant() {
+  if (P.sch === 'sys') { try { return matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day'; } catch (e) { return null; } }
+  if (P.sch !== 'time') return null;
+  const mn = v => { const m = /^(\d{1,2}):(\d{2})$/.exec(v || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+  const a = mn(P.schA), b = mn(P.schB); if (a == null || b == null || a === b) return null;
+  const d = new Date(), m = d.getHours() * 60 + d.getMinutes();
+  return (a < b ? (m >= a && m < b) : (m >= a || m < b)) ? 'night' : 'day';
+}
+/* de noche pone el tema y el brillo elegidos; de día vuelve a los de siempre (los guarda al entrar en la noche) */
+function schTick(force) {
+  if (!el) return;
+  if (!P.sch || P.sch === 'off') { if (P.schS) { P.schS = ''; savePrefs(); } return; }
+  const w = schWant(); if (!w) return;
+  if (w === P.schS && !force) return;
+  if (w === 'night') {
+    if (P.schS !== 'night') { P.dayTh = P.theme; P.dayBr = P.bright; }
+    P.theme = P.schTh || 'dark';
+    if (P.schBr > 0) setBright(P.schBr / 100);
+  } else if (P.schS === 'night') {
+    if (P.dayTh) P.theme = P.dayTh;
+    setBright(P.dayBr == null ? null : P.dayBr);
+  }
+  P.schS = w; savePrefs(); applyPrefs();
+  const tb = panelEl && panelEl.querySelectorAll('[data-set="theme"]');
+  if (tb) tb.forEach(b2 => b2.setAttribute('aria-pressed', String(b2.dataset.v === P.theme)));
+}
 function copyText(s, quiet) {
   const ok = () => { if (!quiet) toast(T('copied')); };
   try { navigator.clipboard.writeText(s).then(ok, () => {}); }
@@ -2505,13 +2839,13 @@ function close() {
   orientBack(); brightBack();
   lockPage(false);
   ttsStop();
-  if (bk) writePos();
-  closePanel(); hideMenu(); hideDock();
+  if (bk) { rtMark(true); writePos(); }
+  closePanel(); hideMenu(); hideDock(); srExit(); lastS = null; clearInterval(schT);
   el.classList.remove('on');
   document.removeEventListener('keydown', onKey);
   setTimeout(() => {
     urlCache.forEach(u => { try { URL.revokeObjectURL(u); } catch (e) {} });
-    urlCache.clear();
+    urlCache.clear(); AH.clear(); twins = null;
     const c = colEl; if (c) c.innerHTML = '';
     curlDrop();
     bk = null; bks = [null, null]; cur = null; chapHtml = '';
@@ -2534,8 +2868,8 @@ async function open(b) {
   cur = b.id; openedAt = performance.now();
   const p0 = b.pos && typeof b.pos.i === 'number' ? b.pos : { i: 0, p: 0 };
   ver = p0.v === 1 && b.file2 ? 1 : 0;
-  bks = [null, null]; selInfo = null; hlEdit = null; finAsked = false; lastSwap = null; alP = null; alFor = '';
-  applyPrefs();
+  bks = [null, null]; selInfo = null; hlEdit = null; finAsked = false; lastSwap = null; alP = null; alFor = ''; sr = null; lastS = null; srPaint();
+  applyPrefs(); schTick(); clearInterval(schT); schT = setInterval(() => { if (el && el.classList.contains('on') && !document.hidden) schTick(); }, 30000);
   titleEl.textContent = b.title || ''; authEl.textContent = b.author || ''; chapEl.textContent = '';
   colEl.innerHTML = '';
   loadEl.hidden = false;
@@ -2555,7 +2889,7 @@ async function open(b) {
     const sameVer = (p0.v === 1 ? 1 : 0) === ver;
     await show(Math.min(p0.i, bk.spine.length - 1), { pct: p0.p || 0, off: sameVer && typeof p0.o === 'number' ? p0.o : null, noSkip: p0.i > 0 || p0.p > 0 || !!p0.o });
   } catch (e) { busy = false; loadErr(e); return; }
-  openedAt = performance.now();
+  openedAt = performance.now(); rtLast = Date.now();
   startBright();
   setTimeout(labelVers, 1200);
   setTimeout(() => { if (bk) markJunk(bk); }, 900);
@@ -2565,7 +2899,7 @@ async function open(b) {
 }
 
 /* guardar ya (la app se va a segundo plano o la quitan de recientes) */
-function saveNow() { if (el && el.classList.contains('on') && bk) { clearTimeout(posT); writePos(); } }
+function saveNow() { if (el && el.classList.contains('on') && bk) { clearTimeout(posT); rtMark(true); writePos(); } }
 window.__LECTOR__ = { open, close, back, save: saveNow, isOpen: () => !!(el && el.classList.contains('on')) };
-if (window.__LXTEST__) window.__LXTEST__.lx = { where: () => alWhere, getAlign, alPos, herePos, paraMap, refineSel, isoOf, webTr, state: () => ({ ver, si, page, pages }) };
+if (window.__LXTEST__) window.__LXTEST__.lx = { where: () => alWhere, getAlign, alPos, herePos, paraMap, refineSel, isoOf, webTr, state: () => ({ ver, si, page, pages, busy, curling }) };
 })();
